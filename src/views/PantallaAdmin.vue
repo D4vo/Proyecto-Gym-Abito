@@ -73,6 +73,14 @@
           <i class="fas fa-envelope-square icon"></i>
           Avisos
         </button>
+        <button
+          class="menu-btn"
+          :class="{ activo: vistaActiva === 'empleados' }"
+          @click="cambiarVista('empleados')"
+        >
+          <i class="fas fa-envelope-square icon"></i>
+          Empleados
+        </button>
       </Sidebar>
 
       <NavbarMobile
@@ -145,6 +153,14 @@
           <i class="fas fa-envelope-square icon"></i>
           Avisos
         </button>
+        <button
+          class="menu-btn"
+          :class="{ activo: vistaActiva === 'empleados' }"
+          @click="cambiarVista('empleados')"
+        >
+          <i class="fas fa-envelope-square icon"></i>
+          Empleados
+        </button>
       </NavbarMobile>
 
       <div class="contenido" :class="{ 'contenido-mobile': isMobile, 'sidebar-collapsed': isSidebarCollapsed && !isMobile }">
@@ -154,6 +170,7 @@
             :key="vistaSecundaria ? (datosSecundarios?.id || datosSecundarios?.dni) : vistaActiva"
             :alumno-seleccionado="vistaSecundaria === 'infoAlumno' ? datosSecundarios : undefined"
             :personaSeleccionada="vistaSecundaria === 'ingresoPersona' ? datosSecundarios : undefined"
+            :empleado-seleccionado="vistaSecundaria === 'infoEmpleado' ? datosSecundarios : undefined"
             @ver-alumno="verAlumno"
             @volver-alumnos="volverAlumnos"
             @verIngreso="verIngresoPersona"
@@ -161,6 +178,9 @@
             @ingresoConfirmado="manejarIngresoConfirmado"
             @nuevoIngresoConfirmado="irAAlumnos"
             @cancelarIngreso="irADashboard"
+            @ver-empleado-seleccionado="MostrarInfoEmpelado"
+            @volver-empleados="volverEmpleados"
+            @NuevoEmpleado="MostrarNuevoEmpleado"
           />
           </Transition>
       </div>  
@@ -208,6 +228,9 @@ import Dashboard from '@/components/Administracion/Admin/Dashboard.vue'
 import NuevoAlumno from '@/components/Administracion/Admin/NuevoAlumno.vue';
 import ModificarGrupos from '@/components/Administracion/Admin/Grupos/ModificarGrupos.vue';
 import Avisos from '@/components/Administracion/Admin/Avisos/AdminAvisos.vue';
+import Empleados from '@/components/Administracion/Admin/Empleados/Empleados.vue';
+import InfoEmpleado from '@/components/Administracion/Admin/Empleados/InfoEmpleado.vue';
+import NuevoEmpelado from '@/components/Administracion/Admin/Empleados/NuevoEmpelado.vue';
 // *** ===================== NUEVO: Importar Personas e IngresoPersona ===================== ***
 // *** USA TUS RUTAS CORRECTAS ***
 import Personas from '@/components/Administracion/Admin/Personas.vue'
@@ -303,6 +326,14 @@ const vistaComponente = computed(() => {
     return IngresoPersona;
   }
 
+  if (vistaSecundaria.value === 'infoEmpleado') {
+    return InfoEmpelado;
+  }
+
+  if (vistaSecundaria.value === 'nuevoEmpleado') {
+    return NuevoEmpleado;
+  }
+
   switch (vistaActiva.value) {
     case 'alumnos': return Alumnos;
     case 'suscripciones': return Suscripciones;
@@ -312,6 +343,9 @@ const vistaComponente = computed(() => {
     case 'nuevoalumno': return NuevoAlumno;
     case 'modificarGrupos': return ModificarGrupos;
     case 'avisos': return Avisos;
+    case 'empleados': return Empleados;
+    case 'infoEmpleado': return InfoEmpleado;
+    case 'nuevoEmpleado': return NuevoEmpelado;
     default: return Dashboard;
   }
 })
@@ -335,6 +369,26 @@ const irAAlumnos = () => {
 
 const irADashboard= () => {
   cambiarVista('Dashboard');
+}
+
+
+//Logica PARA MSOTRAR TODO LO DE LOS EMPELADOS
+const MostrarInfoEmpelado = (empleado) => {
+  console.log("Datos recibidos en PantallaAdmin:", empleado);
+  datosSecundarios.value = empleado;
+  vistaSecundaria.value = 'infoEmpleado';
+  vistaActiva.value = 'empleados'; // Mantiene 'Empleados' activo en el sidebar
+}
+const volverEmpleados = () => {
+  vistaSecundaria.value = null;
+  datosSecundarios.value = null;
+  vistaActiva.value = 'empleados';
+}
+
+const MostrarNuevoEmpleado = () => {
+  datosSecundarios.value = null; // No hay datos que pasar
+  vistaSecundaria.value = 'nuevoEmpleado';
+  vistaActiva.value = 'empleados';
 }
 </script>
 
