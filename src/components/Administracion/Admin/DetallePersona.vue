@@ -2,8 +2,16 @@
   <div>
     <div class="tarjeta-header">
       <div class="info-principal">
-        <h2 class="nombre-completo">{{ datos.nombre || 'N/A' }} {{ datos.apellido || 'N/A' }}</h2>
+
+        <div class="header-nombre-rol">
+          <h2 class="nombre-completo">{{ datos.nombre || 'N/A' }} {{ datos.apellido || 'N/A' }}</h2>
+          <p v-if="datos.rol" class="rol-empleado">
+            <i class="fas fa-briefcase"></i>
+            {{ datos.rol }}
+          </p>
+        </div>
         <p class="dni-persona">{{ datos.dni ? `DNI: ${datos.dni}` : 'DNI no disponible' }}</p>
+
       </div>
       <template v-if="datos.hasOwnProperty('activo')">
         <div class="estado-alumno">
@@ -156,6 +164,27 @@ const props = defineProps({
   font-weight: 600;
 }
 
+/* ============================================= */
+/* ===    ESTILO PARA LA ETIQUETA DE 'ROL'     === */
+/* ============================================= */
+.rol-empleado {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #d32f2f; /* Color rojo del proyecto */
+  color: white;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px; /* Forma de píldora */
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 0.5rem 0; /* Espacio entre nombre y DNI */
+}
+.rol-empleado i {
+  opacity: 0.9;
+}
+/* ============================================= */
+
+
 .dni-persona { /* Clase genérica para DNI */
   font-size: 1rem; /* Ajustado */
   color: #6c757d;
@@ -303,6 +332,25 @@ const props = defineProps({
     font-size: 0.9rem;
 }
 
+.header-nombre-rol {
+  display: flex;
+  align-items: center; /* Alinea verticalmente el nombre y el badge */
+  gap: 1rem;          /* Espacio entre el nombre y el badge */
+  flex-wrap: wrap;    /* Si la pantalla es muy chica, el rol pasa abajo */
+}
+
+/* 2. Ajustamos los márgenes del h2 y el p */
+.nombre-completo {
+  margin: 0; /* Quitamos el margen inferior original */
+}
+.rol-empleado {
+  margin: 0; /* Quitamos los márgenes verticales originales */
+}
+
+/* 3. Ajustamos el DNI para que tenga el espacio superior correcto */
+.dni-persona {
+  margin-top: 0.5rem;
+}
 
 /* Responsive */
 @media (max-width: 768px) {
@@ -361,9 +409,9 @@ const props = defineProps({
   .celda.etiqueta:empty, .celda.valor:empty {
       display: none;
   }
-   .fila-tabla:last-child .celda:not(:empty):last-child {
-       border-bottom: none;
-   }
+  .fila-tabla:last-child .celda:not(:empty):last-child {
+    border-bottom: none;
+  }
   .separador-seccion {
     margin: 1.5rem 0;
   }

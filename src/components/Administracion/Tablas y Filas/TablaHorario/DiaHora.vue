@@ -18,10 +18,16 @@
       
       <!-- Modo Edición -->
       <div v-else class="modo-edicion">
-        <div class="info-cupos">
+        
+        <!-- ========================================================= -->
+        <!-- ===      MODIFICACIÓN: Ocultar cupos si es Empleado     === -->
+        <!-- ========================================================= -->
+        <div v-if="!props.modoEmpleado" class="info-cupos">
           <span class="texto-cupos">Cupos:</span>
           <span class="numero-cupos">{{ displayedCupos }}</span>
         </div>
+        <!-- ========================================================= -->
+        
         <div class="estado-celda" :class="estadoClase">
           <i class="icono-estado" :class="iconoClase"></i>
         </div>
@@ -39,45 +45,67 @@ const props = defineProps({
   cuposDisponibles: Number,
   seleccionado: Boolean,
   modoEdicion: Boolean,
-  disponible: Boolean
+  disponible: Boolean,
+  modoEmpleado: Boolean // <-- 1. ACEPTAR LA NUEVA PROP
 })
 
 const emit = defineEmits(['seleccionar'])
 
-const clasesCelda = computed(() => ({
-  'seleccionado': props.seleccionado,
-  'disponible': props.modoEdicion && props.disponible,
-  'no-disponible': props.modoEdicion && !props.disponible,
-  'modo-visualizacion': !props.modoEdicion,
-  'mobile-seleccionado': props.seleccionado // Nueva clase para móviles
-}))
+const clasesCelda = computed(() => {
+  // Si es modo empleado, 'disponible' es siempre true (ignora cupos)
+  const estaDisponible = props.modoEmpleado ? true : props.disponible;
+
+  return {
+    'seleccionado': props.seleccionado,
+    'disponible': props.modoEdicion && estaDisponible,
+    'no-disponible': props.modoEdicion && !estaDisponible,
+    'modo-visualizacion': !props.modoEdicion,
+    'mobile-seleccionado': props.seleccionado,
+    'modo-empleado': props.modoEmpleado // Clase para centrar el icono
+  }
+})
 
 const estadoClase = computed(() => {
-  if (!props.disponible) return 'estado-no-disponible'
+  const estaDisponible = props.modoEmpleado ? true : props.disponible;
+  if (!estaDisponible) return 'estado-no-disponible'
   if (props.seleccionado) return 'estado-seleccionado'
   return 'estado-disponible'
 })
 
 const iconoClase = computed(() => {
-  if (!props.disponible) return 'fas fa-lock'
+  const estaDisponible = props.modoEmpleado ? true : props.disponible;
+  if (!estaDisponible) return 'fas fa-lock'
   if (props.seleccionado) return 'fas fa-check'
   return 'fas fa-plus'
 })
 
+
+// =========================================================
+// ===     MODIFICACIÓN: Permitir click si es Empleado     ===
+// =========================================================
 const manejarClick = () => {
-  if (props.modoEdicion && props.disponible) {
+  if (!props.modoEdicion) return;
+
+  // 2. Si es modo empleado, ignora la prop 'disponible' y permite el click
+  if (props.modoEmpleado) {
+    emit('seleccionar', props.dia, props.horario, !props.seleccionado)
+    return;
+  }
+  
+  // Lógica original para alumnos
+  if (props.disponible) {
     emit('seleccionar', props.dia, props.horario, !props.seleccionado)
   }
 }
+// =========================================================
+
 
 const displayedCupos = computed(() => {
-  // Si estamos en modo edición y la celda está seleccionada
+  // Esta lógica no se ejecutará visualmente en modoEmpleado
+  // porque el div estará oculto (v-if="!props.modoEmpleado")
   if (props.modoEdicion && props.seleccionado) {
-    // Retornamos los cupos originales menos 1
-    // (La lógica en TablaHorarios ya previene seleccionar si cuposDisponibles es 0)
     return props.cuposDisponibles - 1;
   }
-  // En cualquier otro caso, mostramos el número original
   return props.cuposDisponibles;
 })
 </script>
@@ -139,9 +167,24 @@ const displayedCupos = computed(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: center; /* Centrado original (con cupos) */
   padding: 0.3rem;
 }
+
+/* ========================================================= */
+/* ===    MODIFICACIÓN: Centrar icono en modo Empleado     === */
+/* ========================================================= */
+.dia-hora.modo-empleado .modo-edicion {
+  justify-content: center; /* Centra el icono verticalmente */
+}
+.dia-hora.modo-empleado .estado-celda {
+  margin-top: 0; /* Quita el margen que tenía */
+}
+.dia-hora.modo-empleado .icono-estado {
+  font-size: 1.2rem; /* Lo hacemos un poco más grande */
+}
+/* ========================================================= */
+
 
 .info-cupos {
   display: flex;
@@ -199,6 +242,7 @@ const displayedCupos = computed(() => {
   opacity: 0.6;
 }
 
+/* En modo empleado, esta clase no se aplicará, pero la dejamos */
 .dia-hora.no-disponible .numero-cupos {
   color: #999;
 }
@@ -239,6 +283,11 @@ const displayedCupos = computed(() => {
   
   .icono-estado {
     font-size: 0.8rem;
+  }
+
+  /* Centrado en móvil para modo empleado */
+  .dia-hora.modo-empleado .icono-estado {
+    font-size: 1rem;
   }
   
   /* Indicador visual claro para móviles */

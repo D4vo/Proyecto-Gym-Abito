@@ -78,7 +78,7 @@
           :class="{ activo: vistaActiva === 'empleados' }"
           @click="cambiarVista('empleados')"
         >
-          <i class="fas fa-envelope-square icon"></i>
+          <i class="fas fa-people-carry icon"></i>
           Empleados
         </button>
       </Sidebar>
@@ -158,7 +158,7 @@
           :class="{ activo: vistaActiva === 'empleados' }"
           @click="cambiarVista('empleados')"
         >
-          <i class="fas fa-envelope-square icon"></i>
+          <i class="fas fa-people-carry icon"></i>
           Empleados
         </button>
       </NavbarMobile>
@@ -181,6 +181,8 @@
             @ver-empleado-seleccionado="MostrarInfoEmpelado"
             @volver-empleados="volverEmpleados"
             @NuevoEmpleado="MostrarNuevoEmpleado"
+            @cancelar-nuevo-empleado="volverEmpleados"
+            @operacionFinalizada="volverEmpleados"
           />
           </Transition>
       </div>  
@@ -230,7 +232,7 @@ import ModificarGrupos from '@/components/Administracion/Admin/Grupos/ModificarG
 import Avisos from '@/components/Administracion/Admin/Avisos/AdminAvisos.vue';
 import Empleados from '@/components/Administracion/Admin/Empleados/Empleados.vue';
 import InfoEmpleado from '@/components/Administracion/Admin/Empleados/InfoEmpleado.vue';
-import NuevoEmpelado from '@/components/Administracion/Admin/Empleados/NuevoEmpelado.vue';
+import NuevoEmpleado from '@/components/Administracion/Admin/Empleados/NuevoEmpelado.vue';
 // *** ===================== NUEVO: Importar Personas e IngresoPersona ===================== ***
 // *** USA TUS RUTAS CORRECTAS ***
 import Personas from '@/components/Administracion/Admin/Personas.vue'
@@ -327,7 +329,7 @@ const vistaComponente = computed(() => {
   }
 
   if (vistaSecundaria.value === 'infoEmpleado') {
-    return InfoEmpelado;
+    return InfoEmpleado;
   }
 
   if (vistaSecundaria.value === 'nuevoEmpleado') {
@@ -344,8 +346,6 @@ const vistaComponente = computed(() => {
     case 'modificarGrupos': return ModificarGrupos;
     case 'avisos': return Avisos;
     case 'empleados': return Empleados;
-    case 'infoEmpleado': return InfoEmpleado;
-    case 'nuevoEmpleado': return NuevoEmpelado;
     default: return Dashboard;
   }
 })

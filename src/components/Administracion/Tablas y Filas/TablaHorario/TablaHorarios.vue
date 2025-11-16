@@ -15,7 +15,7 @@
           {{ textoBoton }}
         </button>
         
-        <div v-if="modoEdicion" class="contador-seleccion">
+        <div v-if="modoEdicion && !props.modoEmpleado" class="contador-seleccion">
           <span class="contador-texto">
             {{ horariosSeleccionados.length }}/{{ limiteDias }} días seleccionados
           </span>
@@ -44,21 +44,22 @@
           v-for="horarioObj in horariosProcesados"
           :key="horarioObj.nroGrupo"
           :horario-obj="horarioObj"
-          :dias="DIAS_SEMANA" :horarios-seleccionados="horariosSeleccionados"
+          :dias="DIAS_SEMANA" 
+          :horarios-seleccionados="horariosSeleccionados"
           :modo-edicion="modoEdicion"
-          @seleccionar="manejarSeleccion"
+          :modo-empleado="props.modoEmpleado" @seleccionar="manejarSeleccion"
         />
       </div>
     </div>
 
     <div v-else class="tabla-mobile">
       <div class="mobile-contenedor">
-        <div class="mobile-instructions" v-if="modoEdicion">
+        <div class="mobile-instructions" v-if="modoEdicion && !props.modoEmpleado">
           <i class="fas fa-info-circle"></i>
           <p>Selecciona {{ limiteDias }} días diferentes para completar tu horario</p>
         </div>
         
-        <div v-if="modoEdicion" class="mobile-selection-info">
+        <div v-if="modoEdicion && !props.modoEmpleado" class="mobile-selection-info">
           <div class="selection-count">
             <span class="count-number">{{ horariosSeleccionados.length }}</span>
             <span class="count-text">/{{ limiteDias }} días seleccionados</span>
@@ -75,7 +76,7 @@
             <div class="dia-info">
               <i class="fas fa-calendar-day"></i>
               <span class="dia-nombre">{{ dia }}</span>
-              <span v-if="modoEdicion" class="dia-cupos">
+              <span v-if="modoEdicion && !props.modoEmpleado" class="dia-cupos">
                 • {{ obtenerTotalCuposDia(dia) }} cupos
               </span>
             </div>
@@ -103,7 +104,7 @@
                 >
                   <div class="horario-info">
                     <span class="horario-texto">{{ horarioObj.horario.replace('-', ' a ') }}</span>
-                    <span class="cupos-mobile">
+                    <span class="cupos-mobile" v-if="!props.modoEmpleado">
                       {{ obtenerCuposDia(dia, horarioObj) }} cupos
                     </span>
                   </div>
@@ -150,6 +151,10 @@ const props = defineProps({
   modoEmbebido: {
     type: Boolean,
     default: false
+  },
+  modoEmpleado: {
+    type: Boolean,
+    default: false
   }
 });
 const emit = defineEmits(['horarios-actualizados']);
@@ -160,7 +165,6 @@ const horariosSeleccionados = ref([]);
 const diaExpandido = ref(null);
 const datosListos = ref(false);
 
-// --- MODIFICADO: Lista fija de días ---
 const DIAS_SEMANA = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
 
 // --- (horariosProcesados sin cambios) ---
@@ -252,46 +256,66 @@ const cargarDatos = async () => {
   }
 };
 
-// --- (Computed Properties sin cambios, EXCEPTO diasUnicos) ---
+// --- (Computed Properties sin cambios, ya manejan modoEmpleado) ---
 const esSuscripcionLibre = computed(() => props.suscripcion.toLowerCase().includes('libre'));
 const limiteDias = computed(() => {
+    if (props.modoEmpleado) return Infinity; 
     if (esSuscripcionLibre.value) return 0;
     const match = props.suscripcion.match(/\d+/);
     return match ? parseInt(match[0]) : 3;
 });
-// --- ELIMINADO diasUnicos ---
-// const diasUnicos = computed(() => { ... }); 
 const textoBoton = computed(() => modoEdicion.value ? 'Guardar Cambios' : 'Modificar Horarios');
 const iconoBoton = computed(() => modoEdicion.value ? 'fa-save' : 'fa-edit');
 const esSeleccionValida = computed(() => {
+    if (props.modoEmpleado) return true; 
     if (!modoEdicion.value) return true;
     return horariosSeleccionados.value.length === limiteDias.value;
 });
 
-// --- (Métodos Mobile sin cambios) ---
+// --- (Métodos Mobile MODIFICADOS) ---
 const getClasesHorarioMobile = (dia, horarioObj) => {
-    const cupos = obtenerCuposDia(dia, horarioObj);
     const estaSeleccionadoActual = estaSeleccionado(dia, horarioObj.horario); 
     if (!modoEdicion.value) {
         return { 'asignado': estaSeleccionadoActual, 'no-asignado': !estaSeleccionadoActual };
-    } else {
+    }
+    
+    // --- LÓGICA MODIFICADA ---
+    if (props.modoEmpleado) {
+        // En modo empleado, solo importa si está seleccionado o disponible
         return {
             'seleccionado': estaSeleccionadoActual,
-            'disponible': cupos > 0 && !estaSeleccionadoActual,
-            'no-disponible': cupos === 0 && !estaSeleccionadoActual
+            'disponible': !estaSeleccionadoActual
         };
     }
-};
-const getIconoHorarioMobile = (dia, horarioObj) => {
+    // --- FIN LÓGICA MODIFICADA ---
+
+    // Lógica original para alumnos
     const cupos = obtenerCuposDia(dia, horarioObj);
+    return {
+        'seleccionado': estaSeleccionadoActual,
+        'disponible': cupos > 0 && !estaSeleccionadoActual,
+        'no-disponible': cupos === 0 && !estaSeleccionadoActual
+    };
+};
+
+const getIconoHorarioMobile = (dia, horarioObj) => {
     const estaSeleccionadoActual = estaSeleccionado(dia, horarioObj.horario); 
     if (!modoEdicion.value) {
         return estaSeleccionadoActual ? 'fas fa-check asignado' : 'fas fa-minus no-asignado';
-    } else {
-        if (estaSeleccionadoActual) return 'fas fa-check-circle seleccionado';
-        if (cupos === 0) return 'fas fa-lock no-disponible';
+    }
+    
+    if (estaSeleccionadoActual) return 'fas fa-check-circle seleccionado';
+
+    // --- LÓGICA MODIFICADA ---
+    if (props.modoEmpleado) {
+        // En modo empleado, nunca está "no disponible" (lock)
         return 'fas fa-plus-circle disponible';
     }
+    // --- FIN LÓGICA MODIFICADA ---
+    
+    const cupos = obtenerCuposDia(dia, horarioObj);
+    if (cupos === 0) return 'fas fa-lock no-disponible';
+    return 'fas fa-plus-circle disponible';
 };
 const obtenerAsignadosDia = (dia) => { return horariosSeleccionados.value.filter(h => h.dia === dia); };
 
@@ -316,37 +340,54 @@ const toggleModoEdicion = () => {
   }
 };
 
-// --- (Métodos de Selección sin cambios) ---
+// --- (manejarSeleccion (Desktop) sin cambios, ya maneja modoEmpleado) ---
 const manejarSeleccion = (horario, seleccionado) => {
   if (!modoEdicion.value) return;
   const dia = horario.dia;
   const horarioStr = horario.horario;
   const yaSeleccionado = estaSeleccionado(dia, horarioStr);
+  
   if (yaSeleccionado) {
     horariosSeleccionados.value = horariosSeleccionados.value.filter(h => !(h.dia === dia && h.horario === horarioStr));
   } else {
-    horariosSeleccionados.value = horariosSeleccionados.value.filter(h => h.dia !== dia);
+    if (!props.modoEmpleado) {
+      horariosSeleccionados.value = horariosSeleccionados.value.filter(h => h.dia !== dia);
+    }
     if (horariosSeleccionados.value.length < limiteDias.value) {
         horariosSeleccionados.value.push({ dia, horario: horarioStr });
     }
   }
 };
+
+// --- (manejarSeleccionMobile MODIFICADO) ---
 const manejarSeleccionMobile = (dia, horario) => {
   if (!modoEdicion.value) return;
   const horarioObjCompleto = horariosProcesados.value.find(h => h.horario === horario);
   if (!horarioObjCompleto) return;
-  const cupos = obtenerCuposDia(dia, horarioObjCompleto);
   const yaSeleccionado = estaSeleccionado(dia, horario);
-  if (cupos === 0 && !yaSeleccionado) return;
+  
+  // --- LÓGICA MODIFICADA ---
+  // Si NO es modo empleado, aplicamos la restricción de cupos
+  if (!props.modoEmpleado) {
+      const cupos = obtenerCuposDia(dia, horarioObjCompleto);
+      if (cupos === 0 && !yaSeleccionado) return; // Bloquea si no hay cupos
+  }
+  // Si ES modo empleado, esta comprobación se ignora y se permite seleccionar.
+  // --- FIN LÓGICA MODIFICADA ---
+
   if (yaSeleccionado) {
       horariosSeleccionados.value = horariosSeleccionados.value.filter(h => !(h.dia === dia && h.horario === horario));
   } else {
-      horariosSeleccionados.value = horariosSeleccionados.value.filter(h => h.dia !== dia);
+      if (!props.modoEmpleado) {
+        horariosSeleccionados.value = horariosSeleccionados.value.filter(h => h.dia !== dia);
+      }
       if (horariosSeleccionados.value.length < limiteDias.value) {
           horariosSeleccionados.value.push({ dia, horario });
       }
   }
 };
+
+// --- (Resto de métodos y hooks sin cambios) ---
 const toggleDiaMobile = (dia) => { diaExpandido.value = diaExpandido.value === dia ? null : dia; };
 const obtenerCuposDia = (dia, horarioObj) => {
   if (!horarioObj || !horarioObj.dias_asignados) return 0;
@@ -365,7 +406,6 @@ const estaSeleccionado = (dia, horario) => {
 };
 const checkIsMobile = () => { isMobile.value = window.innerWidth <= 768; };
 
-// --- (onMounted y onUnmounted sin cambios) ---
 onMounted(async () => {
   checkIsMobile();
   window.addEventListener('resize', checkIsMobile);
@@ -378,7 +418,6 @@ onUnmounted(() => {
   window.removeEventListener('resize', checkIsMobile);
 });
 </script>
-
 <style scoped>
 /* --- ESTILOS MODIFICADOS --- */
 .tabla-horarios {

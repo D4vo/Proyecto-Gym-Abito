@@ -20,7 +20,7 @@
           :seleccionado="estaSeleccionado(dia)"
           :modo-edicion="modoEdicion"
           :disponible="estaDisponible(dia)"
-          @seleccionar="onSeleccionar"
+          :modo-empleado="props.modoEmpleado" @seleccionar="onSeleccionar"
         />
       </template>
       <template v-else>
@@ -40,7 +40,8 @@ const props = defineProps({
   horarioObj: Object,
   dias: Array,
   horariosSeleccionados: Array,
-  modoEdicion: Boolean
+  modoEdicion: Boolean,
+  modoEmpleado: Boolean // <-- 1. ACEPTAR NUEVA PROP
 })
 
 const emit = defineEmits(['seleccionar'])
@@ -50,21 +51,21 @@ const horarioFormateado = computed(() => {
   return `${inicio} a ${fin}`
 })
 
-// --- AÑADIDO: Función para verificar si el grupo trabaja un día ---
 const trabajaEseDia = (dia) => {
   return props.horarioObj.dias_asignados.some(d => d.dia === dia)
 }
-// --- FIN AÑADIDO ---
 
 const obtenerCupos = (dia) => {
   const diaInfo = props.horarioObj.dias_asignados.find(d => d.dia === dia)
-  // Devuelve 0 si no encuentra el día, lo cual es correcto para esta función
   return diaInfo ? diaInfo.capacidadMax - diaInfo.alumnos_inscritos : 0
 }
 
+// --- 2. MODIFICAR ESTA FUNCIÓN ---
 const estaDisponible = (dia) => {
+  if (props.modoEmpleado) return true; // <-- CAMBIO CLAVE
   return obtenerCupos(dia) > 0
 }
+// --- FIN MODIFICACIÓN ---
 
 const estaSeleccionado = (dia) => {
   return props.horariosSeleccionados.some(h => 
