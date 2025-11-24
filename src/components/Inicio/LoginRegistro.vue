@@ -321,7 +321,7 @@
           <p>Tu cuenta ha sido creada exitosamente.</p>
           <p>Por favor, acércate al gimnasio para que podamos asignarte una suscripción y un horario.</p>
           <p class="location">📍 Calle 9 de julio 1355</p>
-          <p>¡Gracias por elegirnos! Nos enorgullece que formes parte de nuestra comunidad.</p>
+          <p>¡Gracias por elegirnos! Nos enorgullece que quieras formar parte de nuestra comunidad.</p>
         </div>
 
         <router-link to="/" class="auth-btn primary">

@@ -1,7 +1,7 @@
 <template>
   <div class="contenedor-info-alumno">
     
-    <!-- 1. Encabezado con Botón Volver y Título (como en InfoAlumno) -->
+    <!-- 1. Encabezado con Botón Volver y Título -->
     <div class="encabezado-info">
       <button class="btn-volver-global" @click="emitirVolver">
         <i class="fas fa-arrow-left"></i>
@@ -10,16 +10,16 @@
       <Titulo texto="INFORMACIÓN DEL EMPLEADO" />
     </div>
 
-    <!-- 2. Tarjeta principal (como en InfoAlumno) -->
+    <!-- 2. Tarjeta principal -->
     <div class="tarjeta-alumno">
       <div class="tarjeta-contenido">
         
-        <!-- 3. Componente DetallePersona (ahora muestra el ROL) -->
+        <!-- 3. Componente DetallePersona -->
         <DetallePersona :datos="DatosEmpleado" />
         
         <div class="separador-seccion"></div>
 
-        <!-- 4. Componente TablaHorarios (en modo empleado) -->
+        <!-- 4. Componente TablaHorarios -->
         <div class="seccion-info">
           <h3 class="titulo-seccion">
             <i class="fas fa-calendar-alt"></i>
@@ -33,42 +33,123 @@
           />
         </div>
 
+        <!-- ================================= -->
+        <!-- ===   BOTÓN DAR DE BAJA       === -->
+        <!-- ================================= -->
+        <div class="seccion-botones">
+          <div class="botones-accion">
+            <button class="btn-accion btn-eliminar" @click="iniciarBaja">
+              <i class="fas fa-user-times"></i>
+              Dar de baja al Empleado
+            </button>
+          </div>
+        </div>
+
       </div>
     </div>
+
+    <!-- ================================= -->
+    <!-- ===          MODALES          === -->
+    <!-- ================================= -->
+
+    <!-- Modal de Confirmación de Baja -->
+    <Transition name="modal-fade">
+      <div v-if="mostrarModalBaja" class="modal-overlay">
+        <div class="modal-confirmacion"> 
+          <div class="modal-header">
+            <i class="fas fa-exclamation-triangle"></i>
+            <h3>Confirmar Baja</h3>
+          </div>
+          <div class="modal-body">
+            <p>
+              ¿Estás seguro que desea dar de baja al empleado 
+              <strong>{{ DatosEmpleado.nombre }} {{ DatosEmpleado.apellido }}</strong>?
+            </p>
+            <p style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
+              Se lo designará de sus horarios y los alumnos que pertenecían a él quedarán en los mismos horarios.
+            </p>
+          </div>
+          <div class="modal-footer">
+            <button class="btn-modal btn-cancelar-modal" @click="mostrarModalBaja = false">
+              Cancelar
+            </button>
+            <button class="btn-modal btn-confirmar-modal" @click="BajaEmpleado">
+              Sí, Confirmar
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- Modal de Éxito -->
+    <Transition name="modal-fade">
+      <div v-if="mostrarModalExito" class="modal-overlay">
+        <div class="modal-exito">
+          <div class="modal-header-exito">
+            <i class="fas fa-check-circle"></i>
+            <h3>Operación Exitosa</h3>
+          </div>
+          <div class="modal-body-exito">
+            <p>{{ mensajeModalExito }}</p>
+          </div>
+          <div class="modal-footer-exito">
+            <button class="btn-modal-continuar" @click="handleContinuarExito">
+              Continuar
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+    
+    <!-- Modal de Error -->
+    <Transition name="modal-fade">
+      <div v-if="mostrarModalError" class="modal-overlay">
+        <div class="modal-error"> 
+          <div class="modal-header-error">
+            <i class="fas fa-exclamation-triangle"></i> 
+            <h3>Error</h3>
+          </div>
+          <div class="modal-body-error">
+            <p>{{ mensajeModalError }}</p> 
+          </div>
+          <div class="modal-footer-error">
+            <button class="btn-modal-error" @click="mostrarModalError = false">
+              Entendido
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue';
 import Titulo from '../../Titulo.vue';
-// Importamos los componentes que vamos a usar
 import DetallePersona from '../DetallePersona.vue';
 import TablaHorarios from '../../Tablas y Filas/TablaHorario/TablaHorarios.vue';
 
-// --- CÓDIGO ORIGINAL (Como pediste, no se toca) ---
-// guardamos los datos del alumno que vino de pantalla admin
+// --- Props y Datos iniciales ---
 const props = defineProps({
   empleadoSeleccionado: {
     type: Object,
     required: true
   }
 });
-// Lo guardamos en EmpleadoID para luego sacar su identificador y luego boscarlo con la api
 const EmpleadoID = ref(props.empleadoSeleccionado);
 console.log('Empleado en InfoEmpleado (desde prop):', EmpleadoID.value);
-// --- FIN CÓDIGO ORIGINAL ---
 
-
-// --- Lógica para el botón "Volver" ---
 const emit = defineEmits(['volver-empleados']);
-const emitirVolver = () => {
-  emit('volver-empleados');
-}
 
+// --- Estados de Modales ---
+const mostrarModalBaja = ref(false);
+const mostrarModalExito = ref(false);
+const mostrarModalError = ref(false);
+const mensajeModalExito = ref('');
+const mensajeModalError = ref('');
 
-// --- ESTRUCTURAS DE PRUEBA (Como pediste) ---
-
-// 1. Estructura con los datos del empleado (para DetallePersona)
+// --- ESTRUCTURAS DE PRUEBA ---
 const DatosEmpleado = ref({
   "dni": "12345678",
   "nombre": "Carlos",
@@ -80,45 +161,81 @@ const DatosEmpleado = ref({
   "localidad": "Resistencia",
   "calle": "Av. Ávalos",
   "nro": "1234",
-  "rol": "Entrenador de Musculación" // El campo ROL que se mostrará en el header
+  "rol": "Entrenador de Musculación"
 });
 
-// 2. Estructura con los horarios del empleado (para TablaHorarios)
 const HorariosEmpleado = ref({
   "horarios": [
     { "dia": "Lunes", "nroGrupo": "1 " },
     { "dia": "Martes", "nroGrupo": "1 " },
-    { "dia": "Miércoles", "nroGrupo": "1 " }, // Corregida ortografía
+    { "dia": "Miércoles", "nroGrupo": "1 " },
     { "dia": "Jueves", "nroGrupo": "1 " },
     { "dia": "Viernes", "nroGrupo": "1 " }
   ]
 });
 
-const manejarHorariosActualizados = (nuevosHorarios) => {
-  
-  // 'nuevosHorarios' tiene el formato: { horarios: [...] }
-  console.log("Nuevos horarios recibidos en InfoEmpleado:", nuevosHorarios.horarios);
+// --- Métodos de Navegación ---
+const emitirVolver = () => {
+  emit('volver-empleados');
+}
 
-  // 1. (Opcional) Actualizar la estructura local si es necesario
+// --- Manejo de Actualización de Horarios ---
+const manejarHorariosActualizados = (nuevosHorarios) => {
+  console.log("Nuevos horarios recibidos en InfoEmpleado:", nuevosHorarios.horarios);
   HorariosEmpleado.value = nuevosHorarios;
   
-  // 2. ===========================================================
-  //    ==      TODO: AQUÍ VA LA LLAMADA A LA API                ==
-  //    ==      para guardar los nuevos horarios del empleado.     ==
+  // ===========================================================
+  //    ==      TODO: AQUÍ VA LA LLAMADA A LA API             ==
+  //    ==      para guardar los nuevos horarios.             ==
   //    ===========================================================
-  //
-  //   const dni = EmpleadoID.value.dni;
-  //   try {
-  //     await api.actualizarHorariosEmpleado(dni, nuevosHorarios.horarios);
-  //     // Opcional: mostrar modal de éxito
-  //     // mostrarModalExito("Horarios actualizados con éxito");
-  //   } catch (error) {
-  //     // Opcional: mostrar modal de error
-  //     // mostrarModalError("No se pudieron guardar los horarios");
-  //   }
-  //
 };
+
+// --- Lógica para Dar de Baja ---
+
+const iniciarBaja = () => {
+  mostrarModalBaja.value = true;
+}
+
 // ===================================================================
+// ==  ✨ AQUÍ SE PROGRAMA LA LLAMADA A LA API PARA BAJA ✨        ==
+// ===================================================================
+const BajaEmpleado = async () => {
+  // 1. Cerramos el modal de confirmación
+  mostrarModalBaja.value = false;
+
+  // 2. Preparamos la lógica (Simulación)
+  try {
+    // loading.value = true; 
+    
+    console.log(`Iniciando baja para el empleado DNI: ${DatosEmpleado.value.dni}`);
+
+    // --- AQUÍ VA LA LLAMADA REAL A LA API ---
+    // await api.darBajaEmpleado(DatosEmpleado.value.dni);
+    
+    // Simulamos espera
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // 3. Éxito
+    mensajeModalExito.value = "El empleado ha sido dado de baja correctamente.";
+    mostrarModalExito.value = true;
+
+  } catch (error) {
+    // 4. Error
+    console.error("Error al dar de baja:", error);
+    mensajeModalError.value = error.response?.data?.detail || "Ocurrió un error al intentar dar de baja al empleado.";
+    mostrarModalError.value = true;
+  } finally {
+    // loading.value = false;
+  }
+}
+// ===================================================================
+
+const handleContinuarExito = () => {
+  mostrarModalExito.value = false;
+  // Al finalizar con éxito, volvemos a la lista de empleados
+  emitirVolver();
+}
+
 </script>
 
 <style scoped>
@@ -193,6 +310,41 @@ const manejarHorariosActualizados = (nuevosHorarios) => {
   padding-bottom: 2rem; /* Añadimos padding al final */
 }
 
+/* --- Estilos para la sección de botones (Baja) --- */
+.seccion-botones { 
+  margin-top: 2rem; 
+  padding: 2rem;
+  border-top: 2px solid #e0e0e0; 
+  background-color: #fff;
+}
+.botones-accion { 
+  display: flex;
+  justify-content: flex-end; /* Botón a la derecha */
+}
+.btn-accion { 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  gap: 0.5rem; 
+  padding: 1rem 1.5rem; 
+  border: none; 
+  border-radius: 10px; 
+  font-family: 'Poppins', sans-serif; 
+  font-weight: 600; 
+  font-size: 1rem; 
+  cursor: pointer; 
+  transition: all 0.3s ease; 
+}
+.btn-eliminar { 
+  background: #F44336; 
+  color: white; 
+}
+.btn-eliminar:hover { 
+  background: #D32F2F; 
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3);
+}
+
 /* --- RESPONSIVE --- */
 @media (max-width: 768px) {
   .contenedor-info-alumno { 
@@ -231,6 +383,13 @@ const manejarHorariosActualizados = (nuevosHorarios) => {
   .seccion-info .titulo-seccion {
     padding-left: 1rem;
     padding-right: 1rem;
+  }
+  
+  .botones-accion {
+    justify-content: center; /* Centrado en móvil */
+  }
+  .btn-accion {
+    width: 100%;
   }
 }
 

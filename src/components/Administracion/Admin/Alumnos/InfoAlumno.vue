@@ -88,60 +88,85 @@
             </button>
           </div>
         </div>
-        <Transition name="modal-fade">
-          <div v-if="mostrarModalConfirmacionEstado" class="modal-overlay">
-            
-            <div class="modal-exito modal-confirmacion"> 
-              
-              <div class="modal-header-exito modal-header-advertencia"> 
-                <i class="fas fa-exclamation-triangle"></i> <h3>Confirmar Cambio</h3>
-              </div>
-              
-              <div class="modal-body-exito">
-                <p v-if="alumno.activo">
-                  ¿Está seguro que desea poner en inactivo a <strong>{{ alumno.nombre }} {{ alumno.apellido }}</strong>?
-                </p>
-                <p v-else>
-                  ¿Está seguro que desea <strong>activar</strong> a {{ alumno.nombre }} {{ alumno.apellido }}?
-                </p>
-                <p v-if="alumno.activo" class="advertencia-modal"> 
-                  Si confirma, se lo eliminará de los grupos a los que asiste y se le dejarán de generar las cuotas.
-                </p>
-              </div>
-              
-              <div class="modal-footer-exito">
-                <button class="btn-modal-cancelar" @click="mostrarModalConfirmacionEstado = false">
-                  Cancelar
-                </button>
-                <button 
-                  class="btn-modal-confirmar" 
-                  :class="alumno.activo ? 'btn-confirmar-peligro' : 'btn-confirmar-normal'"
-                  @click="ejecutarCambioEstado"
-                >
-                  Confirmar
-                </button>
-              </div>
-            </div>
-          </div>
-        </Transition>
-        <Transition name="modal-fade">
-          <div v-if="mostrarModalExito" class="modal-overlay">
-            <div class="modal-exito">
-              <div class="modal-header-exito">
-                <i class="fas fa-check-circle"></i>
-                <h3>Estado Actualizado</h3>
-              </div>
-              <div class="modal-body-exito">
-                <p>{{ mensajeModalExito }}</p>
-              </div>
-              <div class="modal-footer-exito">
-                <button class="btn-modal-continuar" @click="handleContinuarExito">
-                  Continuar
-                </button>
+        <!-- ================================================= -->
+    <!-- ===            MODALES GENÉRICOS              === -->
+    <!-- ================================================= -->
+
+    <!-- 1. Modal de Confirmación Genérico -->
+          <Transition name="modal-fade">
+            <div v-if="mostrarModalConfirmacion" class="modal-overlay">
+              <!-- Borde superior dinámico según el tipo de acción (rojo o naranja/verde) -->
+              <div class="modal-confirmacion" :style="estiloBotonConfirmar === 'btn-confirmar-peligro' ? 'border-top: 5px solid #F44336;' : 'border-top: 5px solid #FF9800;'"> 
+                
+                <div class="modal-header">
+                  <i class="fas fa-exclamation-triangle" 
+                    :style="estiloBotonConfirmar === 'btn-confirmar-peligro' ? 'color: #F44336;' : 'color: #FF9800;'">
+                  </i>
+                  <h3>{{ tituloModalConfirmacion }}</h3>
+                </div>
+                
+                <div class="modal-body">
+                  <!-- Usamos v-html para inyectar el mensaje formateado desde el script -->
+                  <div v-html="mensajeModalConfirmacion"></div>
+                </div>
+                
+                <div class="modal-footer">
+                  <button class="btn-modal btn-cancelar-modal" @click="mostrarModalConfirmacion = false">
+                    Cancelar
+                  </button>
+                  <!-- El estilo del botón confirmar también es dinámico -->
+                  <button 
+                    class="btn-modal" 
+                    :class="estiloBotonConfirmar === 'btn-confirmar-peligro' ? 'btn-cancelar-modal' : 'btn-confirmar-modal'"
+                    :style="estiloBotonConfirmar === 'btn-confirmar-peligro' ? 'background-color: #F44336; color: white;' : ''"
+                    @click="ejecutarAccionConfirmada"
+                  >
+                    Sí, Confirmar
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        </Transition>
+          </Transition>
+
+          <!-- 2. Modal de Éxito -->
+          <Transition name="modal-fade">
+            <div v-if="mostrarModalExito" class="modal-overlay">
+              <div class="modal-exito">
+                <div class="modal-header-exito">
+                  <i class="fas fa-check-circle"></i>
+                  <h3>Operación Exitosa</h3>
+                </div>
+                <div class="modal-body-exito">
+                  <p>{{ mensajeModalExito }}</p>
+                </div>
+                <div class="modal-footer-exito">
+                  <button class="btn-modal-continuar" @click="handleContinuarExito">
+                    Continuar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </Transition>
+
+          <!-- 3. Modal de Error -->
+          <Transition name="modal-fade">
+            <div v-if="mostrarModalError" class="modal-overlay">
+              <div class="modal-error"> 
+                <div class="modal-header-error">
+                  <i class="fas fa-exclamation-triangle"></i> 
+                  <h3>Error</h3>
+                </div>
+                <div class="modal-body-error">
+                  <p>{{ mensajeModalError }}</p> 
+                </div>
+                <div class="modal-footer-error">
+                  <button class="btn-modal-error" @click="handleContinuarError">
+                    Entendido
+                  </button>
+                </div>
+              </div>
+            </div>
+          </Transition>
         </div>
     </div>
 
@@ -155,6 +180,14 @@
 </template>
 
 <script setup>
+import { ref, computed, onMounted } from 'vue'
+import TablaCuota from '../../Tablas y Filas/TablaCuotas/TablaCuotas.vue'
+import TablaHorarios from '../../Tablas y Filas/TablaHorario/TablaHorarios.vue'
+import ModificarDatosAlumno from './ModificarDatosAlumno.vue'
+import ModificarSusTrabAlumno from './ModificarSusTrabAlumno.vue'
+import DetallePersona from '../DetallePersona.vue'; // <-- Importado
+import Titulo from '../../Titulo.vue';
+import ModificarCuota from './ModificarCuota.vue'; 
 /**
  * Compara dos listas de horarios para ver si son idénticas en contenido.
  * @param {Array} horariosA - Lista de horarios [{ dia: 'Lunes', nroGrupo: '1' }]
@@ -187,15 +220,7 @@ function sonHorariosIguales(horariosA, horariosB) {
   return true; // Si pasó todas las pruebas, son iguales
 }
 
-
-import { ref, computed, onMounted } from 'vue'
-import TablaCuota from '../../Tablas y Filas/TablaCuotas/TablaCuotas.vue'
-import TablaHorarios from '../../Tablas y Filas/TablaHorario/TablaHorarios.vue'
-import ModificarDatosAlumno from './ModificarDatosAlumno.vue'
-import ModificarSusTrabAlumno from './ModificarSusTrabAlumno.vue'
-import DetallePersona from '../DetallePersona.vue'; // <-- Importado
-import Titulo from '../../Titulo.vue';
-import ModificarCuota from './ModificarCuota.vue'; // <-- AÑADE ESTA LÍNEA (ajusta la ruta si es necesario)
+// <-- AÑADE ESTA LÍNEA (ajusta la ruta si es necesario)
 
 // ... (debajo de 'const cuotas = ref([])')
 const cuotaParaModificar = ref(null); // <-- AÑADE ESTA LÍNEA
@@ -208,10 +233,27 @@ const props = defineProps({
 
 const emit = defineEmits(['volverAlumnos', 'actualizarHorarios'])
 
-const mostrandoModificacion = ref(null)
-const mostrarModalConfirmacionEstado = ref(false)
-const mostrarModalExito = ref(false)
-const mensajeModalExito = ref('') // Para el texto del modal de éxito
+const mostrarModalConfirmacion = ref(false);
+const tituloModalConfirmacion = ref('');
+const mensajeModalConfirmacion = ref('');
+const funcionConfirmar = ref(null); // Guardará la función a ejecutar al confirmar
+const claseBotonConfirmar = ref(''); // 'btn-confirmar-normal' o 'btn-confirmar-peligro'
+const estiloBordeModal = ref(''); // Para cambiar color del borde superior
+const estiloIconoModal = ref(''); // Para cambiar color del icono
+const mostrandoModificacion = ref(null);
+const mostrarModalExito = ref(false);
+const mensajeModalExito = ref('');
+
+
+// Función maestra que ejecuta la acción guardada
+const ejecutarAccionConfirmada = async () => { // <--- NOMBRE CORREGIDO
+  mostrarModalConfirmacion.value = false;
+  if (funcionConfirmar.value) {
+    await funcionConfirmar.value();
+  }
+}
+
+ // Para el texto del modal de éxito
 const alumnoID = computed(() => props.alumnoSeleccionado)
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
@@ -308,64 +350,127 @@ const modificarSuscripcionTrabajo = () => { mostrandoModificacion.value = 'suscr
 
 // 1. Muestra el modal de confirmación
 const iniciarCambioEstado = () => {
-  mostrarModalConfirmacionEstado.value = true;
-}
-
-// 2. Se llama desde el modal de confirmación
-const ejecutarCambioEstado = () => {
-  // 1. Cerrar el modal de confirmación
-  mostrarModalConfirmacionEstado.value = false;
-
-  const nuevoEstado = !alumno.value.activo;
-
-  // -----------------------------------------------------------------
-  // TODO: AQUÍ VA LA LLAMADA A LA API
-  //
-  // Aquí deberías llamar a tu servicio de API para actualizar
-  // el estado del alumno. La lógica de simulación de abajo
-  // debería ir DENTRO del 'try' o '.then' de la llamada exitosa.
-  //
-  // Ejemplo:
-  // try {
-  //   await api.actualizarEstadoAlumno(alumno.value.dni, { activo: nuevoEstado });
-  //   
-  //   // Lógica de éxito (la simulación de abajo):
-  //   alumno.value.activo = nuevoEstado;
-  //   mensajeModalExito.value = nuevoEstado 
-  //     ? 'El alumno se activó correctamente' 
-  //     : 'El alumno se desactivó correctamente';
-  //   mostrarModalExito.value = true; // Mostrar modal de éxito
-  //
-  // } catch (error) {
-  //   console.error('Error al cambiar el estado:', error);
-  //   // Aquí podrías mostrar un modal de ERROR
-  // }
-  // -----------------------------------------------------------------
-
-  // --- INICIO: Simulación (reemplazar con la llamada API) ---
-  // Esta parte simula el éxito de la API.
-  alumno.value.activo = nuevoEstado;
-  mensajeModalExito.value = nuevoEstado
-    ? 'El alumno se activó correctamente'
-    : 'El alumno se desactivó correctamente';
+  const esActivo = alumno.value.activo;
   
-  // 2. Mostrar el modal de ÉXITO
-  mostrarModalExito.value = true;
-  console.log('Estado cambiado (simulación):', alumno.value.activo ? 'ACTIVO' : 'INACTIVO');
-  // --- FIN: Simulación ---
+  // 1. Configuramos textos y estilos
+  tituloModalConfirmacion.value = 'Confirmar Cambio de Estado';
+  
+  if (esActivo) {
+    // Va a desactivar -> Peligroso (Rojo/Naranja)
+    claseBotonConfirmar.value = 'btn-confirmar-peligro';
+    estiloBordeModal.value = 'border-top: 5px solid #E65100 !important;';
+    estiloIconoModal.value = 'color: #E65100;';
+    
+    // Mensaje HTML con advertencia
+    mensajeModalConfirmacion.value = `
+      <p>¿Está seguro que desea poner en inactivo a <strong>${alumno.value.nombre} ${alumno.value.apellido}</strong>?</p>
+      <p class="advertencia-modal" style="margin-top: 1rem; font-size: 0.95rem; color: #B71C1C; background-color: #FFEBEE; padding: 1rem; border-radius: 10px; border: 1px solid #FFCDD2; text-align: center;">
+        <i class="fas fa-exclamation-circle"></i> Si confirma, se lo eliminará de los grupos a los que asiste y se le dejarán de generar las cuotas.
+      </p>
+    `;
+  } else {
+    // Va a activar -> Normal (Verde)
+    claseBotonConfirmar.value = 'btn-confirmar-normal';
+    estiloBordeModal.value = 'border-top: 5px solid #4CAF50 !important;';
+    estiloIconoModal.value = 'color: #4CAF50;';
+    
+    mensajeModalConfirmacion.value = `
+      <p>¿Está seguro que desea <strong>activar</strong> a ${alumno.value.nombre} ${alumno.value.apellido}?</p>
+    `;
+  }
+
+  // 2. Asignamos la función que se ejecutará al confirmar
+  funcionConfirmar.value = ejecutarCambioEstado;
+  
+  // 3. Abrimos modal
+  mostrarModalConfirmacion.value = true;
 }
+
+const ejecutarCambioEstado = async () => {
+  const nuevoEstado = !alumno.value.activo;
+  
+  // --- TODO: AQUÍ VA LA LLAMADA A LA API REAL ---
+  // await api.actualizarEstadoAlumno(alumno.value.dni, nuevoEstado);
+  
+  // Simulación Éxito:
+  alumno.value.activo = nuevoEstado;
+  mensajeModalExito.value = nuevoEstado 
+    ? 'El alumno se activó correctamente' 
+    : 'El alumno se desactivó correctamente';
+  mostrarModalExito.value = true;
+}
+
 
 // 3. Se llama desde el modal de éxito (igual que en IngresoPersona)
 const handleContinuarExito = async () => {
   mostrarModalExito.value = false;
   
+  // Si acabamos de eliminar al alumno, volvemos a la lista
+  if (tituloModalConfirmacion.value === 'Eliminar Alumno') {
+    emit('volverAlumnos');
+    return;
+  }
+
+  // Si no, recargamos los datos normalmente
   await cargarDatosCompletosAlumno();
-}
+};
 // ----- FIN: Manejo de activar o descativar alumno -----
 
 //manejador para eliminar al alumno
-const eliminarAlumno = () => { console.log('Eliminar alumno') }
+// =============================================================
+// ===  LÓGICA ELIMINAR ALUMNO  ===
+// =============================================================
+const eliminarAlumno = () => {
+  // 1. Configurar Modal (Rojo = Peligro)
+  tituloModalConfirmacion.value = 'Eliminar Alumno';
+  claseBotonConfirmar.value = 'btn-confirmar-peligro';
+  estiloBordeModal.value = 'border-top: 5px solid #F44336 !important;';
+  estiloIconoModal.value = 'color: #F44336;';
 
+  // 2. Mensaje HTML con los datos del alumno
+  mensajeModalConfirmacion.value = `
+    <p>¿Está seguro que desea eliminar a <strong>${alumno.value.nombre} ${alumno.value.apellido}</strong>?</p>
+    <p style="margin-top: 1rem; font-size: 0.9rem; color: #d32f2f; font-weight: 500;">
+      Se borrarán todos los datos del alumno del sistema, incluyendo sus cuotas.
+      <br>Esta operación no se puede deshacer.
+    </p>
+  `;
+
+  // 3. Asignar la función que se ejecutará al confirmar
+  funcionConfirmar.value = confirmarEliminarAlumno;
+  
+  // 4. Mostrar el modal
+  mostrarModalConfirmacion.value = true;
+}
+
+/**
+ * Se ejecuta al hacer clic en "Sí, Confirmar" dentro del modal
+ */
+const confirmarEliminarAlumno = async () => {
+  
+  try {
+    // ===========================================================
+    // ==      TODO: AQUÍ VA LA LLAMADA A LA API (ELIMINAR)     ==
+    // ===========================================================
+    // Éxito:
+    mensajeModalExito.value = 'El alumno ha sido eliminado correctamente.';
+    mostrarModalExito.value = true;
+    
+    // NOTA: Como el alumno ya no existe, al cerrar el modal de éxito
+    // deberíamos volver a la lista de alumnos. 
+    // Esto lo manejaremos modificando ligeramente 'handleContinuarExito'
+    // o emitiendo el evento aquí mismo si la redirección es inmediata.
+    
+    // Opción recomendada: Emitir volver inmediatamente al cerrar el éxito
+    // (Se requiere una pequeña lógica extra en handleContinuarExito, 
+    //  pero por ahora al recargar datos fallará si no existe, así que forzamos volver)
+    
+  } catch (e) {
+    console.error('Error al eliminar alumno:', e);
+    mensajeModalError.value = e.response?.data?.detail || 'No se pudo eliminar al alumno.';
+    mostrarModalError.value = true;
+  }
+};
 
 // await cargarDatosCompletosAlumno();
 
@@ -389,7 +494,8 @@ const manejarGuardarDatos = async (datosActualizados) => {
     
   } catch (error) {
     console.error("error", error);
-    // Aquí podrías mostrar un modal de ERROR si quisieras
+    mensajeModalError.value = e.response?.data?.detail || 'No se pudieron guardar los cambios';
+    mostrarModalError.value = true;
   } 
   // El bloque 'finally' se ha eliminado.
 
@@ -457,34 +563,84 @@ const manejarGuardarSuscripcionTrabajo = async (datosActualizados) => {
 
 
 // ----- INICIO: Manejo de Modificación/Eliminación de Cuotas -----
+const cuotaParaEliminar = ref(null);
+const mostrarModalError = ref(false);
+const mensajeModalError = ref('');
+
+// =============================================================
+// ===            LÓGICA DE ELIMINACIÓN DE CUOTA             ===
+// =============================================================
 
 /**
- * (Handler para "Eliminar")
- * Se activa cuando FilaCuota -> TablaCuota emiten 'solicitud-eliminar-cuota'.
+ * 1. Función DISPARADORA (Se llama desde el botón Eliminar de la tabla)
+ * Configura el modal y pide confirmación.
  */
 const manejarSolicitudEliminar = (cuota) => {
-  console.log('Solicitud para ELIMINAR cuota:', cuota.idCuota);
+  console.log('Solicitud para ELIMINAR cuota:', cuota);
   
-  // TODO: Implementar un modal de confirmación aquí
-  
-  if (confirm(`¿Estás seguro que deseas eliminar la cuota #${cuota.idCuota} del mes ${cuota.mes}?`)) {
-    // ---------------------------------------------------
-    // TODO: AQUÍ IRÍA LA LLAMADA A LA API PARA ELIMINAR
-    //
-    // Ejemplo:
-    // try {
-    //   await api.eliminarCuota(cuota.idCuota);
-    //   mostrarModalExito('Cuota eliminada correctamente');
-    //   await cargarDatosCompletosAlumno(); // Recargar cuotas
-    // } catch (error) {
-    //   console.error(error);
-    //   alert('Error al eliminar la cuota');
-    // }
-    // ---------------------------------------------------
+  // Guardamos la cuota en la variable reactiva para usarla luego en la confirmación
+  cuotaParaEliminar.value = cuota;
+
+  // 1. Configuramos el aspecto del Modal (Rojo = Peligro)
+  tituloModalConfirmacion.value = 'Eliminar Cuota';
+  claseBotonConfirmar.value = 'btn-confirmar-peligro';
+  estiloBordeModal.value = 'border-top: 5px solid #F44336 !important;'; 
+  estiloIconoModal.value = 'color: #F44336;';
+
+  // 2. Armamos el mensaje HTML con los datos
+  mensajeModalConfirmacion.value = `
+    <p>¿Estás seguro que desea borrar la cuota del mes de <strong>${cuota.mes}</strong> de un valor de <strong>$${cuota.monto}</strong>?</p>
+    <p style="margin-top: 1rem; font-size: 0.9rem; color: #d32f2f; font-weight: 500;">Esta acción no se puede deshacer.</p>
+  `;
+
+  // 3. Asignamos la función que contiene la lógica de la API
+  funcionConfirmar.value = confirmarEliminarCuota;
+
+  // 4. Abrimos el modal
+  mostrarModalConfirmacion.value = true;
+};
+
+/**
+ * 2. Función DE EJECUCIÓN (Se llama al dar click en "Sí, Confirmar")
+ * Contiene la llamada a la API.
+ */
+const confirmarEliminarCuota = async () => {
+  // Obtenemos el ID de la variable que guardamos en el paso anterior
+  const idCuota = cuotaParaEliminar.value.idCuota;
+
+  // ===========================================================
+  // ==      TODO: AQUÍ VA LA LLAMADA A LA API (ELIMINAR)     ==
+  // ===========================================================
+  try {
+    // loading.value = true; 
+    console.log(`Iniciando eliminación de cuota ID: ${idCuota} en la API...`);
+
+    // --- SIMULACIÓN DE LLAMADA ---
+    // await api.eliminarCuota(idCuota);
+    // --- FIN SIMULACIÓN ---
+
+    // Éxito: Configuramos y mostramos el modal de éxito
+    mensajeModalExito.value = 'La cuota se eliminó correctamente.';
+    mostrarModalExito.value = true;
     
-    // Simulación de éxito:
-    alert(`Simulación: Eliminar cuota ID ${cuota.idCuota}`);
+    // NOTA: Cuando cierres el modal de éxito, se ejecutará 'handleContinuarExito'
+    // que recargará los datos del alumno automáticamente.
+
+  } catch (error) {
+    // Error: Configuramos y mostramos el modal de error
+    console.error("Error al eliminar la cuota:", error);
+    mensajeModalError.value = error.response?.data?.detail || 'No se pudo eliminar la cuota. Intente nuevamente.';
+    mostrarModalError.value = true;
+  } finally {
+    // loading.value = false;
+    // Limpiamos la variable auxiliar
+    cuotaParaEliminar.value = null;
   }
+};
+
+// Función para cerrar el modal de error
+const handleContinuarError = () => {
+  mostrarModalError.value = false;
 };
 
 /**
@@ -511,28 +667,36 @@ const cancelarModificacionCuota = () => {
  */
 const guardarModificacionCuota = async (cuotaModificada) => {
   
-  // ---------------------------------------------------
-  // TODO: AQUÍ VA LA ESTRUCTURA MODIFICADA Y LA LLAMADA API
-  //
-  // 'cuotaModificada' ES EL PAYLOAD QUE NECESITAS ENVIAR A LA API
-  //
-  // Ejemplo:
-  // try {
-  //   await api.actualizarCuota(cuotaModificada.idCuota, cuotaModificada);
-  //   
-  //   // Éxito:
-  //   cuotaParaModificar.value = null;
-      mostrandoModificacion.value = null;
-      mensajeModalExito.value = 'La cuota se modifico correctamente';
-      mostrarModalExito.value = true;
-  //
-  // } catch (error) {
-  //   console.error('Error al guardar cuota:', error);
-  //   alert('Error al guardar la cuota.');
-  // }
-  // ---------------------------------------------------
+  // ===========================================================
+  // ==      TODO: AQUÍ VA LA LLAMADA A LA API (ACTUALIZAR)   ==
+  // ===========================================================
   
-  // Simulación de éxito:
+  try {
+    // Opcional: loading.value = true;
+    console.log("Enviando actualización de cuota a la API:", cuotaModificada);
+
+    // --- SIMULACIÓN DE LLAMADA ---
+    // await api.actualizarCuota(cuotaModificada.idCuota, cuotaModificada);
+    
+    // --- FIN SIMULACIÓN ---
+
+    // 1. Cerrar el formulario de edición (volver a la tabla)
+    cuotaParaModificar.value = null;
+
+    // 2. Mostrar Modal de Éxito
+    mensajeModalExito.value = 'La cuota se modificó correctamente.';
+    mostrarModalExito.value = true;
+    
+    // NOTA: Al cerrar este modal, 'handleContinuarExito' recargará los datos.
+
+  } catch (error) {
+    // 3. Mostrar Modal de Error (El formulario sigue abierto para reintentar)
+    console.error('Error al guardar la cuota:', error);
+    mensajeModalError.value = error.response?.data?.detail || 'Ocurrió un error al intentar guardar los cambios de la cuota.';
+    mostrarModalError.value = true;
+  } finally {
+    // loading.value = false;
+  }
 };
 
 // ----- FIN: Manejo de Cuotas -----

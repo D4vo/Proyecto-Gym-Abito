@@ -1,112 +1,216 @@
 <template>
-  <div class="precio-item">
-    <span class="descripcion">{{ precio.nombreSuscripcion }}</span>
-    <span class="valor">{{ formatCurrency(precio.precio) }}</span>
+  <div class="pricing-card">
+    <div class="glow-effect"></div>
+
+    <div class="card-top">
+      <span class="plan-type">MEMBERSHIP</span>
+      <h3 class="plan-name">{{ precio.nombreSuscripcion }}</h3>
+      
+      <div class="price-container">
+        <div class="price-value">
+          <span class="currency">$</span>
+          <span class="amount">{{ formatNumber(precio.precio) }}</span>
+        </div>
+        <span class="period">Por Mes</span>
+      </div>
+      
+    </div>
+
+    <div class="features-list">
+      <div class="feature-item">
+        <i class="fas fa-check-circle"></i>
+        <span>Acceso completo</span>
+      </div>
+      <div class="feature-item">
+        <i class="fas fa-check-circle"></i>
+        <span>Con restricción horaria</span>
+      </div>
+      <div class="feature-item highlight">
+        <i class="fas fa-star"></i>
+        <span>Asistencia con un entrenador </span>
+      </div>
+    </div>
+
+    <button class="btn-choose">
+      <span>ELEGIR PLAN</span>
+      <i class="fas fa-arrow-right"></i>
+    </button>
   </div>
 </template>
 
 <script setup>
-
-import { computed } from 'vue';
-import { formatCurrency } from '@/utils/formatters'; // <-- IMPORTA LA FUNCIÓN (Ajusta la ruta si es necesario)
+import { formatCurrency } from '@/utils/formatters';
 
 const props = defineProps({
-  precio: { // Se espera { descripcion: String, precio: String (ej: "30000") }
-    type: Object,
-    required: true
-  }
-});
+  precio: Object
+})
 
-
+const formatNumber = (val) => {
+  // Formateamos sin decimales si es posible para que se vea más limpio
+  return Number(val).toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
 </script>
 
 <style scoped>
-.precio-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: linear-gradient(135deg, #111 0%, #222 100%);
-  color: white;
-  padding: 25px 30px;
-  border-radius: 12px;
-  margin: 0 auto 20px auto;
-  border: 1px solid #333;
-  box-shadow: 0 4px 15px rgba(255, 0, 0, 0.2);
-  transition: all 0.3s ease;
-  cursor: pointer;
-  width: 70%;
-  max-width: 600px;
+.pricing-card {
+  background: #0f0f0f;
+  border: 1px solid #222;
+  border-radius: 4px;
+  padding: 40px 30px;
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.4s ease;
+  min-height: 480px; /* Un poquito más alto para acomodar el cambio */
 }
 
-.precio-item::before {
-  content: '';
+/* Efecto al pasar el mouse */
+.pricing-card:hover {
+  transform: translateY(-10px);
+  border-color: #555;
+  background: #141414;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+}
+
+/* Línea roja brillante superior al hover */
+.glow-effect {
   position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(229, 9, 20, 0.1), transparent);
-  transition: left 0.5s ease;
+  top: 0; left: 0; width: 100%; height: 4px;
+  background: #e50914;
+  transform: scaleX(0);
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  box-shadow: 0 0 20px rgba(229, 9, 20, 0.5);
 }
 
-.precio-item:hover::before {
-  left: 100%;
+.pricing-card:hover .glow-effect {
+  transform: scaleX(1);
 }
 
-.precio-item:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(255, 0, 0, 0.3);
-  border-color: #e50914;
+.card-top {
+  text-align: center;
+  border-bottom: 1px solid #222;
+  padding-bottom: 30px;
+  margin-bottom: 30px;
 }
 
-.descripcion {
-  font-size: 1.4rem;
-  font-weight: 500;
-  font-family: 'Poppins', sans-serif;
+.plan-type {
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  color: #666;
+  text-transform: uppercase;
+  font-weight: 700;
 }
 
-.valor {
-  font-size: 1.5rem;
-  font-weight: bold;
+.plan-name {
+  font-size: 1.8rem; /* Ajustado un poco para que no compita con el precio */
+  color: #fff;
+  margin: 10px 0 15px;
+  text-transform: uppercase;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+/* --- NUEVOS ESTILOS DE PRECIO --- */
+.price-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   color: #e50914;
-  font-family: 'Poppins', sans-serif;
 }
 
-/* RESPONSIVE */
-@media (max-width: 767px) {
-  .precio-item {
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    gap: 10px;
-    padding: 20px 25px;
-    width: 80%;
-  }
-
-  .descripcion {
-    font-size: 1.2rem;
-  }
-
-  .valor {
-    font-size: 1.4rem;
-  }
+.price-value {
+  display: flex;
+  align-items: flex-start; /* Alinea el $ arriba */
+  line-height: 1;
 }
 
-@media (max-width: 480px) {
-  .precio-item {
-    padding: 18px 20px;
-    width: 85%;
-  }
+.currency {
+  font-size: 1.8rem;
+  margin-right: 4px;
+  font-weight: 600;
+  margin-top: 5px; /* Pequeño ajuste visual */
+}
 
-  .descripcion {
-    font-size: 1.1rem;
-  }
+.amount {
+  font-size: 3.8rem; /* Número GIGANTE */
+  font-weight: 800;
+  letter-spacing: -1px;
+}
 
-  .valor {
-    font-size: 1.3rem;
-  }
+.period {
+  color: #666;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 5px;
+  font-weight: 600;
+}
+/* -------------------------------- */
+
+.features-list {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 40px;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #aaa;
+  font-size: 0.95rem;
+}
+
+.feature-item i {
+  color: #333;
+  transition: color 0.3s;
+}
+
+.pricing-card:hover .feature-item i {
+  color: #fff;
+}
+
+.feature-item.highlight {
+  color: #fff;
+}
+.feature-item.highlight i {
+  color: #e50914;
+}
+
+/* Botón de Acción */
+.btn-choose {
+  width: 100%;
+  padding: 15px;
+  background: transparent;
+  border: 1px solid #333;
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+}
+
+.btn-choose:hover {
+  background: #e50914;
+  border-color: #e50914;
+  box-shadow: 0 5px 15px rgba(229, 9, 20, 0.3);
+}
+
+.btn-choose i {
+  transition: transform 0.3s;
+}
+
+.btn-choose:hover i {
+  transform: translateX(5px);
 }
 </style>

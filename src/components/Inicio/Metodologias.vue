@@ -1,131 +1,144 @@
 <template>
-  <div class="metodologia-card">
-    <div class="metodologia-content">
-      <div class="content-wrapper">
-        <h3>{{ metodo.nombreTrabajo }}</h3>
-        <button class="btn-info" @click="$emit('ver', metodo)">Más Info</button>
+  <div class="tech-card">
+    <div class="card-border"></div>
+    
+    <div class="card-header">
+      <h3 class="title">{{ metodo.nombreTrabajo }}</h3>
+      <span class="index-number">{{ formattedIndex }}</span>
+    </div>
+
+    <div class="accent-separator"></div>
+
+    <div class="card-body">
+      <p class="description">{{ metodo.descripcion }}</p>
+    </div>
+
+    <div class="card-footer">
+      <div class="tech-specs">
+        <span>MOD // {{ formattedIndex }}</span>
+        <span>STATUS: ACTIVE</span>
+      </div>
+      <div class="interactive-icon">
+        <i class="fas fa-arrow-right"></i>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-defineProps({
-  metodo: Object
+import { computed } from 'vue';
+
+const props = defineProps({
+  metodo: Object,
+  index: Number
 })
+
+const formattedIndex = computed(() => {
+  return props.index ? props.index.toString().padStart(2, '0') : '00';
+});
 </script>
 
 <style scoped>
-.metodologia-card {
-  background: linear-gradient(135deg, #111 0%, #222 100%);
-  border: 1px solid #333;
-  border-radius: 12px;
-  padding: 25px 20px;
-  width: 100%;
-  box-shadow: 0 4px 15px rgba(255, 0, 0, 0.2);
-  transition: all 0.3s ease;
+.tech-card {
+  background-color: #0c0c0c;
+  border: 1px solid #1f1f1f;
+  /* Altura mínima para uniformidad, pero crece si hay mucho texto */
+  min-height: 350px; 
+  padding: 35px;
   position: relative;
-  overflow: hidden;
-}
-
-.metodologia-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(229, 9, 20, 0.1), transparent);
-  transition: left 0.5s ease;
-}
-
-.metodologia-card:hover::before {
-  left: 100%;
-}
-
-.metodologia-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(255, 0, 0, 0.3);
-  border-color: #e50914;
-}
-
-.metodologia-content {
-  height: 100%;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  /* Sombra sutil interna para profundidad */
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
 }
 
-.content-wrapper {
-  text-align: center;
+/* Efecto Hover: Elevación y Borde Brillante */
+.tech-card:hover {
+  transform: translateY(-8px);
+  border-color: #444;
+  box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+  background-color: #111;
+}
+
+.tech-card:hover .accent-separator {
   width: 100%;
+  background-color: #e50914;
 }
 
-.content-wrapper h3 {
-  margin: 0 0 20px 0;
-  font-size: 1.4rem;
-  font-weight: 600;
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.title {
+  font-size: 1.8rem;
+  font-weight: 700;
   color: #fff;
+  text-transform: uppercase;
+  margin: 0;
+  max-width: 70%;
+  line-height: 1.1;
+}
+
+.index-number {
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: #fff;
+  opacity: 0.1; /* Muy sutil */
+  line-height: 0.8;
   font-family: 'Poppins', sans-serif;
-  line-height: 1.3;
-  min-height: 3.2em;
+}
+
+.accent-separator {
+  width: 40px;
+  height: 2px;
+  background-color: #333;
+  margin-bottom: 25px;
+  transition: all 0.5s ease;
+}
+
+.card-body {
+  flex-grow: 1; /* Ocupa el espacio disponible */
+}
+
+.description {
+  color: #999;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  margin: 0;
+  /* Esto asegura que se vea bien con textos largos */
+  text-align: left;
+}
+
+.card-footer {
+  margin-top: 30px;
+  border-top: 1px solid #222;
+  padding-top: 20px;
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
 }
 
-.btn-info {
-  background: linear-gradient(135deg, #e50914 0%, #ff2a2a 100%);
-  border: none;
-  padding: 12px 24px;
-  color: white;
-  cursor: pointer;
-  border-radius: 12px;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  font-family: 'Poppins', sans-serif;
-  width: auto;
-  min-width: 120px;
+.tech-specs {
+  display: flex;
+  gap: 15px;
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: #555;
+  letter-spacing: 1px;
 }
 
-.btn-info:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(229, 9, 20, 0.4);
+.interactive-icon {
+  color: #444;
+  font-size: 1.2rem;
+  transition: transform 0.3s ease, color 0.3s ease;
 }
 
-/* RESPONSIVE */
-@media (max-width: 768px) {
-  .metodologia-card {
-    padding: 20px 15px;
-  }
-  
-  .content-wrapper h3 {
-    font-size: 1.2rem;
-    min-height: 2.8em;
-  }
-  
-  .btn-info {
-    padding: 10px 20px;
-    font-size: 0.9rem;
-    min-width: 110px;
-  }
-}
-
-@media (max-width: 480px) {
-  .metodologia-card {
-    padding: 18px 12px;
-  }
-  
-  .content-wrapper h3 {
-    font-size: 1.1rem;
-    min-height: 2.6em;
-    margin-bottom: 15px;
-  }
-  
-  .btn-info {
-    padding: 10px 18px;
-    font-size: 0.85rem;
-    min-width: 100px;
-  }
+.tech-card:hover .interactive-icon {
+  color: #e50914;
+  transform: translateX(5px);
 }
 </style>

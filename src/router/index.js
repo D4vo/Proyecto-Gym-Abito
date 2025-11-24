@@ -3,7 +3,8 @@ import PantallaInicio from '../views/PantallaInicio.vue'
 import LoginView from '../views/LoginView.vue'
 import PantallaUsuario from '../views/PantallaUsuario.vue'
 import PantallaAdmin from '@/views/PantallaAdmin.vue'
-
+import PantallaPersona from '@/views/PantallaPersona.vue'
+import PantallaEmpleado from '@/views/PantallaEmpleado.vue'
 // Funciones del storage
 import { getToken, getUser } from '@/api/storage/userStorage'
 
@@ -29,8 +30,20 @@ const routes = [
     name: 'PantallaAdmin',
     component: PantallaAdmin,
     meta: { requiresAuth: true, isAdmin: true }
+  },
+  {
+    path: '/Persona',
+    name: 'PantallaPersona',
+    component: PantallaPersona,
+    meta: { requiresAuth: true, isAdmin: false }
   }
-
+  ,
+  {
+    path: '/Empleado',
+    name: 'PantallaEmpleado',
+    component: PantallaEmpleado,
+    meta: { requiresAuth: true, isAdmin: true }
+  }
 ]
 
 const router = createRouter({

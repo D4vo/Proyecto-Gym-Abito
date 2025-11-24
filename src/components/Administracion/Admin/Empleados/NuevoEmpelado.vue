@@ -2,7 +2,13 @@
   <div class="contenedor-vista-admin">
     
     <template v-if="!mostrarModalExito">
-      <Titulo texto="INGRESO DE NUEVO EMPLEADO" />
+      <div class="encabezado-info">
+        <button class="btn-volver-global" @click="emitirCancelar">
+        <i class="fas fa-arrow-left"></i>
+        Volver a Empleados
+        </button>
+        <Titulo texto="INGRESO DE NUEVO EMPLEADO" />
+      </div>
       <div class="tarjeta-formulario">
         <div class="tarjeta-contenido">
 
