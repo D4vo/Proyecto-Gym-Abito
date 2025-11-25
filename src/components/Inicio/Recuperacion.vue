@@ -1,0 +1,246 @@
+<template>
+  <div class="form-wrapper">
+    <form class="auth-form" @submit.prevent="cambiarContrasena">
+      
+      <h3 class="form-title">Restablecer Contraseña</h3>
+      
+      <!-- Nueva Contraseña -->
+      <div class="form-group">
+        <div class="input-container">
+          <input 
+            v-model="passwordData.newPassword"
+            :type="passwordFieldType" 
+            id="new-password"
+            class="form-input"
+            placeholder=" "
+            required
+            autocomplete="new-password"
+            @input="limpiarError"
+          >
+          <label for="new-password" class="form-label">Nueva Contraseña</label>
+          
+          <button type="button" @click="togglePass('main')" class="toggle-btn" tabindex="-1">
+             <svg v-if="passwordFieldType === 'password'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+             <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Confirmar Contraseña -->
+      <div class="form-group">
+        <div class="input-container">
+          <input 
+            v-model="passwordData.confirmPassword"
+            :type="confirmFieldType" 
+            id="confirm-password"
+            class="form-input"
+            placeholder=" "
+            required
+            autocomplete="new-password"
+            @input="limpiarError"
+          >
+          <label for="confirm-password" class="form-label">Confirmar Contraseña</label>
+          
+          <button type="button" @click="togglePass('confirm')" class="toggle-btn" tabindex="-1">
+             <svg v-if="confirmFieldType === 'password'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+             <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+          </button>
+        </div>
+
+        <!-- Lista de Requisitos (Debajo, estilo vertical como te gustó) -->
+        <div class="password-requirements">
+          <div class="req-item" :class="{ 'met': passwordChecks.length }">
+            <span class="dot">•</span> Mínimo 8 caracteres
+          </div>
+          <div class="req-item" :class="{ 'met': passwordChecks.number }">
+            <span class="dot">•</span> Al menos un número
+          </div>
+          <div class="req-item" :class="{ 'met': passwordChecks.upper }">
+            <span class="dot">•</span> Al menos una mayúscula
+          </div>
+        </div>
+      </div>
+
+      <!-- Mensaje de Error -->
+      <transition name="slide-fade">
+        <div v-if="errorMessage" class="error-banner">
+          <span class="error-icon">⚠️</span> {{ errorMessage }}
+        </div>
+      </transition>
+
+      <!-- Botón Guardar -->
+      <button type="submit" class="auth-btn primary" :disabled="loading">
+        <span v-if="!loading">GUARDAR NUEVA CONTRASEÑA</span>
+        <div class="btn-loader" v-else></div>
+      </button>
+
+    </form>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'Recuperacion',
+  data() {
+    return {
+      loading: false,
+      passwordData: {
+        newPassword: '',
+        confirmPassword: ''
+      },
+      passwordFieldType: 'password',
+      confirmFieldType: 'password',
+      errorMessage: ''
+    }
+  },
+  computed: {
+    passwordChecks() {
+      const pwd = this.passwordData.newPassword;
+      return {
+        length: pwd.length >= 8,
+        number: /\d/.test(pwd),
+        upper: /[A-Z]/.test(pwd)
+      }
+    },
+    isPasswordValid() {
+      const c = this.passwordChecks;
+      return c.length && c.number && c.upper;
+    }
+  },
+  methods: {
+    async cambiarContrasena() {
+      // 1. Validaciones
+      if (!this.isPasswordValid) {
+        this.errorMessage = 'La contraseña no cumple con los requisitos de seguridad.';
+        return;
+      }
+      if (this.passwordData.newPassword !== this.passwordData.confirmPassword) {
+        this.errorMessage = 'Las contraseñas no coinciden.';
+        return;
+      }
+
+      this.loading = true;
+      this.errorMessage = '';
+
+      try {
+        // SIMULACIÓN LLAMADA API
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        // --- AQUÍ ESTÁ LA REDIRECCIÓN ---
+        alert("¡Contraseña actualizada exitosamente!"); // Feedback rápido
+        this.$router.push('/login'); // Redirección al login
+
+      } catch (error) {
+        console.error("Error:", error);
+        this.errorMessage = 'Ocurrió un error. Intenta nuevamente.';
+      } finally {
+        this.loading = false;
+      }
+    },
+    togglePass(field) {
+      if(field === 'main') {
+        this.passwordFieldType = this.passwordFieldType === 'password' ? 'text' : 'password';
+      } else {
+        this.confirmFieldType = this.confirmFieldType === 'password' ? 'text' : 'password';
+      }
+    },
+    limpiarError() {
+      this.errorMessage = '';
+    }
+  }
+}
+</script>
+
+<style scoped>
+.form-wrapper { width: 100%; animation: fadeIn 0.4s ease; }
+.auth-form { display: flex; flex-direction: column; gap: 1.5rem; }
+.form-group { position: relative; }
+
+.form-title { 
+  color: #fff; font-family: 'Poppins', sans-serif; 
+  text-align: center; margin-bottom: 1rem; font-size: 1.5rem; 
+}
+
+/* REQUISITOS (Lista Vertical) */
+.password-requirements {
+  margin-top: 10px;
+  display: flex; flex-direction: column; gap: 6px; padding-left: 10px;
+}
+.req-item {
+  font-size: 0.85rem; color: #666;
+  transition: all 0.3s ease; display: flex; align-items: center; gap: 8px;
+  font-family: 'Inter', sans-serif;
+}
+.req-item .dot { font-size: 1rem; line-height: 0; }
+.req-item.met { color: #00ff88; }
+
+/* INPUTS (Estilo redondeado consistente) */
+.input-container {
+  position: relative;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  height: 60px;
+  transition: all 0.3s ease;
+}
+.input-container:hover { background: rgba(255, 255, 255, 0.06); }
+.input-container:focus-within { border-color: #e50914; background: rgba(255, 255, 255, 0.08); box-shadow: 0 0 0 4px rgba(229, 9, 20, 0.1); }
+
+.form-input {
+  width: 100%; height: 100%; background: transparent; border: none;
+  padding: 20px 16px 6px 16px; color: #fff; font-size: 1rem; font-family: 'Inter', sans-serif; border-radius: 12px;
+}
+.form-input:focus { outline: none; }
+
+.form-label {
+  position: absolute; top: 50%; left: 16px; transform: translateY(-50%);
+  color: #888; font-size: 1rem; pointer-events: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: 'Inter', sans-serif;
+}
+.form-input:focus + .form-label, .form-input:not(:placeholder-shown) + .form-label {
+  top: 14px; font-size: 0.75rem; color: #e50914; font-weight: 600;
+}
+
+.toggle-btn {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  background: transparent; border: none; color: #666; cursor: pointer; padding: 8px; display: flex;
+}
+.toggle-btn:hover { color: #fff; }
+
+/* BOTÓN */
+.auth-btn {
+  width: 100%; padding: 1rem;
+  background: linear-gradient(135deg, #e50914, #ff3f3f);
+  border: none; border-radius: 12px;
+  color: white; font-weight: 600; font-size: 1rem; cursor: pointer;
+  transition: all 0.3s ease; font-family: 'Poppins', sans-serif;
+  box-shadow: 0 4px 15px rgba(229, 9, 20, 0.25); margin-top: 1rem;
+}
+.auth-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(229, 9, 20, 0.4); }
+.auth-btn:disabled { opacity: 0.7; cursor: not-allowed; background: #555; }
+
+/* Error */
+.error-banner { 
+  color: #ff4d4d; background: rgba(255, 77, 77, 0.1); 
+  padding: 10px; border-radius: 8px; 
+  font-size: 0.9rem; text-align: center; 
+  border: 1px solid rgba(255, 77, 77, 0.2);
+}
+
+.btn-loader { width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.3); border-top: 2px solid #fff; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.slide-fade-enter-active { transition: all 0.3s ease-out; }
+.slide-fade-enter-from, .slide-fade-leave-to { transform: translateY(-10px); opacity: 0; }
+
+/* AUTOCOMPLETE FIX */
+.form-input:-webkit-autofill,
+.form-input:-webkit-autofill:hover, 
+.form-input:-webkit-autofill:focus, 
+.form-input:-webkit-autofill:active {
+  -webkit-text-fill-color: #ffffff !important;
+  transition: background-color 5000s ease-in-out 0s;
+  caret-color: #ffffff;
+}
+</style>

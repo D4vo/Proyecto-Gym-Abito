@@ -5,6 +5,8 @@ import PantallaUsuario from '../views/PantallaUsuario.vue'
 import PantallaAdmin from '@/views/PantallaAdmin.vue'
 import PantallaPersona from '@/views/PantallaPersona.vue'
 import PantallaEmpleado from '@/views/PantallaEmpleado.vue'
+import RegistroFinalView from '@/views/RegistroFinalView.vue'
+import RecuperarView from '@/views/RecuperarView.vue'
 // Funciones del storage
 import { getToken, getUser } from '@/api/storage/userStorage'
 
@@ -43,6 +45,21 @@ const routes = [
     name: 'PantallaEmpleado',
     component: PantallaEmpleado,
     meta: { requiresAuth: true, isAdmin: true }
+  },
+  {
+    path: '/completar-registro',
+    name: 'CompletarRegistro',
+    component: RegistroFinalView,
+    // No ponemos requiresAuth porque el usuario viene del mail 
+    // y técnicamente aún no inició sesión.
+  }
+  ,
+  {
+    path: '/Recuperacion',
+    name: 'RecuperarContraseña',
+    component: RecuperarView,
+    // No ponemos requiresAuth porque el usuario viene del mail 
+    // y técnicamente aún no inició sesión.
   }
 ]
 
