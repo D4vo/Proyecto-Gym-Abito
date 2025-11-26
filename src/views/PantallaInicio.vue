@@ -68,6 +68,32 @@
           <div class="title-decoration"></div>
           <p class="brand-subtitle">SIEMPRE CON VOS</p>
         </div>
+        <div class="history-grid">
+          <div class="history-text reveal-on-scroll">
+            <h3>Un sueño construido día a día</h3>
+            <p>Todo comenzó en 1988, impulsado por una firme vocación: transmitir nuestra pasión por el entrenamiento y la vida sana. Lo que inició con clases de aeróbica en pequeños espacios, creció rápidamente gracias a la confianza de la gente.</p>
+            <p>En 1992, con el título de profesores bajo el brazo, ese deseo individual se transformó en un proyecto de vida compartido. Fue una etapa de inmenso esfuerzo y dedicación. Sin grandes capitales, pero con una visión clara, construimos nuestro primer equipamiento con nuestras propias manos.</p>
+            <p>Fueron años de trabajo artesanal, soldando hierros y sueños por igual. Nosotros mismos fabricamos cada una de nuestras máquinas, invirtiendo cada recurso de nuestro trabajo de docentes para dar forma, pieza por pieza, a lo que sería el corazón de nuestro gimnasio.</p>
+            <p>El camino tuvo varios desafíos. Durante la década del 90 atravesamos la difícil etapa de los alquileres, mudándonos y adaptándonos a distintas realidades económicas. Hubo momentos de repliegue estratégico para poder ahorrar, pero nunca perdimos el norte: queríamos dejar de ser inquilinos para construir un hogar deportivo propio.</p>
+            <p>Ese esfuerzo incansable dio sus frutos en 1998, nuestro gran hito: inauguramos finalmente el gimnasio en su casa definitiva. Ya no teníamos que mudarnos más; habíamos echado raíces. Desde entonces, la evolución fue constante.</p>
+            <p>Hoy, al ver nuestras instalaciones llenas de energía, seguimos manteniendo intacta la esencia familiar que nos vio nacer. Llevamos ya 37 años haciendo lo mejor para tu salud y dedicando nuestra vida al bienestar de nuestra gente.</p>
+          </div>
+
+          <div class="history-video reveal-on-scroll">
+            <div class="video-frame">
+              <iframe 
+                width="100%" 
+                height="100%" 
+                src="https://www.youtube.com/embed/yAjhXNZxuaU?si=GymAbitoPromo" 
+                title="Video Institucional Gimnasio Abito" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                referrerpolicy="strict-origin-when-cross-origin" 
+                allowfullscreen>
+              </iframe>
+            </div>
+          </div>
+        </div>
         </section>
         <div class="marquee-wrapper">
         <div class="marquee-track">
@@ -251,6 +277,48 @@ const initObserver = () => {
 /* CAPA INFERIOR (WRAPPER GRANDE) */
 .prices-layer-wrapper { position: relative; display: flex; flex-direction: column; min-height: 100vh; }
 .section-spacing { padding: 80px 0; }
+
+/* --- ESTILOS DE HISTORIA --- */
+.history-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+}
+
+.history-text h3 {
+  font-size: 2rem;
+  color: #e50914;
+  margin-bottom: 30px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.history-text p {
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: #ccc;
+  margin-bottom: 20px;
+  text-align: justify;
+}
+
+.history-video {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.video-frame {
+  width: 100%;
+  aspect-ratio: 16 / 9; /* Formato Youtube */
+  border: 1px solid #333;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+  border-radius: 4px;
+  overflow: hidden;
+}
 
 /* --- UBICACIÓN GRID (AQUÍ ESTÁ LA CLAVE) --- */
 .location-grid {
