@@ -68,34 +68,46 @@
           <div class="title-decoration"></div>
           <p class="brand-subtitle">SIEMPRE CON VOS</p>
         </div>
-        <div class="history-grid">
-          <div class="history-text reveal-on-scroll">
-            <h3>Un sueño construido día a día</h3>
-            <p>Todo comenzó en 1988, impulsado por una firme vocación: transmitir nuestra pasión por el entrenamiento y la vida sana. Lo que inició con clases de aeróbica en pequeños espacios, creció rápidamente gracias a la confianza de la gente.</p>
-            <p>En 1992, con el título de profesores bajo el brazo, ese deseo individual se transformó en un proyecto de vida compartido. Fue una etapa de inmenso esfuerzo y dedicación. Sin grandes capitales, pero con una visión clara, construimos nuestro primer equipamiento con nuestras propias manos.</p>
-            <p>Fueron años de trabajo artesanal, soldando hierros y sueños por igual. Nosotros mismos fabricamos cada una de nuestras máquinas, invirtiendo cada recurso de nuestro trabajo de docentes para dar forma, pieza por pieza, a lo que sería el corazón de nuestro gimnasio.</p>
-            <p>El camino tuvo varios desafíos. Durante la década del 90 atravesamos la difícil etapa de los alquileres, mudándonos y adaptándonos a distintas realidades económicas. Hubo momentos de repliegue estratégico para poder ahorrar, pero nunca perdimos el norte: queríamos dejar de ser inquilinos para construir un hogar deportivo propio.</p>
-            <p>Ese esfuerzo incansable dio sus frutos en 1998, nuestro gran hito: inauguramos finalmente el gimnasio en su casa definitiva. Ya no teníamos que mudarnos más; habíamos echado raíces. Desde entonces, la evolución fue constante.</p>
+
+        <div class="history-layout">
+          
+          <div class="history-top reveal-on-scroll">
+            <p>Todo comenzó en 1988, impulsado por una firme vocación: transmitir nuestra pasión por el entrenamiento y la vida sana. Lo que inició con clases de aeróbica en pequeños espacios, creció rápidamente gracias a la confianza de la gente. En 1992, con el título de profesores bajo el brazo, ese deseo individual se transformó en un proyecto de vida compartido.</p>
+          </div>
+
+          <div class="history-middle reveal-on-scroll">
+            <div class="middle-text">
+              <p>Fue una etapa de inmenso esfuerzo y dedicación. Sin grandes capitales, pero con una visión clara, construimos nuestro primer equipamiento con nuestras propias manos.</p>
+              <p>Fueron años de trabajo artesanal, soldando hierros y sueños por igual. Nosotros mismos fabricamos cada una de nuestras máquinas, invirtiendo cada recurso de nuestro trabajo de docentes para dar forma, pieza por pieza, a lo que sería el corazón de nuestro gimnasio.</p>
+              <p>El camino tuvo varios desafíos. Durante la década del 90 atravesamos la difícil etapa de los alquileres, mudándonos y adaptándonos a distintas realidades económicas.</p>
+            </div>
+            
+            <div class="middle-video">
+              <div class="video-frame">
+                <iframe 
+                  width="100%" 
+                  height="100%" 
+                  src="https://www.youtube.com/embed/yAjhXNZxuaU?si=GymAbitoPromo" 
+                  title="Video Institucional Gimnasio Abito" 
+                  frameborder="0" 
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                  referrerpolicy="strict-origin-when-cross-origin" 
+                  allowfullscreen>
+                </iframe>
+              </div>
+              <div class="video-decoration"></div>
+            </div>
+          </div>
+
+          <div class="history-bottom reveal-on-scroll">
+            <p>Hubo momentos de repliegue estratégico para poder ahorrar, pero nunca perdimos el norte: queríamos dejar de ser inquilinos para construir un hogar deportivo propio. Ese esfuerzo incansable dio sus frutos en 1998, nuestro gran hito: inauguramos finalmente el gimnasio en su casa definitiva.</p>
             <p>Hoy, al ver nuestras instalaciones llenas de energía, seguimos manteniendo intacta la esencia familiar que nos vio nacer. Llevamos ya 37 años haciendo lo mejor para tu salud y dedicando nuestra vida al bienestar de nuestra gente.</p>
           </div>
 
-          <div class="history-video reveal-on-scroll">
-            <div class="video-frame">
-              <iframe 
-                width="100%" 
-                height="100%" 
-                src="https://www.youtube.com/embed/yAjhXNZxuaU?si=GymAbitoPromo" 
-                title="Video Institucional Gimnasio Abito" 
-                frameborder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                referrerpolicy="strict-origin-when-cross-origin" 
-                allowfullscreen>
-              </iframe>
-            </div>
-          </div>
         </div>
-        </section>
-        <div class="marquee-wrapper">
+      </section>
+
+      <div class="marquee-wrapper">
         <div class="marquee-track">
           <div class="marquee-content">
               NO LIMITS /// TRAIN HARD /// RESULTS /// DISCIPLINE /// POWER /// PERFORMANCE ///
@@ -126,6 +138,7 @@
           />
         </div>
       </section>
+
       <div class="rhythm-marquee">
         <div class="marquee-track">
           <div class="marquee-content">
@@ -198,7 +211,6 @@ import Footer from '../components/Inicio/Footer.vue'
 import FondoInicio from '@/components/Inicio/FondoInicio.vue'
 import Metodologia from '../components/Inicio/Metodologias.vue'
 import Precio from '../components/Inicio/Precio.vue'
-// IMPORTANTE: Importar el mapa correctamente
 import MapaUbicacion from '@/components/Inicio/MapaUbicacion.vue'
 
 import { ref, onMounted, onUnmounted, computed } from 'vue'
@@ -247,93 +259,142 @@ const initObserver = () => {
 </script>
 
 <style scoped>
-/* BASE */
-.main-wrapper { background-color: #050505; color: #fff; font-family: 'Poppins', sans-serif; overflow: visible; position: relative; }
+/* =========================================
+   BASE & LAYOUT
+   ========================================= */
+.main-wrapper { 
+  background-color: #121212; 
+  color: #fff; 
+  font-family: 'Poppins', sans-serif; 
+  overflow: visible; 
+  position: relative; 
+}
+
 .content-limit { max-width: 1200px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 2; }
 .wide-limit { max-width: 1400px; }
 .z-5 { z-index: 5; }
 .z-10 { z-index: 10; }
 .force-relative { position: relative; z-index: 2; }
+.section-spacing { padding: 120px 0; }
 
-/* HERO */
-.hero-container { position: relative; width: 100%; height: 100vh; overflow: hidden; z-index: 1; background-color: #050505; }
+/* =========================================
+   HERO
+   ========================================= */
+.hero-container { 
+  position: relative; 
+  width: 100%; 
+  height: 100vh; 
+  overflow: hidden; 
+  z-index: 1; 
+  background-color: #121212; 
+}
+
 .hero-parallax-layer { width: 100%; height: 120%; position: absolute; top: 0; left: 0; will-change: transform; }
-.hero-gradient-overlay.bottom { position: absolute; bottom: 0; left: 0; width: 100%; height: 120px; background: linear-gradient(to bottom, transparent 0%, #050505 100%); pointer-events: none; z-index: 3; }
+.hero-gradient-overlay.bottom { 
+  position: absolute; bottom: 0; left: 0; width: 100%; height: 150px; 
+  background: linear-gradient(to bottom, transparent 0%, #121212 100%); 
+  pointer-events: none; z-index: 3; 
+}
 
-/* PATTERN */
-.pattern-bg { background-color: #050505; background-image: radial-gradient(#222 1px, transparent 1px); background-size: 30px 30px; }
+/* =========================================
+   PATRONES & ESTILOS GENERALES
+   ========================================= */
+.pattern-bg { 
+  background-color: #121212; 
+  background-image: radial-gradient(#2a2a2a 1px, transparent 1px); 
+  background-size: 30px 30px; 
+}
 
-/* METODOLOGÍAS */
-.methods-section { position: relative; padding-top: 150px; padding-bottom: 150px; z-index: 5; }
-.methods-top-gradient { position: absolute; top: 0; left: 0; width: 100%; height: 200px; background: linear-gradient(to bottom, #050505 0%, transparent 100%); pointer-events: none; z-index: 1; }
 .header-group { text-align: center; margin-bottom: 80px; display: flex; flex-direction: column; align-items: center; }
 .brand-tag { color: #e50914; font-size: 0.8rem; font-weight: 700; letter-spacing: 3px; margin-bottom: 10px; text-transform: uppercase; }
 .brand-title { font-size: 4rem; font-weight: 800; letter-spacing: -2px; color: #fff; margin: 0; text-transform: uppercase; line-height: 1; }
 .title-decoration { width: 80px; height: 4px; background-color: #e50914; margin-top: 20px; }
+.brand-subtitle { font-size: 1rem; color: #aaa; letter-spacing: 4px; text-transform: uppercase; margin-top: 15px; font-weight: 600; }
+
+/* =========================================
+   METODOLOGÍAS
+   ========================================= */
+.methods-section { position: relative; padding-top: 150px; padding-bottom: 150px; z-index: 5; }
+.methods-top-gradient { position: absolute; top: 0; left: 0; width: 100%; height: 200px; background: linear-gradient(to bottom, #121212 0%, transparent 100%); pointer-events: none; z-index: 1; }
 .staggered-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
 .card-spacer { margin-bottom: 40px; }
 .column-right { margin-top: 100px; will-change: transform; }
 
-/* CAPA INFERIOR (WRAPPER GRANDE) */
-.prices-layer-wrapper { position: relative; display: flex; flex-direction: column; min-height: 100vh; }
-.section-spacing { padding: 80px 0; }
-
-/* --- ESTILOS DE HISTORIA --- */
-.history-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 60px;
-  align-items: center;
+/* =========================================
+   HISTORIA (LAYOUT PAINT - ESPACIADO CORREGIDO)
+   ========================================= */
+.history-layout {
+  display: flex;
+  flex-direction: column;
+  /* CAMBIO: Reducido de 40px a 25px para juntar más los bloques */
+  gap: 25px; 
 }
 
-.history-text h3 {
-  font-size: 2rem;
-  color: #e50914;
-  margin-bottom: 30px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.history-text p {
-  font-size: 1.05rem;
+/* Estilos compartidos para párrafos de historia */
+.history-layout p {
+  font-size: 1.1rem;
   line-height: 1.8;
   color: #ccc;
-  margin-bottom: 20px;
-  text-align: justify;
+  margin-bottom: 15px; /* Reducido el margen inferior de cada párrafo */
+  padding: 15px 20px;
+  border-left: 3px solid transparent;
+  transition: all 0.3s ease;
+  background: transparent;
 }
 
-.history-video {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
+/* INTERACCIÓN: Solo al pasar el cursor */
+.history-layout p:hover {
+  border-left-color: #e50914;
+  color: #fff;
+  background: linear-gradient(90deg, rgba(229, 9, 20, 0.05) 0%, transparent 100%);
+}
+
+/* Estructura del Medio (Texto + Video) */
+.history-middle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 50px;
   align-items: center;
 }
 
 .video-frame {
   width: 100%;
-  aspect-ratio: 16 / 9; /* Formato Youtube */
-  border: 1px solid #333;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+  aspect-ratio: 16 / 9;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.6);
   border-radius: 4px;
   overflow: hidden;
+  position: relative;
+  z-index: 2;
+  background: #000;
 }
 
-/* --- UBICACIÓN GRID (AQUÍ ESTÁ LA CLAVE) --- */
+.video-decoration {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 60px;
+  height: 60px;
+  border-top: 3px solid #e50914;
+  border-right: 3px solid #e50914;
+  z-index: 1;
+  opacity: 0.6;
+}
+
+.middle-video { position: relative; }
+
+/* =========================================
+   UBICACIÓN
+   ========================================= */
 .location-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr; /* 50% Texto - 50% Mapa */
-  gap: 60px; /* Espacio entre las dos columnas */
-  align-items: center; /* Centrado vertical perfecto */
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
   width: 100%;
 }
 
-.location-text {
-  text-align: left; /* Texto alineado a la izquierda */
-}
-
-/* Estilos específicos para los títulos de ubicación (Alineados a la izq) */
+.location-text { text-align: left; }
 .header-align-left { align-items: flex-start; text-align: left; display: flex; flex-direction: column; margin-bottom: 20px; }
 .brand-tag-left { color: #e50914; font-size: 0.8rem; font-weight: 700; letter-spacing: 3px; margin-bottom: 10px; text-transform: uppercase; }
 .brand-title-left { font-size: 3.5rem; font-weight: 800; letter-spacing: -2px; color: #fff; margin: 0; text-transform: uppercase; line-height: 1; }
@@ -341,32 +402,39 @@ const initObserver = () => {
 
 .location-description { font-size: 1.1rem; color: #ccc; line-height: 1.8; margin-bottom: 40px; max-width: 95%; }
 .location-description strong { color: #fff; font-weight: 600; }
+
 .location-details { display: flex; flex-direction: column; gap: 25px; margin-bottom: 40px; }
 .detail-item { display: flex; align-items: flex-start; gap: 15px; }
 .detail-item i { color: #e50914; font-size: 1.5rem; margin-top: 5px; }
 .detail-item h4 { margin: 0 0 5px; font-size: 1rem; text-transform: uppercase; color: #fff; letter-spacing: 1px; }
 .detail-item span { display: block; font-size: 0.95rem; color: #999; }
 
-.location-map {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.location-map { 
+  width: 100%; 
+  height: 100%; 
+  min-height: 400px;
+  display: flex; 
+  justify-content: center; 
+  align-items: center; 
+  position: relative;
+  z-index: 5;
 }
 
-/* MARQUEES */
-.double-marquee-container { padding: 60px 0; background-color: transparent; overflow: hidden; display: flex; flex-direction: column; gap: 10px; position: relative; z-index: 2; }
+/* =========================================
+   DECORATIVOS (MARQUEES) & PRECIOS
+   ========================================= */
+.prices-layer-wrapper { position: relative; display: flex; flex-direction: column; min-height: 100vh; }
+.double-marquee-container { padding: 60px 0; overflow: hidden; display: flex; flex-direction: column; gap: 10px; position: relative; z-index: 2; }
 .marquee-row { display: flex; width: 100%; overflow: hidden; white-space: nowrap; }
-.track-left { display: flex; animation: scrollLeft 25s linear infinite; }
-.track-right { display: flex; animation: scrollRight 25s linear infinite; }
-.content { font-family: 'Poppins', sans-serif; font-size: 4rem; font-weight: 900; text-transform: uppercase; color: #fff; padding-right: 40px; line-height: 1; }
+.track-left { display: flex; animation: scrollLeft 35s linear infinite; }
+.track-right { display: flex; animation: scrollRight 35s linear infinite; }
+.content { font-size: 4rem; font-weight: 900; text-transform: uppercase; color: #fff; padding-right: 40px; line-height: 1; }
 .outline-text { color: transparent; -webkit-text-stroke: 2px #333; transition: -webkit-text-stroke 0.3s ease; }
 .double-marquee-container:hover .outline-text { -webkit-text-stroke: 2px #e50914; }
 
-.rhythm-marquee { background: transparent; border-top: 1px solid rgba(255, 255, 255, 0.1); border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding: 25px 0; overflow: hidden; position: relative; z-index: 2; margin: 80px 0; }
-.solid { font-family: 'Poppins', sans-serif; font-size: 2.5rem; font-weight: 900; color: #fff; line-height: 1; }
-.outline { font-family: 'Poppins', sans-serif; font-size: 2.5rem; font-weight: 900; color: transparent; -webkit-text-stroke: 1px rgba(255, 255, 255, 0.5); line-height: 1; }
+.rhythm-marquee { border-top: 1px solid rgba(255, 255, 255, 0.1); border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding: 25px 0; overflow: hidden; position: relative; z-index: 2; margin: 80px 0; }
+.solid { font-size: 2.5rem; font-weight: 900; color: #fff; line-height: 1; }
+.outline { font-size: 2.5rem; font-weight: 900; color: transparent; -webkit-text-stroke: 1px rgba(255, 255, 255, 0.5); line-height: 1; }
 .separator { color: #e50914; font-size: 1.5rem; font-weight: 300; opacity: 0.8; margin: 0 20px; }
 
 .marquee-wrapper { background: #e50914; padding: 20px 0; transform: skewY(-2deg); width: 100%; overflow: hidden; border-top: 2px solid #fff; border-bottom: 2px solid #fff; margin-bottom: 80px; position: relative; z-index: 11; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
@@ -376,29 +444,75 @@ const initObserver = () => {
 @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 @keyframes scrollLeft { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 @keyframes scrollRight { 0% { transform: translateX(-50%); } 100% { transform: translateX(0); } }
-@keyframes scrollRhythm { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
-/* PRECIOS */
 .prices-content { padding-top: 50px; padding-bottom: 150px; }
-.brand-subtitle { font-size: 1rem; color: #aaa; letter-spacing: 4px; text-transform: uppercase; margin-top: 15px; font-weight: 600; }
 .pricing-flex { display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; }
 .pricing-item { flex: 1 1 280px; max-width: 340px; min-width: 260px; }
 
 .reveal-on-scroll { opacity: 0; transform: translateY(50px); transition: all 0.8s cubic-bezier(0.215, 0.610, 0.355, 1); }
 .reveal-on-scroll.is-visible { opacity: 1; transform: translateY(0); }
 
-@media (max-width: 768px) {
+/* =========================================
+   RESPONSIVE (CORRECCIONES DEFINITIVAS)
+   ========================================= */
+@media (max-width: 900px) {
+  
+  /* 1. HERO Y FONDO */
+  .hero-container { 
+    height: 100dvh; 
+    min-height: 600px;
+  }
+  
+  /* Textos Responsive */
   .brand-title { font-size: 2.5rem; }
-  .staggered-grid { grid-template-columns: 1fr; gap: 40px; }
+  .brand-title-left { font-size: 2.2rem; }
+  
+  /* 2. METODOLOGÍAS (CORREGIDO CENTRADO) */
+  .staggered-grid { 
+    grid-template-columns: 1fr; /* Una sola columna */
+    gap: 30px;
+    justify-items: center; /* Centra las tarjetas horizontalmente */
+  }
+  /* Reseteamos las columnas internas para que no empujen a la derecha */
+  .column-left, .column-right {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
   .column-right { margin-top: 0; transform: none !important; }
-  .hero-container { height: 60vh; }
+
+  /* 3. HISTORIA (Adaptación Móvil) */
+  .history-middle {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+  .middle-video { order: 2; margin-top: 20px; }
   
-  /* En móvil cambiamos a una sola columna */
-  .location-grid { grid-template-columns: 1fr; gap: 40px; }
-  .location-text { order: 2; } /* Texto abajo */
-  .location-map { order: 1; } /* Mapa arriba */
+  /* 4. UBICACIÓN (ARREGLO SUPERPOSICIÓN COMPLETO) */
+  .location-grid { 
+    display: flex; 
+    flex-direction: column;
+    /* Gap importante para separar el mapa del texto */
+    gap: 50px; 
+    align-items: stretch;
+  }
+  .location-map { 
+    order: 1; /* Mapa arriba */
+    width: 100%;
+    /* Altura forzada para que el mapa tenga espacio y no se superponga */
+    height: 400px !important; 
+    min-height: 400px;
+  }
+  .location-text { 
+    order: 2; /* Texto abajo */
+    width: 100%;
+    padding-top: 20px; /* Un poco de aire extra arriba del texto */
+  } 
   
+  /* Ajustes Marquees */
   .content { font-size: 2.5rem; }
-  .solid, .outline { font-size: 2.2rem; }
+  .solid, .outline { font-size: 2rem; }
+  .double-marquee-container { padding: 40px 0; }
 }
 </style>
