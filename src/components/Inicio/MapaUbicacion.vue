@@ -7,25 +7,41 @@
 
 <script setup>
 import { onMounted } from 'vue';
-import { setOptions, importLibrary } from '@googlemaps/js-api-loader';
 
-// TU CLAVE DE API
-const apiKey = 'AIzaSyCepmnnMYIlg5qWBPofm-W0wZ7YQn2jYj4'; 
+// TU CLAVE REAL (La que comprobamos que funciona en el HTML)
+const apiKey = "AIzaSyCepmnnMYIlg5qWBPofm-W0wZ7YQn2jYj4";
 
-const initMap = async () => {
-  setOptions({
-    apiKey: apiKey,
-    version: "weekly",
-  });
+const initMap = () => {
+  // Verificamos si Google Maps ya está cargado para no romper nada
+  if (window.google && window.google.maps) {
+    crearMapa();
+    return;
+  }
 
+  // Si no está cargado, creamos la etiqueta <script> manualmente
+  // (Exactamente igual que en el archivo HTML que funcionó)
+  const script = document.createElement("script");
+  script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=maps,marker&v=weekly`;
+  script.async = true;
+  script.defer = true;
+  
+  // Cuando el script termine de bajar, arrancamos el mapa
+  script.onload = () => {
+    crearMapa();
+  };
+
+  // Agregamos el script al encabezado de tu página
+  document.head.appendChild(script);
+};
+
+const crearMapa = async () => {
   try {
-    // 1. Importamos las librerías necesarias
-    const { Map } = await importLibrary("maps");
-    const { Marker } = await importLibrary("marker"); // Usamos 'Marker' clásico en vez de AdvancedMarkerElement
+    // Usamos la variable global 'google' que el script acaba de cargar
+    const { Map } = await google.maps.importLibrary("maps");
+    const { Marker } = await google.maps.importLibrary("marker");
 
     const position = { lat: -27.094061, lng: -61.084762 };
 
-    // Estilo Oscuro (Dark Mode)
     const darkStyle = [
       { elementType: "geometry", stylers: [{ color: "#212121" }] },
       { elementType: "labels.icon", stylers: [{ visibility: "off" }] },
@@ -39,28 +55,24 @@ const initMap = async () => {
       { featureType: "water", elementType: "geometry", stylers: [{ color: "#000000" }] }
     ];
 
-    // 2. Inicializamos el mapa (SIN mapId para evitar errores)
     const map = new Map(document.getElementById("google-map"), {
       center: position,
       zoom: 16,
       styles: darkStyle,
-      disableDefaultUI: true, // Quita botones satélite/calle
-      zoomControl: true,      // Deja solo el +/-
-      backgroundColor: "#050505"
+      disableDefaultUI: true,
+      zoomControl: true,
+      backgroundColor: "#050505",
+      mapId: "DEMO_MAP_ID" // Necesario para marcadores avanzados
     });
 
-    // 3. Marcador Clásico (Siempre funciona)
     new Marker({
       position: position,
       map: map,
       title: "Gimnasio Abito",
-      // Icono por defecto de Google (Rojo) para asegurar que se vea
-      // Si quieres uno personalizado, descomenta la línea de abajo y pon una URL de imagen
-      // icon: "https://maps.google.com/mapfiles/ms/icons/red-dot.png" 
     });
 
   } catch (error) {
-    console.error("Error cargando Google Maps:", error);
+    console.error("Error al iniciar el mapa:", error);
   }
 };
 
@@ -73,22 +85,42 @@ onMounted(() => {
 .map-wrapper {
   width: 100%;
   height: 100%;
-  /* Aseguramos altura mínima para que el div tenga tamaño */
-  min-height: 500px; 
+  min-height: 500px; /* Altura por defecto para PC */
   position: relative;
   border-radius: 4px;
   overflow: hidden;
   border: 1px solid #333;
   box-shadow: 0 20px 50px rgba(0,0,0,0.5);
   background-color: #111;
+  transition: min-height 0.3s ease;
 }
 
-.map-canvas { width: 100%; height: 100%; min-height: 500px; }
+.map-canvas { 
+  width: 100%; 
+  height: 100%; 
+  min-height: 500px; 
+}
 
 .map-overlay-shadow {
   position: absolute; top: 0; left: 0; width: 100%; height: 100%;
   box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
   pointer-events: none;
   z-index: 2;
+}
+
+/* =========================================
+   RESPONSIVE MAPA
+   ========================================= */
+@media (max-width: 900px) {
+  .map-wrapper {
+    min-height: 350px; /* Reducimos la altura en móvil */
+    border-radius: 0; /* Opcional: bordes rectos en móvil si ocupa todo el ancho */
+    border-left: none;
+    border-right: none;
+  }
+  
+  .map-canvas {
+    min-height: 350px;
+  }
 }
 </style>

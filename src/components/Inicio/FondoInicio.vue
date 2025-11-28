@@ -31,7 +31,7 @@
           
           <!-- Contenido solo para fondo.jpg con animación -->
           <div v-if="isFondoImage(image)" class="carousel-caption" :class="{ 'animate-in': showText, 'animate-out': !showText }">
-            <h1 class="hero-title">ENTRENAMIENTO PERSONALIZADO</h1>
+            <h1 class="hero-title">GIMNASIO ABITO Y BUENA VIDA...</h1>
             <p class="hero-subtitle">Transforma tu cuerpo, transforma tu vida</p>
           </div>
         </div>

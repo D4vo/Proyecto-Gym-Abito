@@ -42,30 +42,43 @@ const formattedIndex = computed(() => {
 .tech-card {
   background-color: #0c0c0c;
   border: 1px solid #1f1f1f;
-  /* Altura mínima para uniformidad, pero crece si hay mucho texto */
   min-height: 350px; 
   padding: 35px;
   position: relative;
   display: flex;
   flex-direction: column;
   transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  /* Sombra sutil interna para profundidad */
   box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
 }
 
-/* Efecto Hover: Elevación y Borde Brillante */
-.tech-card:hover {
+/* ==========================================================================
+   AQUÍ ESTÁ LA MAGIA: Agregamos .active-mobile a los selectores
+   ========================================================================== */
+
+/* Efecto Hover en PC O Scroll Activo en Móvil */
+.tech-card:hover,
+.tech-card.active-mobile {
   transform: translateY(-8px);
-  border-color: #444;
+  border-color: #444; /* Borde gris claro al activarse */
   box-shadow: 0 15px 30px rgba(0,0,0,0.4);
   background-color: #111;
 }
 
-.tech-card:hover .accent-separator {
+/* El separador se expande y se pone rojo */
+.tech-card:hover .accent-separator,
+.tech-card.active-mobile .accent-separator {
   width: 100%;
   background-color: #e50914;
 }
 
+/* El icono se mueve y se pone rojo */
+.tech-card:hover .interactive-icon,
+.tech-card.active-mobile .interactive-icon {
+  color: #e50914;
+  transform: translateX(5px);
+}
+
+/* Estilos base */
 .card-header {
   display: flex;
   justify-content: space-between;
@@ -87,7 +100,7 @@ const formattedIndex = computed(() => {
   font-size: 3.5rem;
   font-weight: 800;
   color: #fff;
-  opacity: 0.1; /* Muy sutil */
+  opacity: 0.1;
   line-height: 0.8;
   font-family: 'Poppins', sans-serif;
 }
@@ -101,7 +114,7 @@ const formattedIndex = computed(() => {
 }
 
 .card-body {
-  flex-grow: 1; /* Ocupa el espacio disponible */
+  flex-grow: 1;
 }
 
 .description {
@@ -109,7 +122,6 @@ const formattedIndex = computed(() => {
   font-size: 0.95rem;
   line-height: 1.7;
   margin: 0;
-  /* Esto asegura que se vea bien con textos largos */
   text-align: left;
 }
 
@@ -135,10 +147,5 @@ const formattedIndex = computed(() => {
   color: #444;
   font-size: 1.2rem;
   transition: transform 0.3s ease, color 0.3s ease;
-}
-
-.tech-card:hover .interactive-icon {
-  color: #e50914;
-  transform: translateX(5px);
 }
 </style>
