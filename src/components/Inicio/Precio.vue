@@ -46,7 +46,6 @@ const props = defineProps({
 })
 
 const formatNumber = (val) => {
-  // Formateamos sin decimales si es posible para que se vea más limpio
   return Number(val).toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
 </script>
@@ -63,18 +62,19 @@ const formatNumber = (val) => {
   flex-direction: column;
   justify-content: space-between;
   transition: all 0.4s ease;
-  min-height: 480px; /* Un poquito más alto para acomodar el cambio */
+  min-height: 480px; 
 }
 
-/* Efecto al pasar el mouse */
-.pricing-card:hover {
+/* Efecto Hover PC o Scroll Móvil */
+.pricing-card:hover,
+.pricing-card.active-mobile {
   transform: translateY(-10px);
   border-color: #555;
   background: #141414;
   box-shadow: 0 20px 50px rgba(0,0,0,0.5);
 }
 
-/* Línea roja brillante superior al hover */
+/* Línea roja brillante */
 .glow-effect {
   position: absolute;
   top: 0; left: 0; width: 100%; height: 4px;
@@ -84,7 +84,8 @@ const formatNumber = (val) => {
   box-shadow: 0 0 20px rgba(229, 9, 20, 0.5);
 }
 
-.pricing-card:hover .glow-effect {
+.pricing-card:hover .glow-effect,
+.pricing-card.active-mobile .glow-effect {
   transform: scaleX(1);
 }
 
@@ -104,7 +105,7 @@ const formatNumber = (val) => {
 }
 
 .plan-name {
-  font-size: 1.8rem; /* Ajustado un poco para que no compita con el precio */
+  font-size: 1.8rem; 
   color: #fff;
   margin: 10px 0 15px;
   text-transform: uppercase;
@@ -112,7 +113,6 @@ const formatNumber = (val) => {
   line-height: 1.1;
 }
 
-/* --- NUEVOS ESTILOS DE PRECIO --- */
 .price-container {
   display: flex;
   flex-direction: column;
@@ -122,7 +122,7 @@ const formatNumber = (val) => {
 
 .price-value {
   display: flex;
-  align-items: flex-start; /* Alinea el $ arriba */
+  align-items: flex-start;
   line-height: 1;
 }
 
@@ -130,11 +130,11 @@ const formatNumber = (val) => {
   font-size: 1.8rem;
   margin-right: 4px;
   font-weight: 600;
-  margin-top: 5px; /* Pequeño ajuste visual */
+  margin-top: 5px; 
 }
 
 .amount {
-  font-size: 3.8rem; /* Número GIGANTE */
+  font-size: 3.8rem; 
   font-weight: 800;
   letter-spacing: -1px;
 }
@@ -147,7 +147,6 @@ const formatNumber = (val) => {
   margin-top: 5px;
   font-weight: 600;
 }
-/* -------------------------------- */
 
 .features-list {
   flex-grow: 1;
@@ -170,7 +169,9 @@ const formatNumber = (val) => {
   transition: color 0.3s;
 }
 
-.pricing-card:hover .feature-item i {
+/* Iconos blancos al activar */
+.pricing-card:hover .feature-item i,
+.pricing-card.active-mobile .feature-item i {
   color: #fff;
 }
 
@@ -200,6 +201,7 @@ const formatNumber = (val) => {
   font-size: 0.9rem;
 }
 
+/* El botón mantiene su hover normal ya que es interactivo */
 .btn-choose:hover {
   background: #e50914;
   border-color: #e50914;

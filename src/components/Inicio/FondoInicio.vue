@@ -2,9 +2,7 @@
   <section id="inicio" class="hero-section">
     <NavBar />
     
-    <!-- Carrusel Bootstrap -->
     <div ref="carouselElement" class="carousel slide" data-bs-ride="carousel">
-      <!-- Indicadores ORIGINALES de Bootstrap (ocultos) -->
       <div class="carousel-indicators d-none">
         <button 
           v-for="(image, index) in carouselImages" 
@@ -17,7 +15,6 @@
         ></button>
       </div>
 
-      <!-- Slides -->
       <div class="carousel-inner">
         <div 
           v-for="(image, index) in carouselImages" 
@@ -29,15 +26,16 @@
           <img :src="image" class="d-block w-100 carousel-image" :alt="`Imagen ${index + 1}`">
           <div class="carousel-overlay"></div>
           
-          <!-- Contenido solo para fondo.jpg con animación -->
           <div v-if="isFondoImage(image)" class="carousel-caption" :class="{ 'animate-in': showText, 'animate-out': !showText }">
-            <h1 class="hero-title">GIMNASIO ABITO Y BUENA VIDA...</h1>
+            <h1 class="hero-title">
+              <span class="title-fragment">GIMNASIO ABITO</span>
+              <span class="title-fragment"> Y BUENA VIDA...</span>
+            </h1>
             <p class="hero-subtitle">Transforma tu cuerpo, transforma tu vida</p>
           </div>
         </div>
       </div>
 
-      <!-- Controles -->
       <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
         <span class="carousel-control-prev-icon" aria-hidden="true"></span>
         <span class="visually-hidden">Anterior</span>
@@ -47,7 +45,6 @@
         <span class="visually-hidden">Siguiente</span>
       </button>
 
-      <!-- Indicadores personalizados INSTANTÁNEOS -->
       <div class="carousel-indicators-custom">
         <button 
           v-for="(image, index) in carouselImages" 
@@ -61,7 +58,6 @@
       </div>
     </div>
 
-    <!-- DEGRADADO MUY BAJO Y SUTIL -->
     <div class="bottom-gradient"></div>
   </section>
 </template>
@@ -313,6 +309,11 @@ onUnmounted(() => {
   transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
+/* Estilos base para fragmentos del título */
+.title-fragment {
+  display: inline; /* Por defecto en una línea (PC) */
+}
+
 /* Animación de entrada - Elegante y sutil */
 .carousel-caption.animate-in {
   opacity: 1;
@@ -390,8 +391,18 @@ onUnmounted(() => {
 
 /* Responsive */
 @media (max-width: 768px) {
+  /* CAMBIO: Configuracion para separar el título en dos líneas */
+  .title-fragment {
+    display: block; /* Fuerza el salto de línea */
+    line-height: 1.2;
+  }
+
   .hero-title {
     font-size: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
   }
   
   .hero-subtitle {
