@@ -183,3 +183,7 @@ export function filterItems(items, terminoBusqueda, filtrosAdicionales = {}) {
     return true; // Pasa todos los filtros
   });
 }
+
+export const obtenerAnioActual = () => {
+  return new Date().getFullYear();
+};

@@ -6,7 +6,7 @@
       </div>
 
       <div class="footer-center">
-        <p>© Copyright 2025 | Todos los derechos reservados</p>
+        <p>© Copyright {{anio}} | Todos los derechos reservados</p>
       </div>
 
       <div class="footer-right">
@@ -18,7 +18,10 @@
 
 
 <script setup>
-// No se necesitan props ni lógica por ahora
+import { obtenerAnioActual } from '@/utils/formatters';
+
+// 2. Ejecutamos la función para obtener el año y lo guardamos en una variable
+const anio = obtenerAnioActual();
 </script>
 
 <style scoped>

@@ -31,7 +31,7 @@
       </div>
     </div>
 
-    <button class="btn-choose">
+    <button class="btn-choose" @click="irLogin('login')">
       <span>ELEGIR PLAN</span>
       <i class="fas fa-arrow-right"></i>
     </button>
@@ -40,11 +40,18 @@
 
 <script setup>
 import { formatCurrency } from '@/utils/formatters';
+import { useRouter } from 'vue-router';
+
+// 2. Definimos la constante router para poder usarla
+const router = useRouter();
 
 const props = defineProps({
   precio: Object
 })
 
+function irLogin(modo) {
+  router.push({ path: '/login', query: { modo } })
+}
 const formatNumber = (val) => {
   return Number(val).toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }

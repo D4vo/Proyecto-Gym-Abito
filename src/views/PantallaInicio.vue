@@ -233,6 +233,8 @@ const handleScroll = () => {
 
 onMounted(async () => {
   window.addEventListener('scroll', handleScroll);
+  
+  // 1. Iniciamos el observer para el contenido estático (Historia, Títulos)
   setTimeout(initObserver, 300);
 
   try { 
@@ -242,8 +244,11 @@ onMounted(async () => {
   try { 
     precios.value = await obtenerSuscripciones();
     
-    // IMPORTANTE: Esperamos a que todo esté renderizado (Metodologías Y Precios)
+    // 2. CRUCIAL: Esperamos a que Vue renderice los nuevos elementos de la API
     await nextTick();
+    
+    // 3. Volvemos a llamar al observer para que detecte los nuevos elementos cargados
+    initObserver();
     initMobileObserver();
     
   } catch (e) { console.error(e) }
@@ -256,21 +261,27 @@ onUnmounted(() => {
 })
 
 const initObserver = () => {
-  const options = { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
-  observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('is-visible')
-        observer.unobserve(entry.target)
-      }
-    })
-  }, options)
-  document.querySelectorAll('.reveal-on-scroll').forEach(el => observer.observe(el))
+  // Verificamos si ya existe para no crearlo dos veces
+  if (!observer) {
+    const options = { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
+    observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible')
+          observer.unobserve(entry.target)
+        }
+      })
+    }, options)
+  }
+
+  // Buscamos SOLO los elementos que aún no son visibles para observarlos
+  document.querySelectorAll('.reveal-on-scroll:not(.is-visible)').forEach(el => observer.observe(el))
 }
 
 const initMobileObserver = () => {
   if (window.innerWidth > 900) return;
   
+  // Aquí sí reiniciamos el mobileObserver porque su lógica es diferente (active/inactive)
   if (mobileObserver) mobileObserver.disconnect();
 
   const options = { 
@@ -294,7 +305,7 @@ const initMobileObserver = () => {
   // 2. Metodologías
   document.querySelectorAll('.card-spacer').forEach(el => mobileObserver.observe(el))
 
-  // 3. NUEVO: Precios
+  // 3. Precios
   document.querySelectorAll('.pricing-item').forEach(el => mobileObserver.observe(el))
 }
 </script>
@@ -304,7 +315,7 @@ const initMobileObserver = () => {
    BASE & LAYOUT
    ========================================= */
 .main-wrapper { 
-  background-color: #121212; 
+  background-color: #050505; 
   color: #fff; 
   font-family: 'Poppins', sans-serif; 
   overflow: visible; 
@@ -320,14 +331,14 @@ const initMobileObserver = () => {
 /* =========================================
    HERO
    ========================================= */
-.hero-container { position: relative; width: 100%; height: 100vh; overflow: hidden; z-index: 1; background-color: #121212; }
+.hero-container { position: relative; width: 100%; height: 100vh; overflow: hidden; z-index: 1; background-color: #050505; }
 .hero-parallax-layer { width: 100%; height: 120%; position: absolute; top: 0; left: 0; will-change: transform; }
-.hero-gradient-overlay.bottom { position: absolute; bottom: 0; left: 0; width: 100%; height: 150px; background: linear-gradient(to bottom, transparent 0%, #121212 100%); pointer-events: none; z-index: 3; }
+.hero-gradient-overlay.bottom { position: absolute; bottom: 0; left: 0; width: 100%; height: 150px; background: linear-gradient(to bottom, transparent 0%, #050505 100%); pointer-events: none; z-index: 3; }
 
 /* =========================================
    PATRONES & ESTILOS GENERALES
    ========================================= */
-.pattern-bg { background-color: #121212; background-image: radial-gradient(#2a2a2a 1px, transparent 1px); background-size: 30px 30px; }
+.pattern-bg { background-color: #050505; background-image: radial-gradient(#2a2a2a 1px, transparent 1px); background-size: 30px 30px; }
 .header-group { text-align: center; margin-bottom: 80px; display: flex; flex-direction: column; align-items: center; }
 .brand-tag { color: #e50914; font-size: 0.8rem; font-weight: 700; letter-spacing: 3px; margin-bottom: 10px; text-transform: uppercase; }
 .brand-title { font-size: 4rem; font-weight: 800; letter-spacing: -2px; color: #fff; margin: 0; text-transform: uppercase; line-height: 1; }
@@ -338,7 +349,7 @@ const initMobileObserver = () => {
    METODOLOGÍAS
    ========================================= */
 .methods-section { position: relative; padding-top: 150px; padding-bottom: 150px; z-index: 5; }
-.methods-top-gradient { position: absolute; top: 0; left: 0; width: 100%; height: 200px; background: linear-gradient(to bottom, #121212 0%, transparent 100%); pointer-events: none; z-index: 1; }
+.methods-top-gradient { position: absolute; top: 0; left: 0; width: 100%; height: 200px; background: linear-gradient(to bottom, #050505 0%, transparent 100%); pointer-events: none; z-index: 1; }
 .staggered-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
 .card-spacer { margin-bottom: 40px; transition: all 0.3s ease; }
 .column-right { margin-top: 100px; will-change: transform; }
