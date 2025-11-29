@@ -38,6 +38,12 @@ export default {
   },
   components: {
     RegisterStep2
+  },
+  computed: {
+    // Extraemos el token de la barra de direcciones (?token=...)
+    token() {
+      return this.$route.query.token;
+    }
   }
 }
 </script>

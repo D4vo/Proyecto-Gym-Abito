@@ -157,8 +157,16 @@
 </template>
 
 <script>
+import { registroPaso2 } from '@/api/services/authService';
+
 export default {
   name: 'RegisterStep2',
+  props: {
+    token: {
+      type: String,
+      required: true
+    }
+  },
   data() {
     return {
       loading: false,
@@ -183,6 +191,12 @@ export default {
   mounted() {
     // Cerrar dropdown si se hace click fuera
     document.addEventListener('click', this.handleClickOutside);
+
+    // Validación de seguridad: si no hay token, volvemos al inicio
+    if (!this.token) {
+      console.error("Token de registro no proporcionado. Redirigiendo al inicio.");
+      this.$router.push('/'); 
+    }
   },
   beforeUnmount() {
     document.removeEventListener('click', this.handleClickOutside);
@@ -209,17 +223,51 @@ export default {
       const valor = event.target.value;
       this.profileData.telefono = valor.replace(/\D/g, '');
     },
-    finalizarRegistro() {
+    async finalizarRegistro() {
+      // 1. Validaciones básicas del Frontend
+      if (this.profileData.dni.length !== 8) {
+        alert('Atención: El DNI debe tener exactamente 8 dígitos.');
+        return;
+      }
+      
       this.loading = true;
-      const telefonoCompleto = `${this.selectedCountry.code} ${this.profileData.telefono}`;
-      const datosFinales = { ...this.profileData, telefono: telefonoCompleto };
 
-      setTimeout(() => {
-        console.log("Datos finales:", datosFinales);
-        alert("¡Registro Completado Exitosamente!");
-        this.loading = false;
+      try {
+        // Formatear teléfono (Ej: +54 3624123456)
+        // Nota: Asegúrate de que el total no supere 15 caracteres (limite de tu BD)
+        const telefonoCompleto = `${this.selectedCountry.code}${this.profileData.telefono}`;
+
+        // 2. Preparar Payload mapeando los nombres correctos para la API
+        const payload = {
+          dni: this.profileData.dni,
+          nombre: this.profileData.nombre,
+          apellido: this.profileData.apellido,
+          telefono: telefonoCompleto,
+          sexo: this.profileData.sexo, // <--- ¡Asegúrate de agregar esto ahora!
+          nomProvincia: this.profileData.provincia,
+          nomLocalidad: this.profileData.localidad,
+          calle: this.profileData.calle,
+          numero: this.profileData.numero || "S/N"
+        };
+
+        console.log("Enviando paso 2:", payload);
+
+        // 3. Llamada al servicio con los datos y el token
+        await registroPaso2(payload, this.token);
+
+        // 4. Éxito
+        alert("Registro completado con éxito. Ya puedes iniciar sesión.");
+        
         this.$router.push('/login');
-      }, 2000);
+
+      } catch (error) {
+        console.error("Error paso 2:", error);
+        const mensaje = error || 'No se pudo completar el registro.';
+        
+        console.error(mensaje);
+      } finally {
+        this.loading = false;
+      }
     }
   }
 }
