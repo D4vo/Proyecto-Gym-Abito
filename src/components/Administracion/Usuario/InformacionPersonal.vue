@@ -14,29 +14,52 @@
 import { onMounted, ref } from 'vue';
 import DetallePersona from '../Admin/DetallePersona.vue';
 
+// Imports de servicios y storage
 import { obtenerDataCurrentUser } from '@/api/services/alumnoService';
+import { getMiPerfilPersona } from '@/api/services/personaService'; 
+import { getUser } from '@/api/storage/userStorage';
 
-// Estructura fija del alumno
+// Estado reactivo
 const alumno = ref({});
 const cargando = ref(true);
 const errorCarga = ref(null);
 
-// Cargar precios desde JSON al montar
-const cargarPrecios = async () => {
+// Función para cargar los datos según el rol
+const cargarDatos = async () => {
   cargando.value = true;
   errorCarga.value = null;
+  
   try {
-    const res = await obtenerDataCurrentUser();
-    alumno.value = res
+    // 1. Obtenemos el usuario del storage para ver sus roles
+    const user = getUser();
+    let response;
+
+    // 2. Decidimos qué servicio llamar
+    if (user && user.esAlumno) {
+      console.log("Cargando perfil de ALUMNO...");
+      response = await obtenerDataCurrentUser();
+    } else {
+      console.log("Cargando perfil de PERSONA...");
+      // Este servicio llama a /personas/mi-perfil
+      response = await getMiPerfilPersona();
+    }
+
+    // 3. Asignamos la respuesta
+    if (response) {
+      alumno.value = response;
+    } else {
+      throw new Error("La respuesta del servidor está vacía.");
+    }
+
   } catch (error) {
-    console.error('Error cargando precios.json:', error);
-    errorCarga.value = 'No se pudieron cargar las suscripciones.';
+    console.error('Error al obtener los datos del perfil:', error);
+    errorCarga.value = 'No se pudo cargar la información del perfil.';
   } finally {
     cargando.value = false;
   }
 };
 
-onMounted(cargarPrecios);
+onMounted(cargarDatos);
 
 </script>
 
