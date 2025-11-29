@@ -72,7 +72,13 @@ export const eliminarPersona = async (dni) => {
 /**
  * Obtiene el perfil de la persona autenticada.
  */
-export const getMiPerfilPersona = () => {
-    // CORREGIDO: Ahora 'apiClient' está definido gracias al import correcto
-    return apiClient.get('/personas/mi-perfil');
+export const getMiPerfilPersona = async () => {
+    try {
+        const response = await apiClient.get('/personas/mi-perfil');
+        return response.data; // <--- ¡AQUÍ ESTÁ LA CLAVE! Devolver .data
+    } catch (error) {
+        console.error("Error al obtener perfil de persona:", error);
+        // Es buena práctica devolver null o lanzar el error para que el componente lo sepa
+        throw error; 
+    }
 };
