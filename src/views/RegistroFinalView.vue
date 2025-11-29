@@ -13,7 +13,7 @@
       </div>
       
       <div class="auth-content">
-        <RegisterStep2 />
+        <RegisterStep2 :token="token"/>
       </div>
       
     </div>

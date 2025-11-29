@@ -195,7 +195,8 @@ export default {
     // Validación de seguridad: si no hay token, volvemos al inicio
     if (!this.token) {
       console.error("Token de registro no proporcionado. Redirigiendo al inicio.");
-      this.$router.push('/'); 
+      alert("Error: El enlace de registro no es válido.");
+      this.$router.push('/');
     }
   },
   beforeUnmount() {
