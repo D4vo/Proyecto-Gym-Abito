@@ -318,8 +318,7 @@ const handleConfirmarEliminacion = async () => {
       throw new Error("La API de eliminar no devolvió un estado de éxito.");
     }
   } catch (error) {
-    console.error("Error al eliminar la suscripción:", error);
-    const errorMsg = error.response?.data?.detail || 'No se pudo eliminar la suscripción.';
+    const errorMsg = error.response?.data?.error || 'No se pudo eliminar la suscripción.';
     mensajeModalError.value = errorMsg;
     mostrarModalError.value = true;
   } finally {

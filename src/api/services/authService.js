@@ -59,3 +59,19 @@ export const isAdmin = () => {
     const user = getUser();
     return user && user.esAdmin;
 };
+
+/**
+ * Paso 1: Enviar datos iniciales y recibir correo
+ */
+export const registroPaso1 = (data) => {
+    // data espera: { email, usuario, contrasenia, confirmar_contrasenia }
+    return apiClient.post('/auth/registro-paso1', data);
+};
+
+/**
+ * Paso 2: Enviar datos personales + el token del correo
+ */
+export const registroPaso2 = (data, token) => {
+    // La API espera el token como query param y los datos en el body
+    return apiClient.post(`/auth/registro-paso2?token=${token}`, data);
+};

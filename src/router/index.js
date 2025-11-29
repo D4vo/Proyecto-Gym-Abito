@@ -47,11 +47,10 @@ const routes = [
     meta: { requiresAuth: true, isAdmin: true }
   },
   {
-    path: '/completar-registro',
-    name: 'CompletarRegistro',
+    path: '/completar-registro', // Esta es la URL a la que llegará el usuario desde el correo
+    name: 'completar-registro',
     component: RegistroFinalView,
-    // No ponemos requiresAuth porque el usuario viene del mail 
-    // y técnicamente aún no inició sesión.
+    props: route => ({ token: route.query.token }) // Pasamos el token como prop a la vista
   }
   ,
   {

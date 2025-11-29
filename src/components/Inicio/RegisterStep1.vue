@@ -129,6 +129,9 @@
 </template>
 
 <script>
+// servicio para registro
+import { registroPaso1 } from '@/api/services/authService';
+
 export default {
   name: 'RegisterStep1',
   data() {
@@ -169,14 +172,39 @@ export default {
       }
       
       this.validarContraseñas();
+      this.validarEmail();
       if (this.passwordError || this.emailError) return;
 
+
+      // --aquí se llama a API paso1?--
       this.loading = true;
-      setTimeout(() => {
-        console.log("Enviando datos al backend:", this.registerData);
+
+
+      try {
+        // 2. Preparamos los datos como los espera la API (mapeo de nombres)
+        const payload = {
+          email: this.registerData.email,
+          usuario: this.registerData.username,
+          contrasenia: this.registerData.password,
+          confirmar_contrasenia: this.registerData.confirmPassword
+        };
+
+        // 3. Llamada al Backend
+        await registroPaso1(payload);
+        
+        // 4. Si todo sale bien:
+        this.correoEnviado = true; // Esto activará la vista de "Correo enviado" en tu template
+        
+      } catch (error) {
+        console.error(error);
+        // Manejo de errores (ej: usuario ya existe)
+        const mensajeError = error || 'Error al conectar con el servidor';
+        
+        // Usamos Swal o un alert normal si prefieres
+        alert(mensajeError);
+      } finally {
         this.loading = false;
-        this.correoEnviado = true;
-      }, 1500);
+      }
     },
     togglePass(field) {
         if(field === 'pass') this.registerPasswordFieldType = this.registerPasswordFieldType === 'password' ? 'text' : 'password';
