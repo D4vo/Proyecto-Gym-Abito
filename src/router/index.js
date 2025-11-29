@@ -16,7 +16,7 @@ const routes = [
     name: 'Inicio',
     component: PantallaInicio
   },
-    {
+  {
     path: '/login',
     name: 'login',
     component: LoginView
@@ -25,40 +25,37 @@ const routes = [
     path: '/Usuario',
     name: 'PantallaUsuario',  
     component: PantallaUsuario,
-    meta: { requiresAuth: true, isAdmin: false }
+    meta: { requiresAuth: true, role: 'alumno' } // Rol requerido: alumno
   },
   {
     path: '/Admin',
     name: 'PantallaAdmin',
     component: PantallaAdmin,
-    meta: { requiresAuth: true, isAdmin: true }
+    meta: { requiresAuth: true, role: 'admin' } // Rol requerido: admin
   },
   {
     path: '/Persona',
     name: 'PantallaPersona',
     component: PantallaPersona,
-    meta: { requiresAuth: true, isAdmin: false }
-  }
-  ,
+    meta: { requiresAuth: true, role: 'persona' } // Rol requerido: persona (usuario básico)
+  },
   {
     path: '/Empleado',
     name: 'PantallaEmpleado',
     component: PantallaEmpleado,
-    meta: { requiresAuth: true, isAdmin: true }
+    meta: { requiresAuth: true, role: 'empleado' } // Rol requerido: empleado
   },
   {
-    path: '/completar-registro', // Esta es la URL a la que llegará el usuario desde el correo
-    name: 'completar-registro',
+    path: '/completar-registro',
+    name: 'CompletarRegistro',
     component: RegistroFinalView,
-    props: route => ({ token: route.query.token }) // Pasamos el token como prop a la vista
-  }
-  ,
+    // No requiere auth porque viene del email
+  },
   {
     path: '/Recuperacion',
     name: 'RecuperarContraseña',
     component: RecuperarView,
-    // No ponemos requiresAuth porque el usuario viene del mail 
-    // y técnicamente aún no inició sesión.
+    // No requiere auth
   }
 ]
 
@@ -72,31 +69,48 @@ router.beforeEach((to, from, next) => {
   const loggedIn = !!getToken();
   const user = getUser();
 
-  // Si la ruta requiere autenticación
-  if (to.meta.requiresAuth) {
-    // Si el usuario NO está logueado, redirige al login
-    if (!loggedIn) {
-      next({ name: 'login' });
-    } else {
-      // Si está logueado, verifica el rol (isAdmin)
-      const isAdminRoute = to.meta.isAdmin;
-      const userIsAdmin = user && user.esAdmin;
-
-      if (isAdminRoute && !userIsAdmin) {
-        // Si intenta acceder a una ruta de admin sin serlo, redirige a /usuario
-        next({ name: 'PantallaUsuario' });
-      } else if (!isAdminRoute && userIsAdmin) {
-        // Si un admin intenta acceder a una ruta de usuario, redirige a /admin
-        next({ name: 'PantallaAdmin' });
-      } else {
-        // Si tiene el rol correcto, permite el acceso
-        next();
-      }
-    }
-  } else {
-    // Si la ruta no requiere autenticación, permite el acceso
-    next();
+  // 1. Si la ruta requiere autenticación y NO estamos logueados -> Login
+  if (to.meta.requiresAuth && !loggedIn) {
+    return next({ name: 'login' });
   }
+
+  // 2. Si estamos logueados y la ruta tiene restricciones de rol
+  if (loggedIn && to.meta.requiresAuth && to.meta.role) {
+    const requiredRole = to.meta.role;
+
+    // --- Validar ADMIN ---
+    if (requiredRole === 'admin' && !user.esAdmin) {
+      if (user.esEmpleado) return next({ name: 'PantallaEmpleado' });
+      if (user.esAlumno) return next({ name: 'PantallaUsuario' });
+      return next({ name: 'PantallaPersona' });
+    }
+
+    // --- Validar EMPLEADO ---
+    if (requiredRole === 'empleado' && !user.esEmpleado && !user.esAdmin) {
+      // Si no es empleado ni admin
+      if (user.esAlumno) return next({ name: 'PantallaUsuario' });
+      return next({ name: 'PantallaPersona' });
+    }
+
+    // --- Validar ALUMNO ---
+    if (requiredRole === 'alumno' && !user.esAlumno && !user.esAdmin && !user.esEmpleado) {
+      return next({ name: 'PantallaPersona' });
+    }
+
+    // --- Validar PERSONA ---
+    // (Opcional) Podríamos restringir que un Admin entre a la pantalla de Persona,
+    // pero generalmente no hace daño.
+  }
+
+  // 3. Evitar que usuarios logueados vuelvan al login
+  if (to.path === '/login' && loggedIn) {
+    if (user.esAdmin) return next({ name: 'PantallaAdmin' });
+    if (user.esEmpleado) return next({ name: 'PantallaEmpleado' });
+    if (user.esAlumno) return next({ name: 'PantallaUsuario' });
+    return next({ name: 'PantallaPersona' });
+  }
+
+  next();
 });
 
 export default router

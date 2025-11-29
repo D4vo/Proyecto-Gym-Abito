@@ -157,8 +157,12 @@ export default {
         const userData = await login(this.loginData.username, this.loginData.password);
         if (userData.esAdmin) {
           this.$router.push('/admin');
-        } else {
-          this.$router.push('/usuario');
+        } else  if (userData.esEmpleado) {
+          this.$router.push('/Empleado');
+        } else if (userData.esAlumno) {
+          this.$router.push('/Usuario');
+        } else  if (userData.esPersona) {
+          this.$router.push('/Persona');
         }
       } catch (error) {
         this.loginError = 'Credenciales incorrectas.';
