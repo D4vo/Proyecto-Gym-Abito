@@ -19,7 +19,7 @@
     </div>
 
     <div class="simple-footer">
-      <p>© 2024 Gimnasio Abito</p>
+      <p>© {{anio}} Gimnasio Abito</p>
     </div>
   </div>
 </template>
@@ -27,9 +27,15 @@
 <script>
 // Ya no necesitamos AuthBackground porque usamos el estilo directo
 import RegisterStep2 from '@/components/Inicio/RegisterStep2.vue';
+import { obtenerAnioActual } from '@/utils/formatters';
 
 export default {
   name: 'RegistroFinalView',
+  data() {
+    return {
+      anio: obtenerAnioActual()
+    }
+  },
   components: {
     RegisterStep2
   }

@@ -42,7 +42,7 @@
     </div>
     
     <div class="simple-footer">
-      <p>© 2024 Gimnasio Abito</p>
+      <p>© {{anio}} Gimnasio Abito</p>
     </div>
   </div>
 </template>
@@ -50,10 +50,16 @@
 <script>
 import LoginForm from '@/components/Inicio/LoginForm.vue';
 import RegisterStep1 from '@/components/Inicio/RegisterStep1.vue';
+import { obtenerAnioActual } from '@/utils/formatters';
 
 export default {
   name: 'LoginView',
   components: { LoginForm, RegisterStep1 },
+  data() {
+    return {
+      anio: obtenerAnioActual()
+    }
+  },
   computed: {
     currentModo() { return this.$route.query.modo || 'login'; }
   },
