@@ -20,7 +20,7 @@
     <div v-else class="lista-avisos" ref="listaAvisosRef">
       <Aviso
         v-for="aviso in avisos"
-        :key="aviso.id"
+        :key="aviso.idAviso"
         :aviso="aviso"
         :showControls="true" @guardar-aviso="manejarGuardarAviso"
         @eliminar-aviso="manejarEliminarAviso"
@@ -98,6 +98,10 @@ import { ref, onMounted, nextTick } from 'vue';
 import Titulo from '../../Titulo.vue';
 import Aviso from './Aviso.vue'; 
 
+// Importamos el servicio y los formateadores
+import { listarAvisos, crearAviso, actualizarAviso, eliminarAviso } from '@/api/services/avisosService';
+import { formatearFecha, formatearHora } from '@/utils/formatters';
+
 // --- Refs de Estado ---
 const listaAvisosRef = ref(null);
 const avisos = ref([]);
@@ -111,24 +115,20 @@ const mensajeModalError = ref('');
 const mostrarModalConfirmacion = ref(false);
 const avisoAEliminar = ref(null); 
 
-// --- Simulación de API (JSON) ---
-const simularAPI_Avisos = () => {
-  console.log("Simulando llamada a API para obtener avisos...");
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve([
-        { id: 1, descripcion: "Recordatorio: El gimnasio permanecerá cerrado el próximo lunes por feriado.", fecha: "03/11/2025", hora: "10:30" },
-        { id: 2, descripcion: "¡Nueva clase de Funcional! Martes y Jueves a las 19:00 hs. ¡Anotate!", fecha: "01/11/2025", hora: "15:45" },
-      ]);
-    }, 800);
-  });
-};
-
+// --- Carga de Datos ---
 const cargarAvisos = async () => {
   loading.value = true;
   try {
-    const data = await simularAPI_Avisos(); 
-    avisos.value = data;
+    const data = await listarAvisos();
+    
+    // Formateamos las fechas/horas que vienen de la API para mostrarlas bien
+    avisos.value = data.map(aviso => ({
+      ...aviso,
+      // Usamos tus funciones de utilidad si existen, si no, dejamos el original
+      fecha: formatearFecha ? formatearFecha(aviso.fecha) : aviso.fecha, 
+      hora: formatearHora ? formatearHora(aviso.hora) : aviso.hora
+    }));
+
   } catch (error) {
     console.error("Error al cargar los avisos:", error);
     mensajeModalError.value = "No se pudieron cargar los avisos.";
@@ -142,42 +142,46 @@ onMounted(cargarAvisos);
 
 const anadirNuevoAviso = async () => {
   const nuevoAviso = {
-    id: 'temp-' + Date.now(), 
+    // Usamos null o un ID temporal negativo para indicar que es local
+    idAviso: null, 
     descripcion: '', 
-    fecha: '', 
-    hora: '',  
+    fecha: '', // Se mostrará vacío hasta que se guarde y recargue
+    hora: '', 
     _isNew: true 
   };
 
-  avisos.value.push(nuevoAviso);
+  avisos.value.unshift(nuevoAviso); // Lo agregamos al principio para verlo rápido
   
   await nextTick();
   if (listaAvisosRef.value) {
-    const ultimoElemento = listaAvisosRef.value.lastElementChild;
-    if (ultimoElemento) {
-      ultimoElemento.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
+    // Scroll al primer elemento
+    listaAvisosRef.value.firstElementChild?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 };
 
 const manejarGuardarAviso = async (avisoGuardado) => {
-  console.log('Recibido para guardar:', avisoGuardado);
-  
   try {
     let mensaje = '';
     
+    // Preparamos solo los datos que la API espera
+    const payload = {
+      descripcion: avisoGuardado.descripcion
+    };
+
     if (avisoGuardado._isNew) {
-      console.log("Simulando API: CREAR AVISO", avisoGuardado);
-      // --- TODO: API de crear ---
+      console.log("Creando aviso...", payload);
+      await crearAviso(payload);
       mensaje = 'Aviso creado correctamente';
     
     } else {
-      console.log("Simulando API: ACTUALIZAR AVISO", avisoGuardado);
-      // --- TODO: API de actualizar ---
+      console.log("Actualizando aviso...", avisoGuardado.idAviso);
+      await actualizarAviso(avisoGuardado.idAviso, payload);
       mensaje = 'Aviso modificado correctamente';
     }
     
+    // Recargamos para obtener los datos frescos (fechas generadas por BD)
     await cargarAvisos(); 
+    
     mensajeModalExito.value = mensaje;
     mostrarModalExito.value = true;
 
@@ -190,8 +194,9 @@ const manejarGuardarAviso = async (avisoGuardado) => {
 };
 
 const manejarEliminarAviso = (avisoParaEliminar) => {
+  // Si es uno nuevo que aún no se guardó en BD (no tiene idAviso real)
   if (avisoParaEliminar._isNew) {
-    avisos.value = avisos.value.filter(a => a.id !== avisoParaEliminar.id);
+    avisos.value = avisos.value.filter(a => a !== avisoParaEliminar);
     return;
   }
   avisoAEliminar.value = avisoParaEliminar;
@@ -203,11 +208,13 @@ const manejarEliminarAviso = (avisoParaEliminar) => {
 const handleConfirmarEliminacion = async () => {
   if (!avisoAEliminar.value) return;
   mostrarModalConfirmacion.value = false;
+  
   try {
-    console.log("Simulando API: ELIMINAR AVISO", avisoAEliminar.value.id);
-    // --- TODO: API de eliminar ---
+    await eliminarAviso(avisoAEliminar.value.idAviso);
     
-    await cargarAvisos(); 
+    // Eliminamos localmente para no tener que recargar toda la lista si no queremos
+    avisos.value = avisos.value.filter(a => a.idAviso !== avisoAEliminar.value.idAviso);
+    
     mensajeModalExito.value = 'Aviso eliminado correctamente';
     mostrarModalExito.value = true;
 

@@ -36,9 +36,9 @@
 
         <form v-else key="edicion" class="form-edicion" @submit.prevent="guardarCambios">
           <div class="info-item-edit">
-            <label :for="'desc-' + aviso.id">Descripción del Aviso</label>
+            <label :for="'desc-' + aviso.idAviso">Descripción del Aviso</label>
             <textarea 
-              :id="'desc-' + aviso.id"
+              :id="'desc-' + aviso.idAviso"
               v-model="avisoEditable.descripcion" 
               class="input-textarea"
               placeholder="Escribe el aviso aquí..."
@@ -107,31 +107,34 @@ const avisoEditable = ref(null);
 const mostrarModalConfirmacion = ref(false);
 
 const activarModoEdicion = () => {
+  // Clonamos el objeto para no modificar la prop directamente mientras editamos
   avisoEditable.value = JSON.parse(JSON.stringify(props.aviso));
   modoEdicion.value = true;
 };
 
+// --- AQUÍ ESTÁ EL CAMBIO PRINCIPAL ---
 const guardarCambios = () => {
   if (!avisoEditable.value.descripcion.trim()) {
     console.warn('La descripción no puede estar vacía.'); 
     return;
   }
 
-  const now = new Date();
-  const fecha = now.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
-  const hora = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+  // ELIMINADO: const now = new Date();
+  // ELIMINADO: const fecha = ...
+  // ELIMINADO: const hora = ...
 
   const avisoActualizado = {
     ...avisoEditable.value,
     descripcion: avisoEditable.value.descripcion.trim(),
-    fecha: fecha,
-    hora: hora,
+    // Ya no enviamos fecha ni hora manual, la API se encarga o 
+    // se mantienen las viejas si es una edición.
     _isNew: props.aviso._isNew 
   };
   
   emit('guardar-aviso', avisoActualizado);
   modoEdicion.value = false;
 };
+// -------------------------------------
 
 const cancelarEdicion = () => {
   if (props.aviso._isNew) {

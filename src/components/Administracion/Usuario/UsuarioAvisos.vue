@@ -10,59 +10,62 @@
       <span>Cargando avisos...</span>
     </div>
 
+    <div v-else-if="error" class="error-container">
+      <p>No se pudieron cargar los avisos. Intenta nuevamente más tarde.</p>
+    </div>
+
+    <div v-else-if="avisos.length === 0" class="empty-state">
+      <p>No hay avisos recientes.</p>
+    </div>
+
     <div v-else class="lista-avisos">
       <Aviso
         v-for="aviso in avisos"
-        :key="aviso.id"
+        :key="aviso.idAviso" 
         :aviso="aviso"
-        />
+        :showControls="false" 
+      />
     </div>
-
-    </div>
+  </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'; // Solo se necesita ref y onMounted
-import Titulo from '../Titulo.vue';
-import Aviso from '../Admin/Avisos/Aviso.vue'; 
+import { ref, onMounted } from 'vue';
+import Titulo from '../Titulo.vue'; // Ajusta la ruta si es necesario (según tu estructura de carpetas)
+import Aviso from '../Admin/Avisos/Aviso.vue'; // Reutilizamos el componente visual
+
+// Importamos el servicio real y los formateadores
+import { listarAvisos } from '@/api/services/avisosService';
+import { formatearFecha, formatearHora } from '@/utils/formatters';
 
 // --- Refs de Estado ---
 const avisos = ref([]);
 const loading = ref(true);
-
-// --- Refs de Modales Eliminados ---
-
-// --- Simulación de API (JSON) ---
-const simularAPI_Avisos = () => {
-  console.log("Simulando llamada a API para obtener avisos...");
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve([
-        { id: 1, descripcion: "Recordatorio: El gimnasio permanecerá cerrado el próximo lunes por feriado.", fecha: "03/11/2025", hora: "10:30" },
-        { id: 2, descripcion: "¡Nueva clase de Funcional! Martes y Jueves a las 19:00 hs. ¡Anotate!", fecha: "01/11/2025", hora: "15:45" },
-      ]);
-    }, 800);
-  });
-};
+const error = ref(false);
 
 const cargarAvisos = async () => {
   loading.value = true;
+  error.value = false;
   try {
-    const data = await simularAPI_Avisos(); 
-    avisos.value = data;
-  } catch (error) {
-    // En lugar de mostrar un modal, solo se loguea el error
-    console.error("Error al cargar los avisos:", error);
+    // Llamada a la API real
+    const data = await listarAvisos();
+    
+    // Procesamos los datos para formatear fechas y horas
+    avisos.value = data.map(aviso => ({
+      ...aviso,
+      fecha: formatearFecha ? formatearFecha(aviso.fecha) : aviso.fecha,
+      hora: formatearHora ? formatearHora(aviso.hora) : aviso.hora
+    }));
+
+  } catch (err) {
+    console.error("Error al cargar los avisos:", err);
+    error.value = true;
   } finally {
     loading.value = false;
   }
 };
 
 onMounted(cargarAvisos);
-
-// --- Toda la lógica de manejo de eventos (añadir, guardar, eliminar) 
-// y los handlers de modales han sido eliminados ---
-
 </script>
 
 <style scoped>
@@ -78,7 +81,7 @@ onMounted(cargarAvisos);
   min-height: 80vh;
   overflow-y: auto;
   box-sizing: border-box;
-  position: relative; /* Para el loader */
+  position: relative;
 }
 
 .encabezado {
@@ -93,19 +96,34 @@ onMounted(cargarAvisos);
   letter-spacing: 0.5px;
 }
 
-/* Estilos .acciones-globales y .btn-anadir eliminados
-*/
-
-/* Contenedor de la lista de avisos */
 .lista-avisos {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem; /* Espacio entre cada aviso */
+  gap: 1.5rem;
 }
 
-/* Estilos de .loading-container, .spinner y @keyframes spin eliminados.
-  Se asume que están en el CSS global.
-*/
+/* Estilos simples para estados de carga/error si no son globales */
+.loading-container, .error-container, .empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+  font-family: 'Inter', sans-serif;
+}
+
+.spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border-left-color: #e50914;
+  animation: spin 1s ease infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 
 /* Responsive */
 @media (max-width: 768px) {
@@ -118,7 +136,5 @@ onMounted(cargarAvisos);
   .contenedor {
     padding: 1rem;
   }
-  /* Reglas responsivas para .acciones-globales eliminadas 
-  */
 }
 </style>
