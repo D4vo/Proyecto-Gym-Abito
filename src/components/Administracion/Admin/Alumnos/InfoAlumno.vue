@@ -188,6 +188,9 @@ import ModificarSusTrabAlumno from './ModificarSusTrabAlumno.vue'
 import DetallePersona from '../DetallePersona.vue'; // <-- Importado
 import Titulo from '../../Titulo.vue';
 import ModificarCuota from './ModificarCuota.vue'; 
+
+import { eliminarAlumnoAPI } from '@/api/services/alumnoService';
+
 /**
  * Compara dos listas de horarios para ver si son idénticas en contenido.
  * @param {Array} horariosA - Lista de horarios [{ dia: 'Lunes', nroGrupo: '1' }]
@@ -449,25 +452,12 @@ const eliminarAlumno = () => {
 const confirmarEliminarAlumno = async () => {
   
   try {
-    // ===========================================================
-    // ==      TODO: AQUÍ VA LA LLAMADA A LA API (ELIMINAR)     ==
-    // ===========================================================
-    // Éxito:
+    await eliminarAlumnoAPI(alumnoID.value.dni);
     mensajeModalExito.value = 'El alumno ha sido eliminado correctamente.';
     mostrarModalExito.value = true;
     
-    // NOTA: Como el alumno ya no existe, al cerrar el modal de éxito
-    // deberíamos volver a la lista de alumnos. 
-    // Esto lo manejaremos modificando ligeramente 'handleContinuarExito'
-    // o emitiendo el evento aquí mismo si la redirección es inmediata.
-    
-    // Opción recomendada: Emitir volver inmediatamente al cerrar el éxito
-    // (Se requiere una pequeña lógica extra en handleContinuarExito, 
-    //  pero por ahora al recargar datos fallará si no existe, así que forzamos volver)
-    
   } catch (e) {
-    console.error('Error al eliminar alumno:', e);
-    mensajeModalError.value = e.response?.data?.detail || 'No se pudo eliminar al alumno.';
+    mensajeModalError.value = e.response?.data?.error || 'No se pudo eliminar al alumno.';
     mostrarModalError.value = true;
   }
 };

@@ -265,3 +265,21 @@ export const guardarModificacionesPlanYHorarios = async (dni, alumnoOriginal, nu
     // Devolvemos un resumen de lo que se hizo
     return { planActualizado, horariosActualizados };
 };
+
+/**
+ * Elimina un alumno del sistema de forma permanente (y todos sus datos asociados).
+ * Requiere permisos de Staff (Admin o Empleado).
+ * @param {string} dni - DNI del alumno a eliminar.
+ */
+export const eliminarAlumnoAPI = async (dni) => {
+    try {
+        // Llama al endpoint DELETE /alumnos/{dni}
+        await apiClient.delete(`/alumnos/${dni}`);
+        return true; // Retorna true si la operación fue exitosa (status 204)
+    } catch (error) {
+        console.error(`Error al eliminar el alumno ${dni}:`, error.response?.data || error.message);
+        // Lanzamos el error para que el componente (Alumnos.vue o InfoAlumno.vue) pueda mostrar la alerta
+        throw error;
+    }
+};
+
