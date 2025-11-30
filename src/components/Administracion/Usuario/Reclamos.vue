@@ -1,7 +1,10 @@
 <template>
   <div class="contenedor-reclamos">
-    <Titulo texto="RECLAMOS" />
-    
+    <div class="encabezado">
+      <Titulo texto="RECLAMOS" />
+      <p class="subtitulo">Dinos que te disgusta para poder mejorar</p>
+      <p class="subtitulo">Los reclamos son anónimos</p>
+    </div>
     <div class="controles-superiores">
       <button 
         v-if="!mostrarFormulario" 
@@ -435,5 +438,15 @@ font-size: 0.75rem;
 .numeros-pagina {
 gap: 0.3rem;
 }
+}
+.subtitulo {
+  color: #666;
+  font-size: 1.1rem;
+  font-weight: 300;
+  letter-spacing: 0.5px;
+}
+.encabezado {
+  text-align: center;
+  margin-bottom: 2rem;
 }
 </style>

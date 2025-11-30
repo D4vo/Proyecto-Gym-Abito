@@ -81,6 +81,14 @@
           <i class="fas fa-people-carry icon"></i>
           Empleados
         </button>
+        <button
+          class="menu-btn"
+          :class="{ activo: vistaActiva === 'reclamos' }"
+          @click="cambiarVista('reclamos')"
+        >
+          <i class="fas fa-exclamation-triangle icon"></i>
+          Reclamos
+        </button>
       </Sidebar>
 
       <NavbarMobile
@@ -161,6 +169,14 @@
           <i class="fas fa-people-carry icon"></i>
           Empleados
         </button>
+        <button
+          class="menu-btn"
+          :class="{ activo: vistaActiva === 'reclamos' }"
+          @click="cambiarVista('reclamos')"
+        >
+          <i class="fas fa-exclamation-triangle icon"></i>
+          Reclamos
+        </button>
       </NavbarMobile>
 
       <div class="contenido" :class="{ 'contenido-mobile': isMobile, 'sidebar-collapsed': isSidebarCollapsed && !isMobile }">
@@ -237,6 +253,7 @@ import NuevoEmpleado from '@/components/Administracion/Admin/Empleados/NuevoEmpe
 // *** USA TUS RUTAS CORRECTAS ***
 import Personas from '@/components/Administracion/Admin/Personas.vue'
 import IngresoPersona from '@/components/Administracion/Admin/IngresoPersona.vue'
+import ReclamosAdmin from '@/components/Administracion/Admin/ReclamosAdmin.vue';
 // *****************************************************************************************
 
 const isSidebarCollapsed = ref(false);
@@ -346,6 +363,7 @@ const vistaComponente = computed(() => {
     case 'modificarGrupos': return ModificarGrupos;
     case 'avisos': return Avisos;
     case 'empleados': return Empleados;
+    case 'reclamos': return ReclamosAdmin
     default: return Dashboard;
   }
 })
