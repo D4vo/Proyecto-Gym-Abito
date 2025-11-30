@@ -1,6 +1,7 @@
 <template>
   <div class="contenedor-cuotas">
-    <!-- Encabezado con información de cuotas - Versión sutil -->
+    
+    <!-- 1. Encabezado con información de cuotas -->
     <div class="encabezado-cuotas">
       <Titulo texto="CUOTAS" /> 
       <div class="controles-superiores">
@@ -34,7 +35,33 @@
       </div>
     </div>
 
-    <!-- Tabla con las cuotas - Ahora la paginación se maneja dentro de TablaCuotas -->
+    <!-- 
+      2. AVISO LATERAL (WIDGET FLOTANTE)
+      Condición: Solo se muestra si (mostrarAviso es true) Y (hay cuotas pendientes)
+    -->
+    <Transition name="fade-aviso">
+      <div v-if="mostrarAviso && cuotasPendientes > 0" class="aviso-widget">
+        <!-- .stop para evitar propagación de eventos -->
+        <button class="btn-cerrar-widget" @click.stop="cerrarAviso">
+          <i class="fas fa-times"></i>
+        </button>
+        
+        <div class="contenido-widget">
+          <div class="icono-widget">
+            <i class="fas fa-info-circle"></i>
+          </div>
+          <div class="texto-widget-container">
+            <p class="titulo-widget">¡Mantente al día!</p>
+            <p class="desc-widget">
+              Si se vence una cuota se le cobrará un <strong>10% más</strong> del valor de la cuota por pago fuera de término.
+              <br><span class="firma-widget">Gracias.</span>
+            </p>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- 3. Tabla con las cuotas -->
     <TablaCuotas 
       :cuotas="cuotasMostradas" 
       :elementos-por-pagina="6"
@@ -47,27 +74,29 @@
 import { ref, computed, onMounted } from 'vue'
 import TablaCuotas from '../Tablas y Filas/TablaCuotas/TablaCuotas.vue'
 import Titulo from '../Titulo.vue'
-
-// Función del servidor para obtener las cuotas (ferchu)
 import { obtenerMisCuotas } from '@/api/services/cuotasService.js'
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 const cuotas = ref([])
-const cargando = ref(true) //para mostrar un estado de carga
-
+const cargando = ref(true) 
 const mostrarSoloPendientes = ref(false)
 
-// Llama a la API cuando el componente se monta
+// --- LÓGICA DEL AVISO ---
+const mostrarAviso = ref(true);
+
+const cerrarAviso = () => {
+  mostrarAviso.value = false;
+}
+// ------------------------
+
 onMounted(async () => {
   cargando.value = true;
   await sleep(500);
-  // Llama a la función del servicio y guarda los datos en nuestro ref
   cuotas.value = await obtenerMisCuotas();
   cargando.value = false;
 });
 
-// Computed properties para la información de estado
 const cuotasPendientes = computed(() => 
   cuotas.value.filter(cuota => !cuota.pagada).length
 )
@@ -82,7 +111,6 @@ const cuotasMostradas = computed(() =>
     : cuotas.value
 )
 
-// Métodos
 const toggleFiltroPendientes = () => {
   mostrarSoloPendientes.value = !mostrarSoloPendientes.value
 }
@@ -100,14 +128,197 @@ const toggleFiltroPendientes = () => {
   min-height: 80vh;
   overflow-y: auto;
   box-sizing: border-box;
+  
+  /* Necesario para el absolute del widget en PC */
+  position: relative; 
 }
 
-/* Encabezado con información de cuotas - Versión sutil */
+/* ================================================= */
+/* ===       ESTILOS DEL WIDGET (AVISO)          === */
+/* ================================================= */
+
+.aviso-widget {
+  /* --- ESTILO BASE (PC) --- */
+  position: absolute;
+  top: 2rem;       
+  left: 2rem;      
+  
+  /* CAMBIO: Más ancho para ocupar el espacio horizontal disponible */
+  width: 320px;    
+  
+  background: white;
+  
+  /* Borde izquierdo naranja elegante */
+  border-left: 5px solid #FF9800; 
+  
+  /* Bordes redondeados más suaves */
+  border-radius: 12px;
+  border-top-left-radius: 4px; 
+  border-bottom-left-radius: 4px;
+
+  padding: 1.5rem;
+  
+  /* Sombra suave y difusa */
+  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+  border: 1px solid rgba(0,0,0,0.05);
+  
+  z-index: 50;
+  font-family: 'Poppins', sans-serif;
+  
+  /* --- EFECTO FLOTANTE --- */
+  /* Animación suave de subida y bajada */
+  animation: float 5s ease-in-out infinite;
+}
+
+/* Animación de flotación */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); } /* Flota hacia arriba */
+  100% { transform: translateY(0px); }
+}
+
+/* Botón cerrar */
+.btn-cerrar-widget {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: transparent;
+  border: none;
+  color: #bbb;
+  cursor: pointer;
+  padding: 8px; /* Área de toque aumentada */
+  font-size: 1.1rem;
+  line-height: 1;
+  z-index: 60; /* Z-index alto para asegurar click */
+  transition: color 0.2s;
+}
+.btn-cerrar-widget:hover { color: #d32f2f; }
+
+/* Contenido */
+.contenido-widget {
+  display: flex;
+  flex-direction: row; /* Horizontal en PC */
+  align-items: center; /* <--- CENTRADO VERTICAL (PC) */
+  text-align: left;
+  gap: 1rem;
+}
+
+.icono-widget {
+  flex-shrink: 0; /* Evita que el icono se aplaste */
+}
+
+.icono-widget i {
+  font-size: 2.2rem;
+  color: #FF9800;
+  /* Sombra sutil al icono */
+  text-shadow: 0 4px 10px rgba(255, 152, 0, 0.3);
+}
+
+.titulo-widget {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0 0 0.4rem 0;
+  letter-spacing: -0.3px;
+}
+
+.desc-widget {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 0;
+  line-height: 1.5;
+}
+.desc-widget strong { 
+  color: #e50914; 
+  font-weight: 600;
+}
+
+.firma-widget {
+  display: block;
+  margin-top: 0.5rem;
+  font-style: italic;
+  font-weight: 500;
+  color: #999;
+  font-size: 0.8rem;
+}
+
+/* Animación de entrada */
+.fade-aviso-enter-active, .fade-aviso-leave-active { transition: opacity 0.4s, transform 0.4s; }
+.fade-aviso-enter-from, .fade-aviso-leave-to { opacity: 0; transform: translateY(10px); }
+
+/* ================================================= */
+/* ===    RESPONSIVE DEL WIDGET (ADAPTADO)       === */
+/* ================================================= */
+
+/* Breakpoint Intermedio: Cuando ya no cabe a la izquierda */
+@media (max-width: 1400px) {
+  .aviso-widget {
+    position: relative; 
+    top: auto; left: auto;
+    width: 100%;       
+    max-width: 700px;
+    margin: 0 auto 2rem auto; 
+    
+    /* Mantenemos estilo limpio */
+    padding: 1rem 1.5rem;
+    padding-right: 2.5rem;
+    
+    /* En tablet/laptop pequeña quitamos flotación para no distraer */
+    animation: none; 
+  }
+}
+
+/* Móvil (Celulares): Diseño Limpio y Blanco (Consistente con PC) */
+@media (max-width: 768px) {
+  .aviso-widget {
+    position: relative;
+    top: auto; left: auto;
+    width: 100%;
+    margin: 1.5rem 0;
+    
+    /* CAMBIO: Fondo Blanco limpio igual que en PC */
+    background: #ffffff; 
+    
+    /* Mantenemos el borde izquierdo */
+    border: none;
+    border-left: 4px solid #FF9800; 
+    
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08); 
+    
+    padding: 1.2rem;
+    padding-right: 2.5rem; /* Espacio para la X */
+    animation: none; /* Sin flotar en móvil */
+  }
+
+  .contenido-widget {
+    /* En móvil mantenemos layout horizontal */
+    flex-direction: row; 
+    align-items: center; /* <--- CENTRADO VERTICAL (MOVIL) */
+    gap: 1rem;
+  }
+  
+  .icono-widget i {
+    font-size: 1.8rem;
+    margin-top: 0; /* Aseguramos que no haya margen superior que desalinee */
+  }
+
+  .btn-cerrar-widget {
+    top: 5px;
+    right: 5px;
+    padding: 10px; /* Touch area grande */
+    color: #ccc;
+  }
+}
+
+/* ================================================= */
+/* ===          ESTILOS DEL RESTO                === */
+/* ================================================= */
+
 .encabezado-cuotas {
   text-align: center;
   margin-bottom: 2rem;
 }
-
 
 .controles-superiores {
   display: flex;
@@ -145,14 +356,8 @@ const toggleFiltroPendientes = () => {
   font-family: 'Poppins', sans-serif;
   margin-bottom: 0.3rem;
 }
-
-.numero-sutil.pendiente {
-  color: #ff4d4d;
-}
-
-.numero-sutil.pagada {
-  color: #4caf50;
-}
+.numero-sutil.pendiente { color: #ff4d4d; }
+.numero-sutil.pagada { color: #4caf50; }
 
 .texto-sutil {
   font-size: 0.75rem;
@@ -169,7 +374,6 @@ const toggleFiltroPendientes = () => {
   margin: 0 0.5rem;
 }
 
-/* Botón de filtrar pendientes */
 .btn-filtrar {
   display: flex;
   align-items: center;
@@ -186,26 +390,11 @@ const toggleFiltroPendientes = () => {
   white-space: nowrap;
   position: relative;
 }
+.btn-filtrar:hover { background: #fce4ec; transform: translateY(-1px); }
+.btn-filtrar.activo { background: #e91e63; color: white; }
+.btn-filtrar.activo:hover { background: #d81b60; transform: translateY(-1px); }
 
-.btn-filtrar:hover {
-  background: #fce4ec;
-  transform: translateY(-1px);
-}
-
-.btn-filtrar.activo {
-  background: #e91e63;
-  color: white;
-}
-
-.btn-filtrar.activo:hover {
-  background: #d81b60;
-  transform: translateY(-1px);
-}
-
-.btn-texto {
-  font-size: 0.85rem;
-}
-
+.btn-texto { font-size: 0.85rem; }
 .btn-badge {
   background: #ff4d4d;
   color: white;
@@ -216,88 +405,15 @@ const toggleFiltroPendientes = () => {
   margin-left: 0.3rem;
 }
 
-/* Ajustes responsivos */
 @media (max-width: 768px) {
-  .contenedor-cuotas {
-    padding: 1.5rem;
-  }
-  
-  .titulo {
-    font-size: 1.8rem;
-    margin-bottom: 1rem;
-  }
-  
-  .controles-superiores {
-    flex-direction: column;
-    gap: 1rem;
-  }
-  
-  .estado-cuotas-sutil {
-    padding: 0.7rem 1.2rem;
-    width: 100%;
-  }
-  
-  .info-cuota-sutil {
-    padding: 0.4rem 0.8rem;
-  }
-  
-  .numero-sutil {
-    font-size: 1.1rem;
-  }
-  
-  .texto-sutil {
-    font-size: 0.7rem;
-  }
-  
-  .separador {
-    height: 25px;
-  }
-  
-  .btn-filtrar {
-    width: 100%;
-    justify-content: center;
-    padding: 0.6rem 1rem;
-  }
+  .contenedor-cuotas { padding: 1.5rem; }
+  .controles-superiores { flex-direction: column; gap: 1rem; }
+  .estado-cuotas-sutil { width: 100%; }
+  .btn-filtrar { width: 100%; justify-content: center; }
 }
 
 @media (max-width: 480px) {
-  .contenedor-cuotas {
-    padding: 1rem;
-  }
-  
-  .titulo {
-    font-size: 1.6rem;
-  }
-  
-  .estado-cuotas-sutil {
-    padding: 0.6rem 1rem;
-  }
-  
-  .info-cuota-sutil {
-    padding: 0.3rem 0.6rem;
-  }
-  
-  .numero-sutil {
-    font-size: 1rem;
-    margin-bottom: 0.2rem;
-  }
-  
-  .texto-sutil {
-    font-size: 0.65rem;
-    letter-spacing: 0.2px;
-  }
-  
-  .separador {
-    height: 20px;
-    margin: 0 0.3rem;
-  }
-  
-  .btn-filtrar {
-    padding: 0.5rem 0.8rem;
-  }
-  
-  .btn-texto {
-    font-size: 0.8rem;
-  }
+  .contenedor-cuotas { padding: 1rem; }
+  .estado-cuotas-sutil { padding: 0.6rem 1rem; }
 }
 </style>
