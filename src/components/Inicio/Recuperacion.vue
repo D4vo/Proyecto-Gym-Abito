@@ -61,7 +61,7 @@
         </div>
       </div>
 
-      <!-- Mensaje de Error -->
+      <!-- Mensaje de Error (Validaciones locales) -->
       <transition name="slide-fade">
         <div v-if="errorMessage" class="error-banner">
           <span class="error-icon">⚠️</span> {{ errorMessage }}
@@ -75,6 +75,51 @@
       </button>
 
     </form>
+
+    <!-- ================================================= -->
+    <!-- ===            MODALES GENÉRICOS              === -->
+    <!-- ================================================= -->
+
+    <!-- Modal Éxito -->
+    <Transition name="modal-fade">
+      <div v-if="mostrarModalExito" class="modal-overlay">
+        <div class="modal-exito">
+          <div class="modal-header-exito">
+            <i class="fas fa-check-circle"></i>
+            <h3>¡Éxito!</h3>
+          </div>
+          <div class="modal-body-exito">
+            <p>{{ mensajeModalExito }}</p>
+          </div>
+          <div class="modal-footer-exito">
+            <button class="btn-modal-continuar" @click="handleContinuarExito">
+              Continuar
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- Modal Error -->
+    <Transition name="modal-fade">
+      <div v-if="mostrarModalError" class="modal-overlay">
+        <div class="modal-error"> 
+          <div class="modal-header-error">
+            <i class="fas fa-exclamation-triangle"></i> 
+            <h3>Error</h3>
+          </div>
+          <div class="modal-body-error">
+            <p>{{ mensajeModalError }}</p> 
+          </div>
+          <div class="modal-footer-error">
+            <button class="btn-modal-error" @click="handleContinuarError">
+              Entendido
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
   </div>
 </template>
 
@@ -90,7 +135,13 @@ export default {
       },
       passwordFieldType: 'password',
       confirmFieldType: 'password',
-      errorMessage: ''
+      errorMessage: '',
+      
+      // Variables para Modales
+      mostrarModalExito: false,
+      mensajeModalExito: '',
+      mostrarModalError: false,
+      mensajeModalError: ''
     }
   },
   computed: {
@@ -126,17 +177,29 @@ export default {
         // SIMULACIÓN LLAMADA API
         await new Promise(resolve => setTimeout(resolve, 1500));
         
-        // --- AQUÍ ESTÁ LA REDIRECCIÓN ---
-        alert("¡Contraseña actualizada exitosamente!"); // Feedback rápido
-        this.$router.push('/login'); // Redirección al login
+        // --- ÉXITO ---
+        this.mensajeModalExito = "Contraseña cambiada correctamente, por favor vuelva a iniciar sesion";
+        this.mostrarModalExito = true;
 
       } catch (error) {
+        // --- ERROR ---
         console.error("Error:", error);
-        this.errorMessage = 'Ocurrió un error. Intenta nuevamente.';
+        this.mensajeModalError = error.response?.data?.error || 'Ocurrió un error. Intenta nuevamente.';
+        this.mostrarModalError = true;
       } finally {
         this.loading = false;
       }
     },
+    
+    // Handlers para los botones de los modales
+    handleContinuarExito() {
+      this.mostrarModalExito = false;
+      this.$router.push('/login'); // Redirección al login
+    },
+    handleContinuarError() {
+      this.mostrarModalError = false;
+    },
+
     togglePass(field) {
       if(field === 'main') {
         this.passwordFieldType = this.passwordFieldType === 'password' ? 'text' : 'password';
@@ -243,4 +306,4 @@ export default {
   transition: background-color 5000s ease-in-out 0s;
   caret-color: #ffffff;
 }
-</style>
+</style>  

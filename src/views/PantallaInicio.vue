@@ -349,7 +349,7 @@ const initMobileObserver = () => {
    METODOLOGÍAS
    ========================================= */
 .methods-section { position: relative; padding-top: 150px; padding-bottom: 150px; z-index: 5; }
-.methods-top-gradient { position: absolute; top: 0; left: 0; width: 100%; height: 200px; background: linear-gradient(to bottom, #050505 0%, transparent 100%); pointer-events: none; z-index: 1; }
+.methods-top-gradient { position: absolute; top: 0; left: 0; width: 100%; height: 200px; background: linear-gradient(to bottom, #050505 0%, transparent 100%);   pointer-events: none; z-index: 1; }
 .staggered-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
 .card-spacer { margin-bottom: 40px; transition: all 0.3s ease; }
 .column-right { margin-top: 100px; will-change: transform; }

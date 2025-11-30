@@ -23,18 +23,23 @@
 
     <!-- Footer Simple -->
     <div class="simple-footer">
-      <p>© 2024 Gimnasio Abito</p>
+      <p>© {{anio}} Gimnasio Abito</p>
     </div>
   </div>
 </template>
 
 <script>
 import Recuperacion from '@/components/Inicio/Recuperacion.vue';
-
+import { obtenerAnioActual } from '@/utils/formatters';
 export default {
   name: 'RecuperarView',
   components: {
     Recuperacion
+  },
+  data() {
+    return {
+      anio: obtenerAnioActual()
+    }
   }
 }
 </script>

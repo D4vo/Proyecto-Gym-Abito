@@ -28,6 +28,35 @@
     </div>
 
     <Transition name="modal-fade">
+      <div v-if="mostrarModalConfirmacion" class="modal-overlay">
+        <div class="modal-confirmacion" style="border-top: 5px solid #F44336;"> 
+          <div class="modal-header">
+            <i class="fas fa-exclamation-triangle" style="color: #F44336;"></i>
+            <h3>Eliminar Grupo</h3>
+          </div>
+          
+          <div class="modal-body">
+            <p>{{ mensajeModalConfirmacion }}</p>
+          </div>
+          
+          <div class="modal-footer">
+            <button class="btn-modal btn-cancelar-modal" @click="mostrarModalConfirmacion = false">
+              Cancelar
+            </button>
+            <button 
+              class="btn-modal" 
+              :class="estiloBotonConfirmar === 'btn-confirmar-peligro' ? 'btn-cancelar-modal' : 'btn-confirmar-modal'"
+              :style="estiloBotonConfirmar === 'btn-confirmar-peligro' ? 'background-color: #F44336; color: white;' : ''"
+              @click="confirmarEliminacion"
+            >
+              Sí, Confirmar
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <Transition name="modal-fade">
       <div v-if="mostrarModalExito" class="modal-overlay">
         <div class="modal-exito">
           <div class="modal-header-exito">
@@ -73,12 +102,16 @@ const listaGruposRef = ref(null)
 const grupos = ref([])
 const loading = ref(true)
 
-// ----- Refs para los Modales (Reemplaza al Toast) -----
+// ----- Refs para los Modales -----
 const mostrarModalExito = ref(false);
 const mensajeModalExito = ref('');
 const mostrarModalError = ref(false);
 const mensajeModalError = ref('');
-// ----- Fin Refs Modales -----
+
+// --- NUEVOS REFS PARA CONFIRMACIÓN ---
+const mostrarModalConfirmacion = ref(false);
+const mensajeModalConfirmacion = ref('');
+const grupoPendienteEliminar = ref(null); // Variable temporal
 
 import {
   obtenerHorariosCompletos,
@@ -95,7 +128,6 @@ const listarGrupoFromAPI = async () => {
     grupos.value = data;
   } catch (error) {
     console.error("Error al cargar los horarios desde la API:", error);
-    // Mostramos el error en el modal al cargar la página
     mensajeModalError.value = error.response?.data?.detail || "No se pudieron cargar los grupos.";
     mostrarModalError.value = true;
   } finally {
@@ -120,21 +152,14 @@ const anadirNuevoGrupo = async() => {
 
   grupos.value.push(nuevoGrupo)
   
-
-  // --- INICIO: SCROLL AUTOMÁTICO ---
-  // 1. Espera a que Vue actualice el DOM con la new fila
   await nextTick();
 
-  // 2. Comprueba si la referencia al contenedor existe
   if (listaGruposRef.value) {
-    // 3. Busca el último elemento hijo de la lista
     const ultimoElemento = listaGruposRef.value.lastElementChild;
-    
-    // 4. Si existe, haz scroll hacia él
     if (ultimoElemento) {
       ultimoElemento.scrollIntoView({
-        behavior: 'smooth', // Para que sea un scroll suave
-        block: 'center'     // Intenta centrarlo en la pantalla
+        behavior: 'smooth',
+        block: 'center'
       });
     }
   }
@@ -142,12 +167,10 @@ const anadirNuevoGrupo = async() => {
 
 const manejarGuardarGrupo = async (grupoModificado) => {
   console.log('Recibido para guardar:', grupoModificado);
-  // (loadingGuardar.value = true;)
 
   try {
     let mensaje = '';
 
-    // --- LÓGICA DE CREAR (CREATE) ---
     if (grupoModificado._isNew) {
       const grupoParaCrear = { ...grupoModificado };
       delete grupoParaCrear._isNew; 
@@ -161,7 +184,6 @@ const manejarGuardarGrupo = async (grupoModificado) => {
       }
       mensaje = 'Grupo añadido correctamente';
 
-    // --- LÓGICA DE ACTUALIZAR (MODIFICADA) ---
     } else {
       const grupoParaGuardar = { ...grupoModificado };
       const grupoActualizado = await actualizarHorarioGrupo(grupoParaGuardar);
@@ -173,45 +195,51 @@ const manejarGuardarGrupo = async (grupoModificado) => {
       mensaje = 'Grupo modificado correctamente';
     }
     
-    // --- Reemplaza Toast por Modal de Éxito ---
     mensajeModalExito.value = mensaje;
     mostrarModalExito.value = true;
 
   } catch (error) {
-    // --- Reemplaza Alert por Modal de Error ---
     console.error("Error al guardar el grupo:", error);
     const errorMsg = error.response?.data?.error || 'No se pudo guardar el grupo.';
     
     mensajeModalError.value = errorMsg;
     mostrarModalError.value = true;
-    // --- Fin Reemplazo ---
   } finally {
     await listarGrupoFromAPI();
-    // (loadingGuardar.value = false;)
   }
 }
 
+// 1. PRIMER PASO: Abrir el modal de confirmación
+const manejarEliminarGrupo = (grupoParaEliminar) => {
+  console.log('Solicitud para eliminar:', grupoParaEliminar.nroGrupo);
 
-const manejarEliminarGrupo = async (grupoParaEliminar) => {
-  console.log('Recibido para eliminar:', grupoParaEliminar.nroGrupo);
-
+  // Si es nuevo (aún no guardado en BD), se borra directo sin modal
   if (grupoParaEliminar._isNew) {
     grupos.value = grupos.value.filter(g => g.nroGrupo !== grupoParaEliminar.nroGrupo);
     return;
   }
 
-  // TODO: Reemplazar esto por tu modal de confirmación global
-  if (!window.confirm(`¿Estás seguro de que quieres eliminar el grupo ${grupoParaEliminar.horaInicio} - ${grupoParaEliminar.horaFin}? Esta acción no se puede deshacer.`)) {
-      return; 
-  }
+  // Guardamos el grupo temporalmente y mostramos modal
+  grupoPendienteEliminar.value = grupoParaEliminar;
+  mensajeModalConfirmacion.value = "Estas seguro que desea elimianr este grupo, esta accion no se puede deshacer";
+  mostrarModalConfirmacion.value = true;
+}
+
+// 2. SEGUNDO PASO: Ejecutar la eliminación real (API)
+const confirmarEliminacion = async () => {
+  // Cerramos modal de confirmación
+  mostrarModalConfirmacion.value = false;
+  
+  if (!grupoPendienteEliminar.value) return;
 
   try {
-    const exito = await eliminarHorarioGrupo(grupoParaEliminar.nroGrupo);
+    const exito = await eliminarHorarioGrupo(grupoPendienteEliminar.value.nroGrupo);
 
     if (exito) {
-      grupos.value = grupos.value.filter(g => g.nroGrupo !== grupoParaEliminar.nroGrupo);
+      // Eliminamos de la lista local
+      grupos.value = grupos.value.filter(g => g.nroGrupo !== grupoPendienteEliminar.value.nroGrupo);
       
-      // --- Reemplaza Toast por Modal de Éxito ---
+      // Mostramos modal de Éxito
       mensajeModalExito.value = 'Grupo eliminado correctamente';
       mostrarModalExito.value = true;
     } else {
@@ -219,27 +247,23 @@ const manejarEliminarGrupo = async (grupoParaEliminar) => {
     }
 
   } catch (error) {
-    // --- Reemplaza Alert por Modal de Error ---
-    // console.log("Error al eliminar el grupo:", JSON.stringify(error.response, null, 2));
+    // Mostramos modal de Error
     const errorMsg = error.response?.data?.error || 'Error desconocido al eliminar el grupo.';
-    
     mensajeModalError.value = errorMsg;
     mostrarModalError.value = true;
-    // --- Fin Reemplazo ---
+  } finally {
+    // Limpiamos la variable temporal
+    grupoPendienteEliminar.value = null;
   }
 }
 
 // ----- Funciones para cerrar los modales -----
 const handleContinuarExito = () => {
   mostrarModalExito.value = false;
-  // Opcional: podrías querer recargar la lista
-  // onMounted(); 
 }
 
 const handleContinuarError = () => {
   mostrarModalError.value = false;
-  // Opcional: recargar la lista para refrescar el estado
-  // onMounted();
 }
 
 </script>
@@ -281,7 +305,7 @@ const handleContinuarError = () => {
 
 .btn-anadir {
   padding: 0.8rem 1.5rem;
-  background-color: #343a40; /* <-- CAMBIADO A GRIS OSCURO */
+  background-color: #343a40; 
   color: white;
   border: none;
   border-radius: 8px; 
@@ -296,7 +320,7 @@ const handleContinuarError = () => {
 }
 
 .btn-anadir:hover {
-  background-color: #23272b; /* <-- CAMBIADO A GRIS MÁS OSCURO */
+  background-color: #23272b; 
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
@@ -331,9 +355,6 @@ const handleContinuarError = () => {
   gap: 1rem; 
 }
 
-/* ----- ESTILOS DEL TOAST ELIMINADOS ----- */
-/* (Ya no se usan) */
-
 /* Responsive */
 @media (max-width: 768px) {
   .contenedor {
@@ -353,8 +374,12 @@ const handleContinuarError = () => {
     justify-content: center;
   }
 }
-
-/* Los estilos de .modal-overlay, .modal-exito, .modal-error
-  y .modal-fade se cargan desde el CSS GLOBAL.
-*/
+.modal-footer {
+  display: flex;
+  justify-content: center; /* <--- ESTO centra los botones */
+  align-items: center;
+  gap: 1.5rem; /* Espacio entre los botones Cancelar y Confirmar */
+  padding-bottom: 1.5rem; /* Un poco de aire abajo si lo necesitas */
+  width: 100%;
+}
 </style>

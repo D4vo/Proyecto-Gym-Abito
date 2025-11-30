@@ -1024,4 +1024,12 @@ const guardarModificacionCuota = async (cuotaModificada) => {
   }
 }
 /* --- FIN DE CAMBIOS RESPONSIVE --- */
+.modal-footer {
+  display: flex;
+  justify-content: center; /* <--- ESTO centra los botones */
+  align-items: center;
+  gap: 1.5rem; /* Espacio entre los botones Cancelar y Confirmar */
+  padding-bottom: 1.5rem; /* Un poco de aire abajo si lo necesitas */
+  width: 100%;
+}
 </style>

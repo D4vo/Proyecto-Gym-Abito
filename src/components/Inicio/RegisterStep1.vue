@@ -125,11 +125,33 @@
         </button>
       </div>
     </div>
+
+    <!-- ================================================= -->
+    <!-- ===             MODAL DE ERROR                === -->
+    <!-- ================================================= -->
+    <Transition name="modal-fade">
+      <div v-if="mostrarModalError" class="modal-overlay">
+        <div class="modal-error"> 
+          <div class="modal-header-error">
+            <i class="fas fa-exclamation-triangle"></i> 
+            <h3>Error</h3>
+          </div>
+          <div class="modal-body-error">
+            <p>{{ mensajeModalError }}</p> 
+          </div>
+          <div class="modal-footer-error">
+            <button class="btn-modal-error" @click="handleContinuarError">
+              Entendido
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
   </div>
 </template>
 
 <script>
-// servicio para registro
 import { registroPaso1 } from '@/api/services/authService';
 
 export default {
@@ -148,6 +170,10 @@ export default {
       passwordError: '',
       registerPasswordFieldType: 'password',
       registerConfirmPasswordFieldType: 'password',
+
+      // Variables para el Modal de Error
+      mostrarModalError: false,
+      mensajeModalError: ''
     }
   },
   computed: {
@@ -175,13 +201,9 @@ export default {
       this.validarEmail();
       if (this.passwordError || this.emailError) return;
 
-
-      // --aquí se llama a API paso1?--
       this.loading = true;
 
-
       try {
-        // 2. Preparamos los datos como los espera la API (mapeo de nombres)
         const payload = {
           email: this.registerData.email,
           usuario: this.registerData.username,
@@ -189,23 +211,31 @@ export default {
           confirmar_contrasenia: this.registerData.confirmPassword
         };
 
-        // 3. Llamada al Backend
         await registroPaso1(payload);
         
-        // 4. Si todo sale bien:
-        this.correoEnviado = true; // Esto activará la vista de "Correo enviado" en tu template
+        // Si todo sale bien
+        this.correoEnviado = true;
         
       } catch (error) {
         console.error(error);
-        // Manejo de errores (ej: usuario ya existe)
-        const mensajeError = error || 'Error al conectar con el servidor';
         
-        // Usamos Swal o un alert normal si prefieres
-        alert(mensajeError);
+        // --- AQUÍ CAPTURAMOS EL ERROR DE LA API ---
+        // Intentamos leer el mensaje del backend (ej: "Email ya registrado")
+        const mensajeAPI = error.response?.data?.detail || error.response?.data?.error || error.message || 'Error al conectar con el servidor';
+        
+        this.mensajeModalError = mensajeAPI;
+        this.mostrarModalError = true;
+
       } finally {
         this.loading = false;
       }
     },
+    
+    // Función para cerrar el modal
+    handleContinuarError() {
+      this.mostrarModalError = false;
+    },
+
     togglePass(field) {
         if(field === 'pass') this.registerPasswordFieldType = this.registerPasswordFieldType === 'password' ? 'text' : 'password';
         else this.registerConfirmPasswordFieldType = this.registerConfirmPasswordFieldType === 'password' ? 'text' : 'password';

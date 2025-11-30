@@ -153,6 +153,51 @@
       </button>
 
     </form>
+
+    <!-- ================================================= -->
+    <!-- ===            MODALES GENÉRICOS              === -->
+    <!-- ================================================= -->
+
+    <!-- Modal Éxito -->
+    <Transition name="modal-fade">
+      <div v-if="mostrarModalExito" class="modal-overlay">
+        <div class="modal-exito">
+          <div class="modal-header-exito">
+            <i class="fas fa-check-circle"></i>
+            <h3>¡Registro Exitoso!</h3>
+          </div>
+          <div class="modal-body-exito">
+            <p>{{ mensajeModalExito }}</p>
+          </div>
+          <div class="modal-footer-exito">
+            <button class="btn-modal-continuar" @click="handleContinuarExito">
+              Iniciar Sesión
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
+    <!-- Modal Error -->
+    <Transition name="modal-fade">
+      <div v-if="mostrarModalError" class="modal-overlay">
+        <div class="modal-error"> 
+          <div class="modal-header-error">
+            <i class="fas fa-exclamation-triangle"></i> 
+            <h3>Error</h3>
+          </div>
+          <div class="modal-body-error">
+            <p>{{ mensajeModalError }}</p> 
+          </div>
+          <div class="modal-footer-error">
+            <button class="btn-modal-error" @click="handleContinuarError">
+              Entendido
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+
   </div>
 </template>
 
@@ -185,7 +230,13 @@ export default {
       profileData: {
         nombre: '', apellido: '', dni: '', telefono: '',
         sexo: '', provincia: '', localidad: '', calle: '', numero: ''
-      }
+      },
+      
+      // Variables para Modales
+      mostrarModalExito: false,
+      mensajeModalExito: '',
+      mostrarModalError: false,
+      mensajeModalError: ''
     }
   },
   mounted() {
@@ -195,8 +246,10 @@ export default {
     // Validación de seguridad: si no hay token, volvemos al inicio
     if (!this.token) {
       console.error("Token de registro no proporcionado. Redirigiendo al inicio.");
-      alert("Error: El enlace de registro no es válido.");
-      this.$router.push('/');
+      // Usamos el modal de error en lugar de alert
+      this.mensajeModalError = "Error: El enlace de registro no es válido.";
+      this.mostrarModalError = true;
+      setTimeout(() => this.$router.push('/'), 2000);
     }
   },
   beforeUnmount() {
@@ -224,27 +277,37 @@ export default {
       const valor = event.target.value;
       this.profileData.telefono = valor.replace(/\D/g, '');
     },
+    
+    // Handlers para Modales
+    handleContinuarExito() {
+      this.mostrarModalExito = false;
+      this.$router.push('/login');
+    },
+    handleContinuarError() {
+      this.mostrarModalError = false;
+    },
+
     async finalizarRegistro() {
       // 1. Validaciones básicas del Frontend
       if (this.profileData.dni.length !== 8) {
-        alert('Atención: El DNI debe tener exactamente 8 dígitos.');
+        this.mensajeModalError = 'Atención: El DNI debe tener exactamente 8 dígitos.';
+        this.mostrarModalError = true;
         return;
       }
       
       this.loading = true;
 
       try {
-        // Formatear teléfono (Ej: +54 3624123456)
-        // Nota: Asegúrate de que el total no supere 15 caracteres (limite de tu BD)
+        // Formatear teléfono
         const telefonoCompleto = `${this.selectedCountry.code}${this.profileData.telefono}`;
 
-        // 2. Preparar Payload mapeando los nombres correctos para la API
+        // 2. Preparar Payload
         const payload = {
           dni: this.profileData.dni,
           nombre: this.profileData.nombre,
           apellido: this.profileData.apellido,
           telefono: telefonoCompleto,
-          sexo: this.profileData.sexo, // <--- ¡Asegúrate de agregar esto ahora!
+          sexo: this.profileData.sexo, 
           nomProvincia: this.profileData.provincia,
           nomLocalidad: this.profileData.localidad,
           calle: this.profileData.calle,
@@ -256,16 +319,20 @@ export default {
         // 3. Llamada al servicio con los datos y el token
         await registroPaso2(payload, this.token);
 
-        // 4. Éxito
-        alert("Registro completado con éxito. Ya puedes iniciar sesión.");
+        // 4. Éxito - Mostrar Modal
+        this.mensajeModalExito = "Registro completado con éxito. Ya puedes iniciar sesión.";
+        this.mostrarModalExito = true;
         
-        this.$router.push('/login');
+        // NOTA: La redirección se hace en 'handleContinuarExito'
 
       } catch (error) {
         console.error("Error paso 2:", error);
-        const mensaje = error || 'No se pudo completar el registro.';
         
-        console.error(mensaje);
+        // Extraer mensaje de error
+        const mensaje = error.response?.data?.detail || error.message || 'No se pudo completar el registro.';
+        
+        this.mensajeModalError = mensaje;
+        this.mostrarModalError = true;
       } finally {
         this.loading = false;
       }
