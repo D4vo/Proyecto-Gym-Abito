@@ -14,11 +14,6 @@
 
         <nav class="menu">
           <slot /> 
-          
-          <button class="menu-btn profile-btn" @click="cambiarVista('configurarPerfil')">
-            <i class="fas fa-user-cog icon"></i> 
-            <span>Configurar Perfil</span>
-          </button>
         </nav>
 
         <div class="user-info">
