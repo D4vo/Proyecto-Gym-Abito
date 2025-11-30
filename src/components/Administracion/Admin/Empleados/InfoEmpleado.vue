@@ -125,10 +125,12 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import Titulo from '../../Titulo.vue';
 import DetallePersona from '../DetallePersona.vue';
 import TablaHorarios from '../../Tablas y Filas/TablaHorario/TablaHorarios.vue';
+
+import { obtenerEmpleadoPorDni } from '@/api/services/empleadoService';
 
 // --- Props y Datos iniciales ---
 const props = defineProps({
@@ -149,30 +151,36 @@ const mostrarModalError = ref(false);
 const mensajeModalExito = ref('');
 const mensajeModalError = ref('');
 
-// --- ESTRUCTURAS DE PRUEBA ---
-const DatosEmpleado = ref({
-  "dni": "12345678",
-  "nombre": "Carlos",
-  "apellido": "Rodriguez",
-  "sexo": "M",
-  "email": "carlos.rodriguez@gimnasio.com",
-  "telefono": "3624889900",
-  "provincia": "Chaco",
-  "localidad": "Resistencia",
-  "calle": "Av. Ávalos",
-  "nro": "1234",
-  "rol": "Entrenador de Musculación"
-});
+// --- Estados ---
+const loading = ref(true);
+const DatosEmpleado = ref({});
+const HorariosEmpleado = ref({ horarios: [] });
 
-const HorariosEmpleado = ref({
-  "horarios": [
-    { "dia": "Lunes", "nroGrupo": "1 " },
-    { "dia": "Martes", "nroGrupo": "1 " },
-    { "dia": "Miércoles", "nroGrupo": "1 " },
-    { "dia": "Jueves", "nroGrupo": "1 " },
-    { "dia": "Viernes", "nroGrupo": "1 " }
-  ]
-});
+// --- Carga de Datos ---
+const cargarDetalleEmpleado = async () => {
+  loading.value = true;
+  try {
+    // Usamos el DNI que viene de la prop (del listado anterior)
+    const dni = props.empleadoSeleccionado.dni; 
+    console.log("Cargando detalles para DNI:", dni);
+
+    // Llamada a la API
+    const data = await obtenerEmpleadoPorDni(dni);
+    
+    // Separamos la respuesta en las dos estructuras que usa tu template
+    const { horarios, ...datosPersonales } = data;
+    
+    DatosEmpleado.value = datosPersonales;
+    HorariosEmpleado.value = { horarios: horarios }; // Ajustamos al formato que espera TablaHorarios
+
+  } catch (error) {
+    console.error("Error al cargar detalle del empleado:", error);
+    mensajeModalError.value = "No se pudo cargar la información del empleado.";
+    mostrarModalError.value = true;
+  } finally {
+    loading.value = false;
+  }
+};
 
 // --- Métodos de Navegación ---
 const emitirVolver = () => {
@@ -235,6 +243,8 @@ const handleContinuarExito = () => {
   // Al finalizar con éxito, volvemos a la lista de empleados
   emitirVolver();
 }
+
+onMounted(cargarDetalleEmpleado);
 
 </script>
 

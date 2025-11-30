@@ -229,6 +229,8 @@ import { ref, computed, watch } from 'vue';
 import TablaHorarios from '../../Tablas y Filas/TablaHorario/TablaHorarios.vue';
 import Titulo from '../../Titulo.vue';
 
+import { crearEmpleado } from '@/api/services/empleadoService';
+
 // --- Emits al padre (PantallaAdmin.vue) ---
 const emit = defineEmits(['cancelar-nuevo-empleado','operacionFinalizada']);
 
@@ -397,58 +399,65 @@ const realizarIngreso = async () => {
   mostrarModalConfirmacion.value = false;
 
   // =================================================================
-  // == ✨ AQUÍ SE PREPARAN LOS DATOS PARA LA API (CORREGIDO) ✨ ==
+  // == ✨ PREPARACIÓN DE DATOS PARA LA API (CORREGIDO) ✨ ==
   // =================================================================
   
-  // (a) Datos del Empleado
-  //      Construido EXACTAMENTE como tu JSON
-  const DatosEmpleadoCompleto = {
+  // Construimos el Payload exacto que espera el Backend (EmpleadoCreate)
+  const payload = {
+    // 1. Datos Personales
     dni: EmpleadoDatos.value.dni,
     nombre: EmpleadoDatos.value.nombre,
     apellido: EmpleadoDatos.value.apellido,
     sexo: EmpleadoDatos.value.sexo,
     email: EmpleadoDatos.value.email,
     telefono: EmpleadoDatos.value.telefono,
-    activo: true, // Campo fijo
-    cuotasPendientes: 0, // Campo fijo
-    turno: "Empleado", // Campo fijo (ejemplo)
-    provincia: EmpleadoDatos.value.provincia,
-    localidad: EmpleadoDatos.value.localidad,
-    calle: EmpleadoDatos.value.calle,
-    nro: EmpleadoDatos.value.nro,
-    rol: EmpleadoDatos.value.rol // <-- NUEVO CAMPO AÑADIDO
-  };
 
-  // (b) Horarios del Empleado
-  //     Es el array tal cual viene de la tabla
-  const HorariosCompletos = HorariosEmpleado.value;
+    // 2. Datos de Dirección (Mapeo de nombres para la API)
+    nomProvincia: EmpleadoDatos.value.provincia, // API espera 'nomProvincia'
+    nomLocalidad: EmpleadoDatos.value.localidad, // API espera 'nomLocalidad'
+    calle: EmpleadoDatos.value.calle,
+    numero: EmpleadoDatos.value.nro || "S/N", // Valor por defecto si está vacío
+
+    // 3. Datos de Empleado
+    rol: EmpleadoDatos.value.rol,
+
+    // 4. Lista de Horarios
+    // Mapeamos para enviar limpio solo lo que la API necesita: dia y nroGrupo
+    horarios: HorariosEmpleado.value.map(h => ({
+      dia: h.dia,
+      nroGrupo: h.nroGrupo
+    }))
+  };
   
   // =================================================================
-  // ==         AQUÍ EL CONSOLE.LOG SOLICITADO                   ==
+  // ==         CONSOLE.LOG PARA DEPURACIÓN                         ==
   // =================================================================
   console.log("--- DATOS FINALES PARA ENVIAR A LA API ---");
-  console.log("Estructura DatosEmpleadoCompleto:", DatosEmpleadoCompleto);
-  console.log("Estructura HorariosCompletos:", HorariosCompletos);
+  console.log(JSON.stringify(payload, null, 2));
   console.log("-----------------------------------------");
 
   // =================================================================
-  // ==         SIMULACIÓN DE LLAMADA A LA API                   ==
+  // ==         LLAMADA REAL A LA API                               ==
   // =================================================================
   try {
-    // loading.value = true; // (Opcional: si tuvieras un spinner)
+    // Si tienes una ref de loading, actívala aquí: loading.value = true;
     
-    // REEMPLAZA ESTO con tu llamada real:
-   
+    // Llamada al servicio
+    await crearEmpleado(payload);
     
-    // Si la API tiene éxito:
-    console.log("Empleado registrado con éxito (simulación)");
+    console.log("Empleado registrado con éxito en la BD");
+    
+    // Mensaje de éxito
     mostrarModalExito.value = true;
 
   } catch (error) {
-    // Si la API falla:
     console.error("Error al registrar al empleado:", error);
-    mensajeModalError.value = error.response?.data?.detail || error.message || 'Error desconocido al intentar guardar.';
+    
+    // Extraer mensaje de error del backend (ej: "El DNI ya existe")
+    const errorMsg = error.response?.data?.error || 'Error desconocido al intentar guardar.';
+    mensajeModalError.value = errorMsg;
     mostrarModalError.value = true;
+    
   } finally {
     // loading.value = false;
   }

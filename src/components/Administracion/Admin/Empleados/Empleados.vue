@@ -71,11 +71,14 @@
 import { ref, onMounted } from 'vue';
 import Titulo from '../../Titulo.vue';
 // Importamos el nuevo componente de ficha
-import FichaEmpleado from './FichaEmpleado.vue'; 
+import FichaEmpleado from './FichaEmpleado.vue';
+
+import { listarEmpleados } from '@/api/services/empleadoService';
 
 // --- Estados del Componente ---
 const loading = ref(true);
 const empleados = ref([]);
+const error = ref(null);
 
 // --- Estados de Modales (copiados de tus ejemplos) ---
 const mostrarModalExito = ref(false);
@@ -89,26 +92,16 @@ const emit = defineEmits([
   'NuevoEmpleado'              // Evento para crear uno nuevo
 ]);
 
-// --- Carga de Datos (Simulada) ---
+// --- Carga de Datos ---
 const cargarEmpleados = async () => {
   loading.value = true;
+  error.value = null;
   try {
-    // Simulamos una llamada a la API
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Usamos los datos de tu imagen y tu JSON de ejemplo
-    empleados.value = [
-      { "dni": "37493123", "nombre": "Jose", "apellido": "Coria", "rol": "Entrenador" },
-      { "dni": "45162728", "nombre": "Leandro Manuel", "apellido": "Rios", "rol": "Entrenador" },
-      { "dni": "44555667", "nombre": "Nicolas", "apellido": "Gimenez", "rol": "Entrenador" },
-      { "dni": "31222333", "nombre": "Maria", "apellido": "Gomez", "rol": "Administrativa" },
-      { "dni": "43444556", "nombre": "Camila", "apellido": "Herrera", "rol": "Entrenador" }
-    ];
-
-  } catch (error) {
-    console.error("Error al cargar empleados:", error);
-    mensajeModalError.value = "No se pudieron cargar los empleados. Intente más tarde.";
-    mostrarModalError.value = true;
+    const data = await listarEmpleados();
+    empleados.value = data;
+  } catch (err) {
+    console.error("Error cargando empleados:", err);
+    error.value = "No se pudo cargar la lista de empleados.";
   } finally {
     loading.value = false;
   }
