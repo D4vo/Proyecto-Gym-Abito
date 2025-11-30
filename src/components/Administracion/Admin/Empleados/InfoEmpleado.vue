@@ -130,7 +130,11 @@ import Titulo from '../../Titulo.vue';
 import DetallePersona from '../DetallePersona.vue';
 import TablaHorarios from '../../Tablas y Filas/TablaHorario/TablaHorarios.vue';
 
-import { obtenerEmpleadoPorDni } from '@/api/services/empleadoService';
+import {
+  obtenerEmpleadoPorDni,
+  actualizarHorariosEmpleado,
+  eliminarEmpleado
+} from '@/api/services/empleadoService';
 
 // --- Props y Datos iniciales ---
 const props = defineProps({
@@ -162,7 +166,6 @@ const cargarDetalleEmpleado = async () => {
   try {
     // Usamos el DNI que viene de la prop (del listado anterior)
     const dni = props.empleadoSeleccionado.dni; 
-    console.log("Cargando detalles para DNI:", dni);
 
     // Llamada a la API
     const data = await obtenerEmpleadoPorDni(dni);
@@ -174,8 +177,7 @@ const cargarDetalleEmpleado = async () => {
     HorariosEmpleado.value = { horarios: horarios }; // Ajustamos al formato que espera TablaHorarios
 
   } catch (error) {
-    console.error("Error al cargar detalle del empleado:", error);
-    mensajeModalError.value = "No se pudo cargar la información del empleado.";
+    mensajeModalError.value = error.response?.data?.error || "No se pudo cargar la información del empleado.";
     mostrarModalError.value = true;
   } finally {
     loading.value = false;
@@ -188,60 +190,67 @@ const emitirVolver = () => {
 }
 
 // --- Manejo de Actualización de Horarios ---
-const manejarHorariosActualizados = (nuevosHorarios) => {
-  console.log("Nuevos horarios recibidos en InfoEmpleado:", nuevosHorarios.horarios);
-  HorariosEmpleado.value = nuevosHorarios;
-  
-  // ===========================================================
-  //    ==      TODO: AQUÍ VA LA LLAMADA A LA API             ==
-  //    ==      para guardar los nuevos horarios.             ==
-  //    ===========================================================
+const manejarHorariosActualizados = async (nuevosHorarios) => {
+  loading.value = true;
+  try {
+    // 1. Preparamos el payload y limpiamos los datos (trim en nroGrupo por si acaso)
+    const payload = {
+      horarios: nuevosHorarios.horarios.map(h => ({
+        dia: h.dia,
+        nroGrupo: h.nroGrupo.trim()
+      }))
+    };
+
+    // 2. Llamada a la API
+    await actualizarHorariosEmpleado(DatosEmpleado.value.dni, payload);
+
+    // 3. Notificación de éxito
+    mensajeModalExito.value = "Horarios del empleado actualizados correctamente.";
+    mostrarModalExito.value = true;
+
+  } catch (error) {
+    console.error("Error al guardar horarios:", error);
+    mensajeModalError.value = error.response?.data?.error || "Error al actualizar los horarios.";
+    mostrarModalError.value = true;
+  } finally {
+    // 4. Recargamos los datos para asegurar consistencia
+    await cargarDetalleEmpleado();
+    loading.value = false;
+  }
 };
 
 // --- Lógica para Dar de Baja ---
-
 const iniciarBaja = () => {
   mostrarModalBaja.value = true;
 }
 
-// ===================================================================
-// ==  ✨ AQUÍ SE PROGRAMA LA LLAMADA A LA API PARA BAJA ✨        ==
-// ===================================================================
 const BajaEmpleado = async () => {
-  // 1. Cerramos el modal de confirmación
   mostrarModalBaja.value = false;
 
-  // 2. Preparamos la lógica (Simulación)
   try {
-    // loading.value = true; 
-    
-    console.log(`Iniciando baja para el empleado DNI: ${DatosEmpleado.value.dni}`);
+    loading.value = true;
 
-    // --- AQUÍ VA LA LLAMADA REAL A LA API ---
-    // await api.darBajaEmpleado(DatosEmpleado.value.dni);
+    // 2. Llamada a la API
+    await eliminarEmpleado(DatosEmpleado.value.dni);
     
-    // Simulamos espera
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
     // 3. Éxito
     mensajeModalExito.value = "El empleado ha sido dado de baja correctamente.";
     mostrarModalExito.value = true;
 
   } catch (error) {
-    // 4. Error
     console.error("Error al dar de baja:", error);
-    mensajeModalError.value = error.response?.data?.detail || "Ocurrió un error al intentar dar de baja al empleado.";
+    mensajeModalError.value = error.response?.data?.error || "Ocurrió un error al intentar dar de baja al empleado.";
     mostrarModalError.value = true;
   } finally {
-    // loading.value = false;
+    loading.value = false;
+    emitirVolver(); // Volvemos al listado tras la baja
   }
 }
-// ===================================================================
 
 const handleContinuarExito = () => {
   mostrarModalExito.value = false;
   // Al finalizar con éxito, volvemos a la lista de empleados
-  emitirVolver();
+  // emitirVolver();
 }
 
 onMounted(cargarDetalleEmpleado);

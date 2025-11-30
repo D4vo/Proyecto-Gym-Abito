@@ -49,3 +49,34 @@ export const obtenerEmpleadoPorDni = async (dni) => {
     }
 };
 
+/**
+ * Actualiza los horarios asignados a un empleado.
+ * Requiere permisos de Admin.
+ * @param {string} dni - DNI del empleado.
+ * @param {object} payload - Objeto { horarios: [ { dia, nroGrupo } ] }
+ */
+export const actualizarHorariosEmpleado = async (dni, payload) => {
+    try {
+        await apiClient.put(`/empleados/${dni}/horarios`, payload);
+        return true;
+    } catch (error) {
+        console.error(`Error al actualizar horarios del empleado ${dni}:`, error.response?.data || error.message);
+        throw error;
+    }
+};
+
+/**
+ * Da de baja a un empleado.
+ * Requiere permisos de Admin.
+ * @param {string} dni - DNI del empleado a eliminar.
+ */
+export const eliminarEmpleado = async (dni) => {
+    try {
+        await apiClient.delete(`/empleados/${dni}`);
+        return true;
+    } catch (error) {
+        console.error(`Error al eliminar empleado ${dni}:`, error.response?.data || error.message);
+        throw error;
+    }
+};
+
