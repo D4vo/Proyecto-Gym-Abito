@@ -283,3 +283,35 @@ export const eliminarAlumnoAPI = async (dni) => {
     }
 };
 
+/**
+ * Pasa un alumno a estado inactivo.
+ * Requiere permisos de Staff.
+ * @param {string} dni - DNI del alumno.
+ */
+export const desactivarAlumnoAPI = async (dni) => {
+    try {
+        // Llama al endpoint POST /alumnos/{dni}/desactivar
+        await apiClient.post(`/alumnos/${dni}/desactivar`);
+        return true;
+    } catch (error) {
+        console.error(`Error al desactivar al alumno ${dni}:`, error.response?.data || error.message);
+        throw error;
+    }
+};
+
+/**
+ * Reactiva a un alumno (pasa de inactivo a activo).
+ * Requiere permisos de Staff.
+ * @param {string} dni - DNI del alumno.
+ */
+export const reactivarAlumnoAPI = async (dni) => {
+    try {
+        // Llama al endpoint POST /alumnos/{dni}/reactivar
+        await apiClient.post(`/alumnos/${dni}/reactivar`);
+        return true;
+    } catch (error) {
+        console.error(`Error al reactivar al alumno ${dni}:`, error.response?.data || error.message);
+        throw error;
+    }
+};
+

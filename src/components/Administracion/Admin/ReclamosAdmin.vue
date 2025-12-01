@@ -87,6 +87,8 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import ListaReclamos from '../Usuario/ListaReclamos.vue'
 import Titulo from '../Titulo.vue';
 
+import { listarTodosReclamos } from '@/api/services/reclamosService';
+
 // Estado
 const reclamos = ref([])
 const loading = ref(true)
@@ -100,67 +102,13 @@ const isMobile = ref(false)
 // ========================================================
 // ===       SIMULACIÓN DE LLAMADA A LA API             ===
 // ========================================================
-const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 const cargarReclamosAdmin = async () => {
   loading.value = true;
   
   try {
-    // Simulamos retardo de red
-    await sleep(1500);
-
-    // --- AQUÍ HARÍAS EL LLAMADO REAL A TU API ---
-    // const respuesta = await api.get('/reclamos/todos');
-    // reclamos.value = respuesta.data;
-
-    // DATOS MOCKEADOS (Estructura solicitada)
-    const datosSimulados = [
-      {
-        "comentario": "El aire acondicionado de la sala de musculación gotea.",
-        "idReclamo": 101,
-        "fecha": "2025-11-30",
-        "hora": "14:30:00",
-        "dni": "12345678"
-      },
-      {
-        "comentario": "Faltan mancuernas de 10kg, siempre están ocupadas.",
-        "idReclamo": 102,
-        "fecha": "2025-11-29",
-        "hora": "09:15:00",
-        "dni": "87654321"
-      },
-      {
-        "comentario": "El baño de hombres del primer piso está sucio.",
-        "idReclamo": 98,
-        "fecha": "2025-11-28",
-        "hora": "18:45:00",
-        "dni": "11223344"
-      },
-      {
-        "comentario": "Excelente atención del profesor de la mañana, pero la música está muy fuerte.",
-        "idReclamo": 95,
-        "fecha": "2025-11-25",
-        "hora": "10:00:00",
-        "dni": "55667788"
-      },
-      {
-        "comentario": "Solicito que arreglen la bicicleta fija nro 3.",
-        "idReclamo": 90,
-        "fecha": "2025-11-20",
-        "hora": "20:00:00",
-        "dni": "99887766"
-      },
-      {
-        "comentario": "No pude ingresar con mi huella hoy.",
-        "idReclamo": 85,
-        "fecha": "2025-11-15",
-        "hora": "08:00:00",
-        "dni": "44332211"
-      }
-    ];
-
-    reclamos.value = datosSimulados;
-
+    const datos = await listarTodosReclamos();
+    reclamos.value = datos;
   } catch (error) {
     console.error("Error cargando reclamos:", error);
   } finally {

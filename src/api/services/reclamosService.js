@@ -1,7 +1,6 @@
 // src/api/services/reclamosService.js
 import apiClient from '../index'; // Importa la instancia de Axios configurada
 
-// Ya no necesitas API_URL ni getToken aquí
 
 /**
  * Obtiene todos los reclamos del usuario autenticado.
@@ -34,3 +33,15 @@ export const crearReclamo = async (descripcion) => {
         throw error;
     }
 };
+
+export const listarTodosReclamos = async () => {
+    try {
+        // Llama al endpoint GET /reclamos/ (Protegido para Admin)
+        const response = await apiClient.get('/reclamos/');
+        return response.data;
+    } catch (error) {
+        console.error("Error al listar todos los reclamos:", error);
+        return [];
+    }
+};
+

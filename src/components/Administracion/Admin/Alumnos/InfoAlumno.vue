@@ -189,7 +189,11 @@ import DetallePersona from '../DetallePersona.vue'; // <-- Importado
 import Titulo from '../../Titulo.vue';
 import ModificarCuota from './ModificarCuota.vue'; 
 
-import { eliminarAlumnoAPI } from '@/api/services/alumnoService';
+import {
+  eliminarAlumnoAPI,
+  desactivarAlumnoAPI,
+  reactivarAlumnoAPI
+} from '@/api/services/alumnoService';
 
 /**
  * Compara dos listas de horarios para ver si son idénticas en contenido.
@@ -328,7 +332,7 @@ const manejarHorariosActualizados = async (nuevosHorarios) => {
     // 4. MANEJO DE ERRORES (Profesional)
     console.error("Error al modificar los datos:", error);
     // Muestra un mensaje de error claro al usuario
-    alert(`Error al guardar: ${error.response?.data?.detail || 'No se pudieron actualizar los horarios. Verifique la capacidad.'}`);
+    alert(`Error al guardar: ${error.response?.data?.error || 'No se pudieron actualizar los horarios. Verifique la capacidad.'}`);
   } finally {
     // Una vez finalizada la actualización, refresca los horarios
     console.log(`Refrescando horarios para ${alumnoID.value["dni"]}...`);
@@ -394,6 +398,29 @@ const ejecutarCambioEstado = async () => {
   
   // --- TODO: AQUÍ VA LA LLAMADA A LA API REAL ---
   // await api.actualizarEstadoAlumno(alumno.value.dni, nuevoEstado);
+  if (nuevoEstado === false) {
+    // Si se está desactivando, llamamos a la API correspondiente
+    try {
+      await desactivarAlumnoAPI(alumno.value.dni);
+    } catch (error) {
+      console.error("Error al desactivar el alumno:", error);
+      mensajeModalError.value = error.response?.data?.detail || 'No se pudo desactivar al alumno. Intente nuevamente.';
+      mostrarModalError.value = true;
+      return; // Salimos si hay error
+    }
+  }
+  
+  if (nuevoEstado === true) {
+    // Si se está activando, llamamos a la API correspondiente
+    try {
+      await reactivarAlumnoAPI(alumno.value.dni);
+    } catch (error) {
+      console.error("Error al activar el alumno:", error);
+      mensajeModalError.value = error.response?.data?.detail || 'No se pudo activar al alumno. Intente nuevamente.';
+      mostrarModalError.value = true;
+      return; // Salimos si hay error
+    }
+  }
   
   // Simulación Éxito:
   alumno.value.activo = nuevoEstado;
