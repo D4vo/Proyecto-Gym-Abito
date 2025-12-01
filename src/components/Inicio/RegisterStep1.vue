@@ -221,7 +221,7 @@ export default {
         
         // --- AQUÍ CAPTURAMOS EL ERROR DE LA API ---
         // Intentamos leer el mensaje del backend (ej: "Email ya registrado")
-        const mensajeAPI = error.response?.data?.detail || error.response?.data?.error || error.message || 'Error al conectar con el servidor';
+        const mensajeAPI = error.response?.data?.detail?.[0]?.msg || 'Error al conectar con el servidor';
         
         this.mensajeModalError = mensajeAPI;
         this.mostrarModalError = true;

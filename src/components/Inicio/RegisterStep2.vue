@@ -44,50 +44,23 @@
 
       <div class="form-group">
         <div class="input-container phone-container" ref="phoneContainer">
-          
           <div class="custom-select-wrapper">
             <div class="custom-select-trigger" @click="toggleDropdown">
-              <img 
-                :src="`https://flagcdn.com/w40/${selectedCountry.iso}.png`" 
-                :alt="selectedCountry.name"
-                class="flag-icon"
-              >
+              <img :src="`https://flagcdn.com/w40/${selectedCountry.iso}.png`" :alt="selectedCountry.name" class="flag-icon">
               <span class="country-code">{{ selectedCountry.code }}</span>
               <span class="arrow" :class="{ rotated: isOpen }">▼</span>
             </div>
-
             <transition name="dropdown-fade">
               <ul v-if="isOpen" class="custom-options">
-                <li 
-                  v-for="country in countries" 
-                  :key="country.iso" 
-                  class="custom-option"
-                  :class="{ selected: country.iso === selectedCountry.iso }"
-                  @click="selectCountry(country)"
-                >
-                  <img 
-                    :src="`https://flagcdn.com/w40/${country.iso}.png`" 
-                    :alt="country.name"
-                    class="flag-icon-small"
-                  >
+                <li v-for="country in countries" :key="country.iso" class="custom-option" :class="{ selected: country.iso === selectedCountry.iso }" @click="selectCountry(country)">
+                  <img :src="`https://flagcdn.com/w40/${country.iso}.png`" :alt="country.name" class="flag-icon-small">
                   <span class="option-text">{{ country.code }}</span>
                 </li>
               </ul>
             </transition>
           </div>
-          
           <div class="vertical-divider"></div>
-
-          <input 
-            type="tel" 
-            v-model="profileData.telefono" 
-            id="telefono" 
-            class="form-input phone-input" 
-            placeholder=" " 
-            required 
-            autocomplete="tel-national"
-            @input="filtrarNumerosTel"
-          >
+          <input type="tel" v-model="profileData.telefono" id="telefono" class="form-input phone-input" placeholder=" " required autocomplete="tel-national" @input="filtrarNumerosTel">
           <label for="telefono" class="form-label phone-label">Teléfono</label>
         </div>
       </div>
@@ -105,33 +78,56 @@
       </div>
 
       <div class="form-grid">
+        
         <div class="form-group">
           <div class="input-container">
-            <select v-model="profileData.provincia" id="provincia" class="form-input dark-select" required>
+            <select 
+              v-model="profileData.provincia" 
+              id="provincia" 
+              class="form-input dark-select" 
+              required
+              @change="manejarCambioProvincia"
+              :disabled="cargandoProvincias"
+            >
               <option value="" disabled selected></option>
-              <option>Buenos Aires</option>
-              <option>Córdoba</option>
-              <option>Santa Fe</option>
-              <option>Chaco</option>
-              <option>Mendoza</option>
+              <option v-if="cargandoProvincias" disabled>Cargando...</option>
+              
+              <option 
+                v-for="prov in listaProvincias" 
+                :key="prov.id" 
+                :value="prov.nombre"
+              >
+                {{ prov.nombre }}
+              </option>
             </select>
             <label for="provincia" class="form-label">Provincia</label>
           </div>
         </div>
+
         <div class="form-group">
           <div class="input-container">
-            <select v-model="profileData.localidad" id="localidad" class="form-input dark-select" required>
+            <select 
+              v-model="profileData.localidad" 
+              id="localidad" 
+              class="form-input dark-select" 
+              required
+              :disabled="!profileData.provincia || cargandoLocalidades"
+            >
               <option value="" disabled selected></option>
-              <option>La Plata</option>
-              <option>Sáenz Peña</option>
-              <option>Resistencia</option>
-              <option>Capital Federal</option>
+              <option v-if="cargandoLocalidades" disabled>Cargando...</option>
+              
+              <option 
+                v-for="loc in listaLocalidades" 
+                :key="loc.id" 
+                :value="loc.nombre"
+              >
+                {{ loc.nombre }}
+              </option>
             </select>
             <label for="localidad" class="form-label">Localidad</label>
           </div>
         </div>
       </div>
-
       <div class="form-grid">
         <div class="form-group">
           <div class="input-container">
@@ -154,11 +150,6 @@
 
     </form>
 
-    <!-- ================================================= -->
-    <!-- ===            MODALES GENÉRICOS              === -->
-    <!-- ================================================= -->
-
-    <!-- Modal Éxito -->
     <Transition name="modal-fade">
       <div v-if="mostrarModalExito" class="modal-overlay">
         <div class="modal-exito">
@@ -178,7 +169,6 @@
       </div>
     </Transition>
 
-    <!-- Modal Error -->
     <Transition name="modal-fade">
       <div v-if="mostrarModalError" class="modal-overlay">
         <div class="modal-error"> 
@@ -203,6 +193,8 @@
 
 <script>
 import { registroPaso2 } from '@/api/services/authService';
+// Importamos el nuevo servicio
+import { obtenerProvinciasArg, obtenerLocalidadesArg } from '@/api/services/georefService';
 
 export default {
   name: 'RegisterStep2',
@@ -215,80 +207,81 @@ export default {
   data() {
     return {
       loading: false,
-      isOpen: false, // Controla si el dropdown está abierto
+      isOpen: false,
       selectedCountry: { code: '+54', iso: 'ar', name: 'Argentina' },
-      countries: [
-        { code: '+54', iso: 'ar', name: 'Argentina' },
-        { code: '+1', iso: 'us', name: 'USA' },
-        { code: '+34', iso: 'es', name: 'España' },
-        { code: '+55', iso: 'br', name: 'Brasil' },
-        { code: '+598', iso: 'uy', name: 'Uruguay' },
-        { code: '+56', iso: 'cl', name: 'Chile' },
-        { code: '+57', iso: 'co', name: 'Colombia' },
-        { code: '+52', iso: 'mx', name: 'México' },
-      ],
+      countries: [ /* ... países ... */ ],
       profileData: {
         nombre: '', apellido: '', dni: '', telefono: '',
         sexo: '', provincia: '', localidad: '', calle: '', numero: ''
       },
       
-      // Variables para Modales
+      // Variables para Georef
+      listaProvincias: [],
+      listaLocalidades: [],
+      cargandoProvincias: false,
+      cargandoLocalidades: false,
+
+      // Modales
       mostrarModalExito: false,
       mensajeModalExito: '',
       mostrarModalError: false,
       mensajeModalError: ''
     }
   },
-  mounted() {
-    // Cerrar dropdown si se hace click fuera
+  async mounted() {
     document.addEventListener('click', this.handleClickOutside);
 
-    // Validación de seguridad: si no hay token, volvemos al inicio
     if (!this.token) {
-      console.error("Token de registro no proporcionado. Redirigiendo al inicio.");
-      // Usamos el modal de error en lugar de alert
       this.mensajeModalError = "Error: El enlace de registro no es válido.";
       this.mostrarModalError = true;
       setTimeout(() => this.$router.push('/'), 2000);
+    } else {
+      // Cargamos las provincias al iniciar el componente
+      await this.cargarProvincias();
     }
   },
   beforeUnmount() {
     document.removeEventListener('click', this.handleClickOutside);
   },
   methods: {
-    toggleDropdown() {
-      this.isOpen = !this.isOpen;
-    },
-    selectCountry(country) {
-      this.selectedCountry = country;
-      this.isOpen = false;
-    },
-    handleClickOutside(event) {
-      // Si el click no fue dentro del contenedor del teléfono, cerramos el dropdown
-      if (this.$refs.phoneContainer && !this.$refs.phoneContainer.contains(event.target)) {
-        this.isOpen = false;
-      }
-    },
-    filtrarNumerosDNI(event) {
-      const valor = event.target.value;
-      this.profileData.dni = valor.replace(/\D/g, '');
-    },
-    filtrarNumerosTel(event) {
-      const valor = event.target.value;
-      this.profileData.telefono = valor.replace(/\D/g, '');
-    },
-    
-    // Handlers para Modales
-    handleContinuarExito() {
-      this.mostrarModalExito = false;
-      this.$router.push('/login');
-    },
-    handleContinuarError() {
-      this.mostrarModalError = false;
+    // --- LÓGICA GEOREF ---
+    async cargarProvincias() {
+      this.cargandoProvincias = true;
+      // Obtenemos la lista desde la API externa
+      this.listaProvincias = await obtenerProvinciasArg();
+      this.cargandoProvincias = false;
     },
 
+    async manejarCambioProvincia() {
+      // Limpiamos la localidad anterior
+      this.profileData.localidad = '';
+      this.listaLocalidades = [];
+      
+      // Buscamos el objeto provincia completo para obtener su ID
+      // (En profileData.provincia solo guardamos el NOMBRE para tu backend)
+      const nombreSeleccionado = this.profileData.provincia;
+      const provinciaObj = this.listaProvincias.find(p => p.nombre === nombreSeleccionado);
+
+      if (provinciaObj) {
+        this.cargandoLocalidades = true;
+        // Llamamos a la API usando el ID de la provincia
+        this.listaLocalidades = await obtenerLocalidadesArg(provinciaObj.id);
+        this.cargandoLocalidades = false;
+      }
+    },
+    // ---------------------
+
+    // ... Resto de métodos (toggleDropdown, selectCountry, handleClickOutside, filtrarNumeros, etc.) ...
+    toggleDropdown() { this.isOpen = !this.isOpen; },
+    selectCountry(country) { this.selectedCountry = country; this.isOpen = false; },
+    handleClickOutside(event) { if (this.$refs.phoneContainer && !this.$refs.phoneContainer.contains(event.target)) this.isOpen = false; },
+    filtrarNumerosDNI(event) { this.profileData.dni = event.target.value.replace(/\D/g, ''); },
+    filtrarNumerosTel(event) { this.profileData.telefono = event.target.value.replace(/\D/g, ''); },
+    handleContinuarExito() { this.mostrarModalExito = false; this.$router.push('/login'); },
+    handleContinuarError() { this.mostrarModalError = false; },
+
     async finalizarRegistro() {
-      // 1. Validaciones básicas del Frontend
+      // Validaciones
       if (this.profileData.dni.length !== 8) {
         this.mensajeModalError = 'Atención: El DNI debe tener exactamente 8 dígitos.';
         this.mostrarModalError = true;
@@ -298,39 +291,30 @@ export default {
       this.loading = true;
 
       try {
-        // Formatear teléfono
         const telefonoCompleto = `${this.selectedCountry.code}${this.profileData.telefono}`;
 
-        // 2. Preparar Payload
+        // El payload sigue enviando Strings en 'nomProvincia' y 'nomLocalidad'
+        // Esto es perfecto porque tu backend guarda el nombre y lo crea si no existe.
         const payload = {
           dni: this.profileData.dni,
           nombre: this.profileData.nombre,
           apellido: this.profileData.apellido,
           telefono: telefonoCompleto,
           sexo: this.profileData.sexo, 
-          nomProvincia: this.profileData.provincia,
+          nomProvincia: this.profileData.provincia, 
           nomLocalidad: this.profileData.localidad,
           calle: this.profileData.calle,
           numero: this.profileData.numero || "S/N"
         };
 
-        console.log("Enviando paso 2:", payload);
-
-        // 3. Llamada al servicio con los datos y el token
         await registroPaso2(payload, this.token);
 
-        // 4. Éxito - Mostrar Modal
         this.mensajeModalExito = "Registro completado con éxito. Ya puedes iniciar sesión.";
         this.mostrarModalExito = true;
-        
-        // NOTA: La redirección se hace en 'handleContinuarExito'
 
       } catch (error) {
         console.error("Error paso 2:", error);
-        
-        // Extraer mensaje de error
         const mensaje = error.response?.data?.detail || error.message || 'No se pudo completar el registro.';
-        
         this.mensajeModalError = mensaje;
         this.mostrarModalError = true;
       } finally {
