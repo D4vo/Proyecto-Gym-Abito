@@ -16,7 +16,8 @@
       
       <!-- CONTENIDO DEL FORMULARIO -->
       <div class="auth-content">
-        <Recuperacion />
+        <!-- Pasamos el modo detectado como prop al componente hijo -->
+        <Recuperacion :modo="modoActual" />
       </div>
       
     </div>
@@ -31,6 +32,7 @@
 <script>
 import Recuperacion from '@/components/Inicio/Recuperacion.vue';
 import { obtenerAnioActual } from '@/utils/formatters';
+
 export default {
   name: 'RecuperarView',
   components: {
@@ -38,7 +40,15 @@ export default {
   },
   data() {
     return {
-      anio: obtenerAnioActual()
+      anio: obtenerAnioActual(),
+      modoActual: 'recuperacion' // Valor por defecto
+    }
+  },
+  created() {
+    // Al crearse el componente, leemos la URL para ver si hay un parámetro 'modo'
+    // Ejemplo URL: http://localhost:8080/recuperar?modo=actualizacion
+    if (this.$route.query.modo === 'actualizacion') {
+      this.modoActual = 'actualizacion';
     }
   }
 }

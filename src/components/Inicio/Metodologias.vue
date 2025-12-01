@@ -19,7 +19,7 @@
         <span>STATUS: ACTIVE</span>
       </div>
       <div class="interactive-icon">
-        <i class="fas fa-arrow-right"></i>
+        <i class="fas fa-dumbbell icon"></i>
       </div>
     </div>
   </div>

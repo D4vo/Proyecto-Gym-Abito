@@ -1,6 +1,7 @@
 <template>
   <div class="form-wrapper">
     
+    <!-- VISTA LOGIN -->
     <form v-if="viewMode === 'login'" class="auth-form" @submit.prevent="iniciarSesion">
       
       <div class="form-group">
@@ -67,7 +68,9 @@
       </div>
     </form>
 
-    <form v-else-if="viewMode === 'recovery'" class="auth-form" @submit.prevent="enviarCorreoRecuperacion">
+    <!-- VISTA RECUPERACIÓN (Paso 1) -->
+    <!-- NOTA: Se agrega () al submit para evitar pasar el evento por defecto -->
+    <form v-else-if="viewMode === 'recovery'" class="auth-form" @submit.prevent="enviarCorreoRecuperacion()">
       
       <div class="header-recovery">
         <h3>Recuperar Cuenta</h3>
@@ -84,17 +87,11 @@
             placeholder=" "
             required
             autocomplete="email"
-            @input="recoveryError = ''"
+            @input="loginError = ''" 
           >
           <label for="recovery-email" class="form-label">Correo Electrónico</label>
         </div>
       </div>
-
-      <transition name="slide-fade">
-        <div v-if="recoveryError" class="error-banner">
-          <span class="error-icon">🚫</span> {{ recoveryError }}
-        </div>
-      </transition>
 
       <button type="submit" class="auth-btn action" :disabled="loading">
         <span v-if="!loading">ENVIAR ENLACE DE RECUPERACIÓN</span>
@@ -108,6 +105,7 @@
       </div>
     </form>
 
+    <!-- VISTA ÉXITO -->
     <div v-else class="success-wrapper">
       <div class="success-content">
         <div class="mail-icon-container">
@@ -116,14 +114,52 @@
         
         <h3 class="success-title">¡Revisa tu correo!</h3>
         <div class="success-message">
-           <p>Si el correo <strong>{{ recoveryEmail }}</strong> existe en nuestro sistema, recibirás un enlace para restablecer tu contraseña.</p>
+           <p>Hemos enviado un enlace de recuperación a <strong>{{ recoveryEmail }}</strong>. Por favor, revisa tu bandeja de entrada (y la carpeta de spam) para restablecer tu contraseña.</p>
         </div>
         
+        <!-- BOTÓN REENVIAR CON CONTADOR -->
+        <div class="reenviar-container">
+          <p v-if="tiempoEspera > 0" class="texto-espera">
+            Podrás reenviar el correo en {{ tiempoEspera }}s
+          </p>
+          <button 
+            v-else 
+            @click="reenviarCorreo" 
+            class="link-text-btn re-send" 
+            :disabled="loading"
+          >
+            <span v-if="!loading">¿No recibiste el correo? Reenviar</span>
+            <span v-else>Reenviando...</span>
+          </button>
+        </div>
+
         <button class="auth-btn secondary" @click="cambiarVista('login')">
           VOLVER AL LOGIN
         </button>
       </div>
     </div>
+
+    <!-- ================================================= -->
+    <!-- ===             MODAL DE ERROR                === -->
+    <!-- ================================================= -->
+    <Transition name="modal-fade">
+      <div v-if="mostrarModalError" class="modal-overlay">
+        <div class="modal-error"> 
+          <div class="modal-header-error">
+            <i class="fas fa-exclamation-triangle"></i> 
+            <h3>Error</h3>
+          </div>
+          <div class="modal-body-error">
+            <p>{{ mensajeModalError }}</p> 
+          </div>
+          <div class="modal-footer-error">
+            <button class="btn-modal-error" @click="handleContinuarError">
+              Entendido
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
 
   </div>
 </template>
@@ -140,15 +176,27 @@ export default {
       loginData: { username: '', password: '' },
       recoveryEmail: '',
       loginError: '',
-      recoveryError: '', 
-      passwordFieldType: 'password'
+      passwordFieldType: 'password',
+      
+      // Variables para Modal Error
+      mostrarModalError: false,
+      mensajeModalError: '',
+
+      // Variables para Reenvío
+      tiempoEspera: 0,
+      intervalo: null
     }
   },
   methods: {
     cambiarVista(modo) {
       this.loginError = '';
-      this.recoveryError = '';
+      this.mensajeModalError = '';
       this.viewMode = modo;
+      // Reseteamos el timer si salimos de la vista success
+      if (modo !== 'success') {
+        this.tiempoEspera = 0;
+        if (this.intervalo) clearInterval(this.intervalo);
+      }
     },
     async iniciarSesion() {
       this.loading = true;
@@ -170,14 +218,20 @@ export default {
         this.loading = false;
       }
     },
-    async enviarCorreoRecuperacion() {
-      this.loading = true;
-      this.recoveryError = '';
 
+    // --- LÓGICA DE RECUPERACIÓN CORREGIDA ---
+    async enviarCorreoRecuperacion(esReenvio = false) {
+      // CORRECCIÓN CLAVE: Si viene de un evento de formulario, esReenvio es un objeto Event, no false.
+      // Forzamos a false si no es un booleano explícito.
+      if (typeof esReenvio !== 'boolean') esReenvio = false;
+
+      this.loading = true;
+      
       try {
         // SIMULACIÓN DE LLAMADA A API
         await new Promise((resolve, reject) => {
           setTimeout(() => {
+            // Simulamos error solo para este correo
             if (this.recoveryEmail === 'error@demo.com') {
               reject(new Error('El correo ingresado no está registrado en el sistema.'));
             } else {
@@ -187,17 +241,49 @@ export default {
         });
 
         console.log(`Enviando correo de recuperación a: ${this.recoveryEmail}`);
-        this.viewMode = 'success';
+        
+        // Si es la primera vez, cambiamos a la vista de éxito
+        if (!esReenvio) {
+          this.viewMode = 'success';
+        } else {
+          // Si es reenvío, solo reiniciamos el contador (nos quedamos en success)
+          this.iniciarCuentaRegresiva();
+        }
 
       } catch (error) {
-        this.recoveryError = error.message;
+        this.mensajeModalError = error.message || 'Ocurrió un error al procesar la solicitud.';
+        this.mostrarModalError = true;
       } finally {
         this.loading = false;
       }
     },
+
+    // Lógica para el botón de reenvío
+    reenviarCorreo() {
+      this.enviarCorreoRecuperacion(true); // Aquí pasamos true explícitamente
+    },
+
+    iniciarCuentaRegresiva() {
+      this.tiempoEspera = 60; // 1 minuto
+      this.intervalo = setInterval(() => {
+        if (this.tiempoEspera > 0) {
+          this.tiempoEspera--;
+        } else {
+          clearInterval(this.intervalo);
+        }
+      }, 1000);
+    },
+
+    handleContinuarError() {
+      this.mostrarModalError = false;
+    },
+
     togglePasswordVisibility() {
       this.passwordFieldType = this.passwordFieldType === 'password' ? 'text' : 'password';
     }
+  },
+  beforeUnmount() {
+    if (this.intervalo) clearInterval(this.intervalo);
   }
 }
 </script>
@@ -287,11 +373,10 @@ export default {
 }
 .auth-btn.primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(229, 9, 20, 0.4); filter: brightness(1.1); }
 
-/* --- AQUÍ ESTÁ EL CAMBIO --- */
 /* Botón Recuperación (Ahora también ROJO) */
 .auth-btn.action {
-  background: linear-gradient(135deg, #e50914, #ff3f3f); /* Fondo rojo degradado */
-  color: white; /* Texto blanco */
+  background: linear-gradient(135deg, #e50914, #ff3f3f); 
+  color: white;
   box-shadow: 0 4px 15px rgba(229, 9, 20, 0.2);
   margin-top: 0.5rem;
 }
@@ -309,7 +394,7 @@ export default {
 }
 .auth-btn.secondary:hover { background: rgba(255,255,255,0.15); }
 
-/* Mensaje de Error */
+/* Mensaje de Error Inline (Solo para Login) */
 .error-banner {
   background: rgba(229, 9, 20, 0.1); border: 1px solid rgba(229, 9, 20, 0.3);
   color: #ff4d4d; padding: 0.8rem; border-radius: 8px; font-size: 0.9rem;
@@ -323,11 +408,31 @@ export default {
 .link-text-btn { background: none; border: none; color: #888; cursor: pointer; font-size: 0.9rem; text-decoration: underline; }
 .link-text-btn:hover { color: #fff; }
 
+/* REENVÍO */
+.reenviar-container {
+  margin-bottom: 2rem;
+  min-height: 24px; /* Evita saltos de altura */
+}
+.texto-espera {
+  color: #888;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+.re-send {
+  color: #e50914 !important; /* Rojo para destacar la acción */
+  text-decoration: none !important;
+  font-weight: 500;
+}
+.re-send:hover {
+  text-decoration: underline !important;
+  color: #ff3f3f !important;
+}
+
 /* SUCCESS SCREEN */
 .success-wrapper { text-align: center; padding: 2rem 0; animation: fadeIn 0.6s ease; }
 .mail-icon-container { margin-bottom: 1.5rem; stroke: #00ff88; }
 .success-title { color: #fff; margin-bottom: 1rem; font-family: 'Poppins', sans-serif; font-size: 1.5rem; }
-.success-message { color: rgba(255,255,255,0.8); margin-bottom: 2rem; line-height: 1.6; }
+.success-message { color: rgba(255,255,255,0.8); margin-bottom: 1.5rem; line-height: 1.6; }
 
 /* Loader */
 .btn-loader {
@@ -336,8 +441,7 @@ export default {
   border-radius: 50%; animation: spin 0.8s linear infinite;
 }
 
-/* --- AQUÍ ESTÁ EL OTRO CAMBIO --- */
-/* Forzar loader blanco en botones rojos (Primary y Action) */
+/* Forzar loader blanco en botones rojos */
 .auth-btn.primary .btn-loader,
 .auth-btn.action .btn-loader { 
   border-top: 2px solid #ffffff; 

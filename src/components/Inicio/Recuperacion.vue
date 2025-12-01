@@ -2,7 +2,15 @@
   <div class="form-wrapper">
     <form class="auth-form" @submit.prevent="cambiarContrasena">
       
-      <h3 class="form-title">Restablecer Contraseña</h3>
+      <!-- TÍTULO DINÁMICO SEGÚN EL MODO -->
+      <h3 class="form-title">
+        {{ modo === 'actualizacion' ? 'Actualiza tu contraseña' : 'Restablecer Contraseña' }}
+      </h3>
+
+      <!-- SUBTÍTULO SOLO PARA MODO ACTUALIZACIÓN -->
+      <p v-if="modo === 'actualizacion'" class="form-subtitle">
+        Por motivos de seguridad debe cambiar su contraseña ya que actualmente es su DNI y no es segura.
+      </p>
       
       <!-- Nueva Contraseña -->
       <div class="form-group">
@@ -126,6 +134,13 @@
 <script>
 export default {
   name: 'Recuperacion',
+  // RECIBIMOS LA PROP MODO DESDE EL COMPONENTE PADRE (Vista)
+  props: {
+    modo: {
+      type: String,
+      default: 'recuperacion' // Valores posibles: 'recuperacion' | 'actualizacion'
+    }
+  },
   data() {
     return {
       loading: false,
@@ -175,6 +190,7 @@ export default {
 
       try {
         // SIMULACIÓN LLAMADA API
+        // Aquí podrías enviar 'this.modo' a la API si el endpoint es distinto
         await new Promise(resolve => setTimeout(resolve, 1500));
         
         // --- ÉXITO ---
@@ -221,7 +237,18 @@ export default {
 
 .form-title { 
   color: #fff; font-family: 'Poppins', sans-serif; 
-  text-align: center; margin-bottom: 1rem; font-size: 1.5rem; 
+  text-align: center; margin-bottom: 0.5rem; font-size: 1.5rem; 
+}
+
+/* Subtítulo específico para modo actualización */
+.form-subtitle {
+  color: #d1d5db; /* Gris claro */
+  font-family: 'Inter', sans-serif;
+  text-align: center;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+  padding: 0 10px;
 }
 
 /* REQUISITOS (Lista Vertical) */
@@ -306,4 +333,4 @@ export default {
   transition: background-color 5000s ease-in-out 0s;
   caret-color: #ffffff;
 }
-</style>  
+</style>
