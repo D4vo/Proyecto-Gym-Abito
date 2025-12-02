@@ -70,18 +70,45 @@
 
               <div class="form-group" :class="{ 'con-error': errores.provincia }">
                 <label class="form-label" for="provincia"><i class="fas fa-map-marked-alt"></i>Provincia</label>
-                <select id="provincia" class="form-control" v-model="EmpleadoDatos.provincia" @change="EmpleadoDatos.localidad = ''">
+                <select 
+                  id="provincia" 
+                  class="form-control" 
+                  v-model="EmpleadoDatos.provincia" 
+                  @change="manejarCambioProvincia"
+                  :disabled="cargandoProvincias"
+                >
                   <option value="" disabled>Seleccione una provincia...</option>
-                  <option v-for="prov in provincias" :key="prov.id" :value="prov.nombre">{{ prov.nombre }}</option>
+                  <option v-if="cargandoProvincias" disabled>Cargando...</option>
+                  
+                  <option 
+                    v-for="prov in listaProvincias" 
+                    :key="prov.id" 
+                    :value="prov.nombre"
+                  >
+                    {{ prov.nombre }}
+                  </option>
                 </select>
                 <p class="error-texto" v-if="errores.provincia">{{ errores.provincia }}</p>
               </div>
 
               <div class="form-group" :class="{ 'con-error': errores.localidad }">
                 <label class="form-label" for="localidad"><i class="fas fa-map-marker-alt"></i>Localidad</label>
-                <select id="localidad" class="form-control select-localidad" v-model="EmpleadoDatos.localidad" :disabled="!EmpleadoDatos.provincia">
+                <select 
+                  id="localidad" 
+                  class="form-control select-localidad" 
+                  v-model="EmpleadoDatos.localidad" 
+                  :disabled="!EmpleadoDatos.provincia || cargandoLocalidades"
+                >
                   <option value="" disabled>Seleccione una localidad...</option>
-                  <option v-for="loc in localidadesDisponibles" :key="loc.id" :value="loc.nombre">{{ loc.nombre }}</option>
+                  <option v-if="cargandoLocalidades" disabled>Cargando...</option>
+                  
+                  <option 
+                    v-for="loc in listaLocalidades" 
+                    :key="loc.id" 
+                    :value="loc.nombre"
+                  >
+                    {{ loc.nombre }}
+                  </option>
                 </select>
                 <p class="error-texto" v-if="errores.localidad">{{ errores.localidad }}</p>
               </div>
@@ -224,12 +251,13 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 // Asumimos las rutas de los componentes
 import TablaHorarios from '../../Tablas y Filas/TablaHorario/TablaHorarios.vue';
 import Titulo from '../../Titulo.vue';
 
 import { crearEmpleado } from '@/api/services/empleadoService';
+import { obtenerProvinciasArg, obtenerLocalidadesArg } from '@/api/services/georefService';
 
 // --- Emits al padre (PantallaAdmin.vue) ---
 const emit = defineEmits(['cancelar-nuevo-empleado','operacionFinalizada']);
@@ -260,24 +288,50 @@ const EmpleadoDatos = ref({
 // (2) Estructura para los horarios
 const HorariosEmpleado = ref([]);
 
-// --- Datos de Provincia/Localidad (Simulación) ---
-const provincias = ref([
-  { id: 1, nombre: 'Chaco' },
-  { id: 2, nombre: 'Corrientes' },
-  { id: 3, nombre: 'Formosa' }
-]);
-const localidades = ref([
-  { id: 1, prov: 'Chaco', nombre: 'Resistencia' },
-  { id: 2, prov: 'Chaco', nombre: 'Sáenz Peña' },
-  { id: 3, prov: 'Chaco', nombre: 'Barranqueras' },
-  { id: 4, prov: 'Corrientes', nombre: 'Corrientes Capital' },
-  { id: 5, prov: 'Corrientes', nombre: 'Goya' },
-  { id: 6, prov: 'Formosa', nombre: 'Formosa Capital' }
-]);
-const localidadesDisponibles = computed(() => {
-  return localidades.value.filter(loc => loc.prov === EmpleadoDatos.value.provincia);
-});
+// --- VARIABLES PARA GEOREF ---
+const listaProvincias = ref([]);
+const listaLocalidades = ref([]);
+const cargandoProvincias = ref(false);
+const cargandoLocalidades = ref(false);
 
+// --- FUNCIONES DE CARGA ---
+const cargarProvincias = async () => {
+  cargandoProvincias.value = true;
+  try {
+    listaProvincias.value = await obtenerProvinciasArg();
+  } catch (e) {
+    console.error("Error al cargar provincias:", e);
+  } finally {
+    cargandoProvincias.value = false;
+  }
+};
+
+const manejarCambioProvincia = async () => {
+  // Reseteamos la localidad al cambiar provincia
+  EmpleadoDatos.value.localidad = '';
+  listaLocalidades.value = [];
+  
+  // Buscamos el objeto provincia para obtener su ID (necesario para la API)
+  // Usamos EmpleadoDatos porque es la variable reactiva de este componente
+  const nombreSeleccionado = EmpleadoDatos.value.provincia;
+  const provinciaObj = listaProvincias.value.find(p => p.nombre === nombreSeleccionado);
+
+  if (provinciaObj) {
+    cargandoLocalidades.value = true;
+    try {
+      listaLocalidades.value = await obtenerLocalidadesArg(provinciaObj.id);
+    } catch (e) {
+      console.error("Error al cargar localidades:", e);
+    } finally {
+      cargandoLocalidades.value = false;
+    }
+  }
+};
+
+// Cargar provincias al iniciar el componente
+onMounted(() => {
+  cargarProvincias();
+});
 
 // --- Lógica de Validación (Adaptada de NuevoAlumno) ---
 const errores = ref({});
@@ -351,7 +405,7 @@ const mensajeBotonDeshabilitado = computed(() => {
   // Itera sobre los errores para encontrar el primero
   for (const key of Object.keys(EmpleadoDatos.value)) {
     if (validarCampo(key, EmpleadoDatos.value[key])) {
-       return `Falta completar el campo: ${key}.`;
+      return `Falta completar el campo: ${key}.`;
     }
   }
   return 'Faltan completar campos obligatorios.';

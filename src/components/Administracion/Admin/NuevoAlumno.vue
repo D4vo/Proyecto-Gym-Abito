@@ -40,12 +40,6 @@
                 </select>
                 <p class="error-texto" v-if="errores.sexo">{{ errores.sexo }}</p>
               </div>
-              
-              <div class="form-group" :class="{ 'con-error': errores.usuario }">
-                <label class="form-label" for="usuario"><i class="fas fa-at"></i>Usuario</label>
-                <input type="text" id="usuario" class="form-control" v-model.trim="alumnoDatos.usuario" placeholder="Ej: JuanPerez">
-                <p class="error-texto" v-if="errores.usuario">{{ errores.usuario }}</p>
-              </div>
 
               <div class="form-group" :class="{ 'con-error': errores.email }">
                 <label class="form-label" for="email"><i class="fas fa-envelope"></i>Email</label>
@@ -63,18 +57,45 @@
 
               <div class="form-group" :class="{ 'con-error': errores.provincia }">
                 <label class="form-label" for="provincia"><i class="fas fa-map-marked-alt"></i>Provincia</label>
-                <select id="provincia" class="form-control" v-model="alumnoDatos.provincia" @change="alumnoDatos.localidad = ''">
+                <select 
+                  id="provincia" 
+                  class="form-control" 
+                  v-model="alumnoDatos.provincia" 
+                  @change="manejarCambioProvincia"
+                  :disabled="cargandoProvincias"
+                >
                   <option value="" disabled>Seleccione una provincia...</option>
-                  <option v-for="prov in provincias" :key="prov.id" :value="prov.nombre">{{ prov.nombre }}</option>
+                  <option v-if="cargandoProvincias" disabled>Cargando...</option>
+                  
+                  <option 
+                    v-for="prov in listaProvincias" 
+                    :key="prov.id" 
+                    :value="prov.nombre"
+                  >
+                    {{ prov.nombre }}
+                  </option>
                 </select>
                 <p class="error-texto" v-if="errores.provincia">{{ errores.provincia }}</p>
               </div>
 
               <div class="form-group" :class="{ 'con-error': errores.localidad }">
                 <label class="form-label" for="localidad"><i class="fas fa-map-marker-alt"></i>Localidad</label>
-                <select id="localidad" class="form-control select-localidad" v-model="alumnoDatos.localidad" :disabled="!alumnoDatos.provincia">
+                <select 
+                  id="localidad" 
+                  class="form-control select-localidad" 
+                  v-model="alumnoDatos.localidad" 
+                  :disabled="!alumnoDatos.provincia || cargandoLocalidades"
+                >
                   <option value="" disabled>Seleccione una localidad...</option>
-                  <option v-for="loc in localidadesDisponibles" :key="loc.id" :value="loc.nombre">{{ loc.nombre }}</option>
+                  <option v-if="cargandoLocalidades" disabled>Cargando...</option>
+                  
+                  <option 
+                    v-for="loc in listaLocalidades" 
+                    :key="loc.id" 
+                    :value="loc.nombre"
+                  >
+                    {{ loc.nombre }}
+                  </option>
                 </select>
                 <p class="error-texto" v-if="errores.localidad">{{ errores.localidad }}</p>
               </div>
@@ -223,12 +244,14 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import ListadoSuscripciones from './Listados/ListadoSuscripciones.vue';
 import ListadoTrabajos from './Listados/ListadoTrabajos.vue';
 import ListadoNiveles from './Listados/ListadoNiveles.vue';
 import TablaHorarios from '../Tablas y Filas/TablaHorario/TablaHorarios.vue';
 import Titulo from '../Titulo.vue';
+
+import { obtenerProvinciasArg, obtenerLocalidadesArg } from '@/api/services/georefService';
 
 const emit = defineEmits(['cancelarIngreso','nuevoIngresoConfirmado']);
 
@@ -242,7 +265,6 @@ const alumnoDatos = ref({
   nombre: '',
   apellido: '',
   sexo: 'M',
-  usuario: '',
   email: '',
   telefono: '',
   provincia: '',
@@ -251,22 +273,45 @@ const alumnoDatos = ref({
   nro: ''
 });
 
-// --- Datos de Provincia/Localidad (Simulación) ---
-const provincias = ref([
-  { id: 1, nombre: 'Chaco' },
-  { id: 2, nombre: 'Corrientes' },
-  { id: 3, nombre: 'Formosa' }
-]);
-const localidades = ref([
-  { id: 1, prov: 'Chaco', nombre: 'Resistencia' },
-  { id: 2, prov: 'Chaco', nombre: 'Sáenz Peña' },
-  { id: 3, prov: 'Chaco', nombre: 'Barranqueras' },
-  { id: 4, prov: 'Corrientes', nombre: 'Corrientes Capital' },
-  { id: 5, prov: 'Corrientes', nombre: 'Goya' },
-  { id: 6, prov: 'Formosa', nombre: 'Formosa Capital' }
-]);
-const localidadesDisponibles = computed(() => {
-  return localidades.value.filter(loc => loc.prov === alumnoDatos.value.provincia);
+const listaProvincias = ref([]);
+const listaLocalidades = ref([]);
+const cargandoProvincias = ref(false);
+const cargandoLocalidades = ref(false);
+
+const cargarProvincias = async () => {
+  cargandoProvincias.value = true;
+  try {
+    listaProvincias.value = await obtenerProvinciasArg();
+  } catch (e) {
+    console.error("Error al cargar provincias:", e);
+  } finally {
+    cargandoProvincias.value = false;
+  }
+};
+
+const manejarCambioProvincia = async () => {
+  // Reseteamos la localidad al cambiar provincia
+  alumnoDatos.value.localidad = '';
+  listaLocalidades.value = [];
+  
+  const nombreSeleccionado = alumnoDatos.value.provincia;
+  // Buscamos el objeto provincia para obtener su ID
+  const provinciaObj = listaProvincias.value.find(p => p.nombre === nombreSeleccionado);
+
+  if (provinciaObj) {
+    cargandoLocalidades.value = true;
+    try {
+      listaLocalidades.value = await obtenerLocalidadesArg(provinciaObj.id);
+    } catch (e) {
+      console.error("Error al cargar localidades:", e);
+    } finally {
+      cargandoLocalidades.value = false;
+    }
+  }
+};
+
+onMounted(() => {
+  cargarProvincias();
 });
 
 // --- Lógica de Gimnasio ---
@@ -299,7 +344,7 @@ const validarCampo = (campo, valor) => {
 watch(() => alumnoDatos.value.dni, (val) => { errores.value.dni = validarCampo('DNI', val); });
 watch(() => alumnoDatos.value.nombre, (val) => { errores.value.nombre = validarCampo('Nombre', val); });
 watch(() => alumnoDatos.value.apellido, (val) => { errores.value.apellido = validarCampo('Apellido', val); });
-watch(() => alumnoDatos.value.usuario, (val) => { errores.value.usuario = validarCampo('Usuario', val); });
+// watch(() => alumnoDatos.value.usuario, (val) => { errores.value.usuario = validarCampo('Usuario', val); });
 watch(() => alumnoDatos.value.email, (val) => { errores.value.email = validarCampo('Email', val); });
 watch(() => alumnoDatos.value.telefono, (val) => { errores.value.telefono = validarCampo('Teléfono', val); });
 watch(() => alumnoDatos.value.provincia, (val) => { errores.value.provincia = validarCampo('Provincia', val); });
@@ -414,6 +459,8 @@ const cancelarConfirmacion = () => {
   mostrarModalConfirmacion.value = false;
 };
 
+
+import { crearNuevoAlumno } from '@/api/services/alumnoService'; // <--- IMPORTANTE
 // --- (3) Se llama al hacer clic en "Sí, Confirmar" DENTRO DEL MODAL ---
 const realizarIngreso = async () => {
   mostrarModalConfirmacion.value = false;
@@ -434,28 +481,20 @@ const realizarIngreso = async () => {
   };
 
   try {
-    // Muestra que estás trabajando (opcional)
-    // loading.value = true; 
-
-    console.log("Enviando payload a la API (SIMULACIÓN):", payload);
+    console.log("Enviando a la API...");
     
-    // --- SIMULACIÓN DE LLAMADA A API ---
-    // REEMPLAZA ESTO con tu llamada real:
-    // const respuesta = await api.crearNuevoAlumno(payload);
-    await new Promise(resolve => setTimeout(resolve, 1500)); // Simula 1.5s de espera
-    // --- FIN SIMULACIÓN ---
+    // --- LLAMADA REAL ---
+    await crearNuevoAlumno(payload); 
+    // --------------------
     
-    // Si la API tiene éxito:
-    console.log("Alumno registrado con éxito (simulación)");
+    console.log("Alumno registrado con éxito");
     mostrarModalExito.value = true;
 
   } catch (error) {
-    // Si la API falla:
-    console.error("Error al registrar al alumno:", error);
-    alert(`Error al registrar: ${error.response?.data?.detail || error.message || 'Error desconocido'}`);
-  } finally {
-    // Oculta el loading (opcional)
-    // loading.value = false;
+    console.error("Error al registrar:", error);
+    // Mostrar mensaje de error (usando el mensaje que viene del backend si existe)
+    const mensaje = error.response?.data?.detail || 'Error al registrar al alumno.';
+    alert(mensaje); // O usa tu lógica de modales de error si tienes uno
   }
 };
 // --- FIN TODO ---

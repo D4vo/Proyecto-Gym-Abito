@@ -315,3 +315,57 @@ export const reactivarAlumnoAPI = async (dni) => {
     }
 };
 
+/**
+ * Crea un nuevo alumno completo desde cero (Persona + Dirección + Alumno + Plan + Horarios).
+ * Requiere permisos de Staff (Admin/Empleado).
+ * * @param {object} datosFormulario - Objeto estructurado desde NuevoAlumno.vue
+ * {
+ * datosPersonales: { ... },
+ * suscripcion: "...",
+ * trabajo: "...",
+ * nivel: "...",
+ * horarios: [...]
+ * }
+ */
+export const crearNuevoAlumno = async (datosFormulario) => {
+    try {
+        // 1. Transformación de Datos (Mapping)
+        // Convertimos la estructura anidada del frontend a la estructura plana del backend
+        const payloadAPI = {
+            // --- Datos Persona ---
+            dni: datosFormulario.datosPersonales.dni,
+            nombre: datosFormulario.datosPersonales.nombre,
+            apellido: datosFormulario.datosPersonales.apellido,
+            sexo: datosFormulario.datosPersonales.sexo,
+            // usuario: datosFormulario.datosPersonales.usuario,
+            email: datosFormulario.datosPersonales.email,
+            telefono: datosFormulario.datosPersonales.telefono,
+
+            // --- Datos Dirección (Mapeo de nombres) ---
+            nomProvincia: datosFormulario.datosPersonales.provincia, // Frontend: provincia -> Backend: nomProvincia
+            nomLocalidad: datosFormulario.datosPersonales.localidad, // Frontend: localidad -> Backend: nomLocalidad
+            calle: datosFormulario.datosPersonales.calle,
+            numero: datosFormulario.datosPersonales.nro || "S/N",
+
+            // --- Datos del Plan ---
+            nombreSuscripcion: datosFormulario.suscripcion,
+            nombreTrabajo: datosFormulario.trabajo,
+            nivel: datosFormulario.nivel,
+
+            // --- Horarios ---
+            // Ya vienen formateados como [{ dia, nroGrupo }] desde el componente
+            horarios: datosFormulario.horarios
+        };
+
+        // 2. Llamada a la API
+        // Endpoint: POST /alumnos/nuevo
+        const response = await apiClient.post('/alumnos/nuevo', payloadAPI);
+        
+        return response.data;
+
+    } catch (error) {
+        console.error("Error al crear el nuevo alumno:", error.response?.data || error.message);
+        throw error; // Re-lanzamos para que el componente muestre la alerta de error
+    }
+};
+
