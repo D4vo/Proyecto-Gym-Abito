@@ -114,3 +114,20 @@ export const resetPassword = async (token, newPassword) => {
     }
 };
 
+/**
+ * Cambia la contraseña del usuario actualmente logueado.
+ * Se usa para el flujo de "requiereCambioClave".
+ * @param {string} newPassword - La nueva contraseña.
+ */
+export const changePassword = async (newPassword) => {
+    try {
+        // Envia el token automáticamente gracias al interceptor
+        // Endpoint: POST /auth/change-password
+        await apiClient.post('/auth/change-password', { new_password: newPassword });
+        return true;
+    } catch (error) {
+        console.error("Error al cambiar contraseña:", error);
+        throw error;
+    }
+};
+

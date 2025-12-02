@@ -132,32 +132,24 @@
 </template>
 
 <script>
-import { resetPassword } from '@/api/services/authService';
+// Importamos la nueva función changePassword y getUser para saber a dónde redirigir al final
+import { resetPassword, changePassword } from '@/api/services/authService';
+import { getUser, getToken } from '@/api/storage/userStorage'; 
 
 export default {
   name: 'Recuperacion',
   props: {
-    modo: {
-      type: String,
-      default: 'recuperacion'
-    },
-    token: {
-      type: String,
-      default: ''
-    }
+    modo: { type: String, default: 'recuperacion' },
+    token: { type: String, default: '' }
   },
   data() {
     return {
       loading: false,
-      passwordData: {
-        newPassword: '',
-        confirmPassword: ''
-      },
+      passwordData: { newPassword: '', confirmPassword: '' },
       passwordFieldType: 'password',
       confirmFieldType: 'password',
       errorMessage: '',
       
-      // Estados de Modales
       mostrarModalExito: false,
       mensajeModalExito: '',
       mostrarModalError: false,
@@ -165,70 +157,53 @@ export default {
     }
   },
   computed: {
-    // Validaciones visuales de contraseña
     passwordChecks() {
       const pwd = this.passwordData.newPassword;
-      return {
-        length: pwd.length >= 8,
-        number: /\d/.test(pwd),
-        upper: /[A-Z]/.test(pwd)
-      }
+      return { length: pwd.length >= 8, number: /\d/.test(pwd), upper: /[A-Z]/.test(pwd) };
     },
     isPasswordValid() {
       const c = this.passwordChecks;
       return c.length && c.number && c.upper;
     },
-    
-    // --- LÓGICA DE SEGURIDAD DEL TOKEN ---
-    // Usamos esta propiedad computada para obtener el token.
-    // Prioridad 1: El token que nos pasa el padre por props.
-    // Prioridad 2: Leerlo directamente de la ruta (respaldo por si la prop falla).
     tokenReal() {
       if (this.token) return this.token;
       return this.$route.query.token || '';
     }
   },
   watch: {
-    // Observamos si el tokenReal cambia o se carga tarde
     tokenReal: {
       immediate: true,
       handler(newVal) {
         if (this.modo === 'recuperacion' && newVal) {
-          console.log("Token validado y listo para enviar:", newVal);
-          this.mostrarModalError = false; // Si aparece el token, quitamos el error
+          this.mostrarModalError = false;
         }
       }
     }
   },
   mounted() {
-    // Pequeño retardo para dar tiempo a que todo cargue antes de mostrar error
+    // --- VALIDACIONES DE SEGURIDAD AL CARGAR ---
     setTimeout(() => {
-      // Solo validamos si estamos en modo recuperación
+      // CASO 1: Modo Recuperación (Requiere Token en URL)
       if (this.modo === 'recuperacion' && !this.tokenReal) {
-        console.error("Error crítico: Token no encontrado.");
         this.mensajeModalError = "Enlace inválido: No se encontró el token de seguridad.";
         this.mostrarModalError = true;
-        // Opcional: Redirigir al login tras unos segundos
-        // setTimeout(() => this.$router.push('/login'), 4000);
       }
-    }, 1000);
+      
+      // CASO 2: Modo Actualización (Requiere estar Logueado)
+      if (this.modo === 'actualizacion') {
+        const tokenSesion = getToken(); // Función de tu userStorage.js
+        if (!tokenSesion) {
+          this.mensajeModalError = "Acceso denegado: Debes iniciar sesión primero.";
+          this.mostrarModalError = true;
+          setTimeout(() => this.$router.push('/login'), 2000);
+        }
+      }
+    }, 500);
   },
   methods: {
     async cambiarContrasena() {
-      // 1. Validaciones del formulario
-      if (!this.isPasswordValid) {
-        this.errorMessage = 'La contraseña no cumple con los requisitos de seguridad.';
-        return;
-      }
-      if (this.passwordData.newPassword !== this.passwordData.confirmPassword) {
-        this.errorMessage = 'Las contraseñas no coinciden.';
-        return;
-      }
-
-      // 2. Validación final del token antes de llamar a la API
-      if (this.modo === 'recuperacion' && !this.tokenReal) {
-        this.mensajeModalError = 'Error: No se puede cambiar la contraseña sin un token válido.';
-        this.mostrarModalError = true;
+      if (!this.isPasswordValid || this.passwordData.newPassword !== this.passwordData.confirmPassword) {
+        this.errorMessage = 'Verifique las contraseñas.';
         return;
       }
 
@@ -236,50 +211,53 @@ export default {
       this.errorMessage = '';
 
       try {
+        // --- LOGICA DIFERENCIADA ---
         if (this.modo === 'recuperacion') {
-          console.log("Enviando petición de reset con token...");
-          
-          // Llamada al servicio real
+          // Flujo: Olvidé mi contraseña (Token de Email)
+          if (!this.tokenReal) throw new Error("Falta token.");
           await resetPassword(this.tokenReal, this.passwordData.newPassword);
-          
-          this.mensajeModalExito = "Contraseña cambiada correctamente. Por favor inicie sesión con su nueva clave.";
-          this.mostrarModalExito = true;
-
+          this.mensajeModalExito = "Contraseña restaurada. Por favor inicie sesión.";
+        
         } else {
-          // Lógica futura para cambio de contraseña estando logueado
-          console.log("Modo actualización (usuario logueado)");
+          // Flujo: Primer Ingreso (Token de Sesión / JWT)
+          await changePassword(this.passwordData.newPassword);
+          this.mensajeModalExito = "Contraseña actualizada exitosamente. ¡Bienvenido!";
         }
+        
+        this.mostrarModalExito = true;
 
       } catch (error) {
-        console.error("Error al cambiar contraseña:", error);
-        // Mostramos el mensaje exacto que viene del backend o uno genérico
-        this.mensajeModalError = error.response?.data?.detail || 'El enlace ha expirado o es inválido.';
+        console.error("Error:", error);
+        this.mensajeModalError = error.response?.data?.detail || 'Ocurrió un error al procesar la solicitud.';
         this.mostrarModalError = true;
       } finally {
         this.loading = false;
       }
     },
     
-    // Handlers para Modales
     handleContinuarExito() {
       this.mostrarModalExito = false;
-      this.$router.push('/login');
-    },
-    handleContinuarError() {
-      this.mostrarModalError = false;
-    },
-
-    // UI Helpers
-    togglePass(field) {
-      if(field === 'main') {
-        this.passwordFieldType = this.passwordFieldType === 'password' ? 'text' : 'password';
+      
+      if (this.modo === 'recuperacion') {
+        // Si recuperó, va al login a poner su nueva clave
+        this.$router.push('/login');
       } else {
-        this.confirmFieldType = this.confirmFieldType === 'password' ? 'text' : 'password';
+        // Si actualizó (primer ingreso), ya está logueado, lo mandamos a su Home
+        const user = getUser();
+        if (user.esAdmin) this.$router.push('/admin');
+        else if (user.esEmpleado) this.$router.push('/Empleado');
+        else if (user.esAlumno) this.$router.push('/Usuario');
+        else this.$router.push('/Persona');
       }
     },
-    limpiarError() {
-      this.errorMessage = '';
-    }
+    
+    // ... resto de helpers (togglePass, etc) ...
+    handleContinuarError() { this.mostrarModalError = false; },
+    togglePass(field) {
+        if(field === 'main') this.passwordFieldType = this.passwordFieldType === 'password' ? 'text' : 'password';
+        else this.confirmFieldType = this.confirmFieldType === 'password' ? 'text' : 'password';
+    },
+    limpiarError() { this.errorMessage = ''; }
   }
 }
 </script>

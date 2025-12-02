@@ -109,12 +109,12 @@
     <div v-else class="success-wrapper">
       <div class="success-content">
         <div class="mail-icon-container">
-           <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#e50914" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.2 8.4c.5.38.8.97.8 1.6v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V10a2 2 0 0 1 .8-1.6l8-6a2 2 0 0 1 2.4 0l8 6Z"/><path d="m22 10-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 10"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#e50914" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.2 8.4c.5.38.8.97.8 1.6v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V10a2 2 0 0 1 .8-1.6l8-6a2 2 0 0 1 2.4 0l8 6Z"/><path d="m22 10-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 10"/></svg>
         </div>
         
         <h3 class="success-title">¡Revisa tu correo!</h3>
         <div class="success-message">
-           <p>Hemos enviado un enlace de recuperación a <strong>{{ recoveryEmail }}</strong>. Por favor, revisa tu bandeja de entrada (y la carpeta de spam) para restablecer tu contraseña.</p>
+          <p>Hemos enviado un enlace de recuperación a <strong>{{ recoveryEmail }}</strong>. Por favor, revisa tu bandeja de entrada (y la carpeta de spam) para restablecer tu contraseña.</p>
         </div>
         
         <!-- BOTÓN REENVIAR CON CONTADOR -->
@@ -205,18 +205,30 @@ export default {
       this.loading = true;
       this.loginError = '';
       try {
+        // 1. Hacemos login (esto guarda el token en storage)
         const userData = await login(this.loginData.username, this.loginData.password);
+        
+        // 2. VERIFICACIÓN: ¿Requiere cambio de clave?
+        if (userData.requiereCambioClave) {
+          // Redirigimos a la vista de recuperación en modo actualización
+          this.$router.push('/Recuperacion?modo=actualizacion');
+          return; // Detenemos aquí para no redirigir al home
+        }
+
+        // 3. Redirección Normal (si no requiere cambio)
         if (userData.esAdmin) {
           this.$router.push('/admin');
-        } else  if (userData.esEmpleado) {
+        } else if (userData.esEmpleado) {
           this.$router.push('/Empleado');
         } else if (userData.esAlumno) {
           this.$router.push('/Usuario');
-        } else  if (userData.esPersona) {
+        } else {
           this.$router.push('/Persona');
         }
+
       } catch (error) {
-        this.loginError = 'Credenciales incorrectas.';
+        console.error(error);
+        this.loginError = 'Credenciales incorrectas o error de conexión.';
       } finally {
         this.loading = false;
       }
