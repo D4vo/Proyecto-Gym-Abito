@@ -230,7 +230,7 @@
           </div>
           <div class="modal-body-exito">
             <p>El alumno se ha ingresado y registrado correctamente.</p>
-            <p>Podrá iniciar sesión con su nombre de <b>usuario</b> y <b>DNI</b> como contraseña.</p>
+            <p>Podrá iniciar sesión con su <b>DNI</b> como nombre de usuario y contraseña.</p>
           </div>
           <div class="modal-footer-exito">
             <button class="btn-modal-continuar" @click="handleContinuar">
