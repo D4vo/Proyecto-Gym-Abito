@@ -31,6 +31,7 @@
 
 <script>
 import Recuperacion from '@/components/Inicio/Recuperacion.vue';
+// Asegúrate de que la ruta a tu util sea correcta, si no la usas puedes borrar esta línea y la variable 'anio'
 import { obtenerAnioActual } from '@/utils/formatters';
 
 export default {
@@ -40,13 +41,21 @@ export default {
   },
   data() {
     return {
-      anio: obtenerAnioActual(),
-      modoActual: 'recuperacion' // Valor por defecto
+      anio: obtenerAnioActual ? obtenerAnioActual() : new Date().getFullYear(),
+      modoActual: 'recuperacion',
+      token: '' // Variable reactiva donde guardaremos el token
     }
   },
   created() {
-    // Al crearse el componente, leemos la URL para ver si hay un parámetro 'modo'
-    // Ejemplo URL: http://localhost:8080/recuperar?modo=actualizacion
+    console.log("Vista RecuperarView creada.");
+
+    // 1. Extraemos el token de la URL al cargar el componente
+    // Esto asegura que 'this.token' tenga un valor fijo basado en la URL inicial
+    this.token = this.$route.query.token || '';
+    
+    console.log("Token capturado en created():", this.token);
+
+    // 2. Determinamos el modo (recuperacion o actualizacion)
     if (this.$route.query.modo === 'actualizacion') {
       this.modoActual = 'actualizacion';
     }

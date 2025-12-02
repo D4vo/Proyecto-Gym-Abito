@@ -75,3 +75,42 @@ export const registroPaso2 = (data, token) => {
     // La API espera el token como query param y los datos en el body
     return apiClient.post(`/auth/registro-paso2?token=${token}`, data);
 };
+
+/**
+ * Paso 1 Recuperación: Solicita el enlace al correo.
+ * @param {string} email - Correo del usuario.
+ */
+export const forgotPassword = async (email) => {
+    try {
+        // Endpoint: POST /auth/forgot-password
+        await apiClient.post('/auth/forgot-password', { email });
+        return true;
+    } catch (error) {
+        // Si el usuario no existe, la API lanza error (según tu backend actual).
+        // Si prefieres seguridad silenciosa, maneja esto en el backend.
+        console.error("Error en solicitud de recuperación:", error);
+        throw error;
+    }
+};
+
+/**
+ * Paso 2 Recuperación: Establece la nueva contraseña usando el token.
+ * @param {string} token - Token recibido por email.
+ * @param {string} newPassword - Nueva contraseña elegida.
+ */
+export const resetPassword = async (token, newPassword) => {
+    try {
+        // Endpoint: POST /auth/reset-password
+        // Backend espera: { token: "...", new_password: "..." }
+        const payload = {
+            token: token,
+            new_password: newPassword 
+        };
+        await apiClient.post('/auth/reset-password', payload);
+        return true;
+    } catch (error) {
+        console.error("Error al restablecer contraseña:", error);
+        throw error;
+    }
+};
+

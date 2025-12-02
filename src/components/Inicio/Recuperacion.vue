@@ -28,8 +28,8 @@
           <label for="new-password" class="form-label">Nueva Contraseña</label>
           
           <button type="button" @click="togglePass('main')" class="toggle-btn" tabindex="-1">
-             <svg v-if="passwordFieldType === 'password'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-             <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+            <svg v-if="passwordFieldType === 'password'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
           </button>
         </div>
       </div>
@@ -50,8 +50,8 @@
           <label for="confirm-password" class="form-label">Confirmar Contraseña</label>
           
           <button type="button" @click="togglePass('confirm')" class="toggle-btn" tabindex="-1">
-             <svg v-if="confirmFieldType === 'password'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-             <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+            <svg v-if="confirmFieldType === 'password'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
           </button>
         </div>
 
@@ -132,13 +132,18 @@
 </template>
 
 <script>
+import { resetPassword } from '@/api/services/authService';
+
 export default {
   name: 'Recuperacion',
-  // RECIBIMOS LA PROP MODO DESDE EL COMPONENTE PADRE (Vista)
   props: {
     modo: {
       type: String,
-      default: 'recuperacion' // Valores posibles: 'recuperacion' | 'actualizacion'
+      default: 'recuperacion'
+    },
+    token: {
+      type: String,
+      default: ''
     }
   },
   data() {
@@ -152,7 +157,7 @@ export default {
       confirmFieldType: 'password',
       errorMessage: '',
       
-      // Variables para Modales
+      // Estados de Modales
       mostrarModalExito: false,
       mensajeModalExito: '',
       mostrarModalError: false,
@@ -160,6 +165,7 @@ export default {
     }
   },
   computed: {
+    // Validaciones visuales de contraseña
     passwordChecks() {
       const pwd = this.passwordData.newPassword;
       return {
@@ -171,11 +177,45 @@ export default {
     isPasswordValid() {
       const c = this.passwordChecks;
       return c.length && c.number && c.upper;
+    },
+    
+    // --- LÓGICA DE SEGURIDAD DEL TOKEN ---
+    // Usamos esta propiedad computada para obtener el token.
+    // Prioridad 1: El token que nos pasa el padre por props.
+    // Prioridad 2: Leerlo directamente de la ruta (respaldo por si la prop falla).
+    tokenReal() {
+      if (this.token) return this.token;
+      return this.$route.query.token || '';
     }
+  },
+  watch: {
+    // Observamos si el tokenReal cambia o se carga tarde
+    tokenReal: {
+      immediate: true,
+      handler(newVal) {
+        if (this.modo === 'recuperacion' && newVal) {
+          console.log("Token validado y listo para enviar:", newVal);
+          this.mostrarModalError = false; // Si aparece el token, quitamos el error
+        }
+      }
+    }
+  },
+  mounted() {
+    // Pequeño retardo para dar tiempo a que todo cargue antes de mostrar error
+    setTimeout(() => {
+      // Solo validamos si estamos en modo recuperación
+      if (this.modo === 'recuperacion' && !this.tokenReal) {
+        console.error("Error crítico: Token no encontrado.");
+        this.mensajeModalError = "Enlace inválido: No se encontró el token de seguridad.";
+        this.mostrarModalError = true;
+        // Opcional: Redirigir al login tras unos segundos
+        // setTimeout(() => this.$router.push('/login'), 4000);
+      }
+    }, 1000);
   },
   methods: {
     async cambiarContrasena() {
-      // 1. Validaciones
+      // 1. Validaciones del formulario
       if (!this.isPasswordValid) {
         this.errorMessage = 'La contraseña no cumple con los requisitos de seguridad.';
         return;
@@ -185,37 +225,51 @@ export default {
         return;
       }
 
+      // 2. Validación final del token antes de llamar a la API
+      if (this.modo === 'recuperacion' && !this.tokenReal) {
+        this.mensajeModalError = 'Error: No se puede cambiar la contraseña sin un token válido.';
+        this.mostrarModalError = true;
+        return;
+      }
+
       this.loading = true;
       this.errorMessage = '';
 
       try {
-        // SIMULACIÓN LLAMADA API
-        // Aquí podrías enviar 'this.modo' a la API si el endpoint es distinto
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        
-        // --- ÉXITO ---
-        this.mensajeModalExito = "Contraseña cambiada correctamente, por favor vuelva a iniciar sesion";
-        this.mostrarModalExito = true;
+        if (this.modo === 'recuperacion') {
+          console.log("Enviando petición de reset con token...");
+          
+          // Llamada al servicio real
+          await resetPassword(this.tokenReal, this.passwordData.newPassword);
+          
+          this.mensajeModalExito = "Contraseña cambiada correctamente. Por favor inicie sesión con su nueva clave.";
+          this.mostrarModalExito = true;
+
+        } else {
+          // Lógica futura para cambio de contraseña estando logueado
+          console.log("Modo actualización (usuario logueado)");
+        }
 
       } catch (error) {
-        // --- ERROR ---
-        console.error("Error:", error);
-        this.mensajeModalError = error.response?.data?.error || 'Ocurrió un error. Intenta nuevamente.';
+        console.error("Error al cambiar contraseña:", error);
+        // Mostramos el mensaje exacto que viene del backend o uno genérico
+        this.mensajeModalError = error.response?.data?.detail || 'El enlace ha expirado o es inválido.';
         this.mostrarModalError = true;
       } finally {
         this.loading = false;
       }
     },
     
-    // Handlers para los botones de los modales
+    // Handlers para Modales
     handleContinuarExito() {
       this.mostrarModalExito = false;
-      this.$router.push('/login'); // Redirección al login
+      this.$router.push('/login');
     },
     handleContinuarError() {
       this.mostrarModalError = false;
     },
 
+    // UI Helpers
     togglePass(field) {
       if(field === 'main') {
         this.passwordFieldType = this.passwordFieldType === 'password' ? 'text' : 'password';

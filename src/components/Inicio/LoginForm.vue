@@ -165,7 +165,10 @@
 </template>
 
 <script>
-import { login } from '@/api/services/authService';
+import {
+  login,
+  forgotPassword
+} from '@/api/services/authService'; // <--- IMPORTAR forgotPassword
 
 export default {
   name: 'LoginForm',
@@ -219,39 +222,27 @@ export default {
       }
     },
 
-    // --- LÓGICA DE RECUPERACIÓN CORREGIDA ---
+    /// --- LÓGICA DE RECUPERACIÓN REAL ---
     async enviarCorreoRecuperacion(esReenvio = false) {
-      // CORRECCIÓN CLAVE: Si viene de un evento de formulario, esReenvio es un objeto Event, no false.
-      // Forzamos a false si no es un booleano explícito.
       if (typeof esReenvio !== 'boolean') esReenvio = false;
 
       this.loading = true;
       
       try {
-        // SIMULACIÓN DE LLAMADA A API
-        await new Promise((resolve, reject) => {
-          setTimeout(() => {
-            // Simulamos error solo para este correo
-            if (this.recoveryEmail === 'error@demo.com') {
-              reject(new Error('El correo ingresado no está registrado en el sistema.'));
-            } else {
-              resolve(); 
-            }
-          }, 1500);
-        });
+        // Llamada a la API real
+        await forgotPassword(this.recoveryEmail);
 
-        console.log(`Enviando correo de recuperación a: ${this.recoveryEmail}`);
+        console.log(`Correo de recuperación solicitado para: ${this.recoveryEmail}`);
         
-        // Si es la primera vez, cambiamos a la vista de éxito
         if (!esReenvio) {
           this.viewMode = 'success';
         } else {
-          // Si es reenvío, solo reiniciamos el contador (nos quedamos en success)
           this.iniciarCuentaRegresiva();
         }
 
       } catch (error) {
-        this.mensajeModalError = error.message || 'Ocurrió un error al procesar la solicitud.';
+        // Manejo de errores (ej: correo no existe)
+        this.mensajeModalError = error.response?.data?.detail || 'Ocurrió un error. Verifique el correo.';
         this.mostrarModalError = true;
       } finally {
         this.loading = false;
