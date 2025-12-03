@@ -66,7 +66,26 @@
       :cuotas="cuotasMostradas" 
       :elementos-por-pagina="6"
       :cargando="cargando"
+      @PagoExitoso="ProcesarPagoExistoso"
     />
+    <Transition name="modal-fade">
+      <div v-if="mostrarModalExito" class="modal-overlay">
+        <div class="modal-exito">
+          <div class="modal-header-exito">
+            <i class="fas fa-check-circle"></i>
+            <h3>¡Éxito!</h3>
+          </div>
+          <div class="modal-body-exito">
+            <p>{{ mensajeModalExito }}</p>
+          </div>
+          <div class="modal-footer-exito">
+            <button class="btn-modal-continuar" @click="handleContinuarExito">
+              Continuar
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -89,12 +108,39 @@ const cerrarAviso = () => {
   mostrarAviso.value = false;
 }
 // ------------------------
+// --- LÓGICA DE PAGO EXITOSO ---
+const ProcesarPagoExistoso = (cuotaPagada) => {
+  // 1. Configuramos el mensaje del modal
+  mensajeModalExito.value = `La cuota del mes ${cuotaPagada.mes} fue pagada correctamente.`;
+  // 2. Mostramos el modal
+  mostrarModalExito.value = true;
+}
 
-onMounted(async () => {
+// --- HANDLER AL CERRAR EL MODAL DE ÉXITO ---
+const handleContinuarExito = async () => {
+  // 1. Cerramos el modal
+  mostrarModalExito.value = false;
+  
+  // 2. Recargamos los datos (Simula el "volver a montar" o refrescar)
+  await cargarDatosCuotas();
+}
+
+// --- FUNCION REUTILIZABLE PARA CARGAR DATOS ---
+const cargarDatosCuotas = async () => {
   cargando.value = true;
-  await sleep(500);
-  cuotas.value = await obtenerMisCuotas();
-  cargando.value = false;
+  // await sleep(500); // Opcional: si quieres mantener el delay simulado
+  try {
+    cuotas.value = await obtenerMisCuotas();
+  } catch (error) {
+    console.error("Error cargando cuotas:", error);
+  } finally {
+    cargando.value = false;
+  }
+};
+
+// --- CICLO DE VIDA ---
+onMounted(async () => {
+  await cargarDatosCuotas();
 });
 
 const cuotasPendientes = computed(() => 

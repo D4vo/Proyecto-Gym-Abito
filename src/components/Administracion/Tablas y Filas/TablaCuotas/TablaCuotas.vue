@@ -45,6 +45,7 @@
             :modo="modo"
             @modificar="onModificarCuota"
             @eliminar="onEliminarCuota"
+            @PagoExitoso="ProcesarPagoExistoso"
           />
         </div>
       </template>
@@ -90,7 +91,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import FilaCuota from './FilaCuota.vue';
-const emit = defineEmits(['solicitud-modificar-cuota', 'solicitud-eliminar-cuota']);
+const emit = defineEmits(['solicitud-modificar-cuota', 'solicitud-eliminar-cuota','PagoExitoso']);
 
 const onModificarCuota = (cuota) => {
   console.log('Modificar cuota TablaCuota:', cuota);
@@ -99,6 +100,11 @@ const onModificarCuota = (cuota) => {
 const onEliminarCuota = (cuota) => {
   console.log('Eliminar cuota TablaCuota:', cuota);
   emit('solicitud-eliminar-cuota', cuota);
+}
+
+//evento para procesar el pago existoso
+const ProcesarPagoExistoso = (cuota) => {
+  emit('PagoExitoso', cuota);
 }
 const props = defineProps({
   cuotas: {

@@ -176,7 +176,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['accion-principal', 'modificar', 'eliminar']);
+const emit = defineEmits(['accion-principal', 'modificar', 'eliminar','PagoExitoso']);
 
 const expandida = ref(false);
 
@@ -286,7 +286,8 @@ const iniciarPollingDePago = () => {
       
       // 3. Actualizamos la vista visualmente
       // (Vue 3 permite mutar objetos prop y se refleja, aunque idealmente deberías emitir un evento de recarga)
-      props.cuota.pagada = true; 
+      emit('PagoExitoso', props.cuota);
+      //props.cuota.pagada = true; 
       
       // 4. Feedback al usuario (Opcional)
       // alert("¡Pago confirmado!"); 
