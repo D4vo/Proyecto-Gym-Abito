@@ -119,6 +119,9 @@
 </template>
 
 <script setup>
+
+import pagosService from '@/api/services/pagosService';
+
 import { ref, computed } from 'vue';
 import BotonAccion from './BotonAccion.vue';
 import Estado from '../../Estado.vue';
@@ -192,16 +195,46 @@ const claseVencimiento = computed(() => {
     return '';
 });
 
+const procesandoPago = ref(false);
 
 // Acciones (sin cambios)
-const manejarAccionPrincipal = () => {
+const manejarAccionPrincipal = async () => {
   if (props.modo === 'cuota') {
-    console.log('Acción de PAGAR para cuota:', props.cuota);
+    // === LÓGICA DE PAGO ===
+    console.log('Iniciando pago para cuota:', props.cuota.idCuota);
+    
+    try {
+      procesandoPago.value = true;
+      
+      // 1. Llamamos a nuestro backend
+      const data = await pagosService.iniciarPago(props.cuota.idCuota);
+      
+      // 2. Obtenemos la URL de pago (Sandbox para pruebas)
+      // Cuando vayas a producción, cambiarás esto por data.init_point
+      const urlPago = data.sandbox_init_point; 
+      
+      if (urlPago) {
+        // 3. Redirigir al usuario a Mercado Pago
+        window.location.href = urlPago;
+      } else {
+        alert('Error: No se recibió la URL de pago del servidor.');
+      }
+      
+    } catch (error) {
+      console.error(error);
+      alert('Hubo un error al intentar iniciar el pago. Intenta nuevamente.');
+    } finally {
+      procesandoPago.value = false;
+    }
+
   } else {
+    // Lógica existente para staff (marcar pagada manualmente)
     console.log('Acción de MARCAR PAGADA para cuota:', props.cuota);
+    emit('accion-principal', props.cuota);
   }
-  emit('accion-principal', props.cuota);
 };
+
+
 const manejarModificar = () => {
   console.log('Modificar cuota:', props.cuota);
   emit('modificar', props.cuota);
