@@ -32,6 +32,7 @@
               :modo="modo"
               @modificar="onModificarCuota"
               @eliminar="onEliminarCuota"
+              @PagoExitoso="ProcesarPagoExistoso"
             />
           </tbody>
         </table>
@@ -104,6 +105,7 @@ const onEliminarCuota = (cuota) => {
 
 //evento para procesar el pago existoso
 const ProcesarPagoExistoso = (cuota) => {
+  console.log('Pago exitoso recibido en TablaCuotas:', cuota);
   emit('PagoExitoso', cuota);
 }
 const props = defineProps({

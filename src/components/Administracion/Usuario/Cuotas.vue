@@ -90,6 +90,11 @@
 </template>
 
 <script setup>
+
+// --- VARIABLES PARA EL MODAL DE ÉXITO ---
+const mostrarModalExito = ref(false);
+const mensajeModalExito = ref('')
+
 import { ref, computed, onMounted } from 'vue'
 import TablaCuotas from '../Tablas y Filas/TablaCuotas/TablaCuotas.vue'
 import Titulo from '../Titulo.vue'
@@ -110,6 +115,7 @@ const cerrarAviso = () => {
 // ------------------------
 // --- LÓGICA DE PAGO EXITOSO ---
 const ProcesarPagoExistoso = (cuotaPagada) => {
+  console.log('Pago exitoso recibido en Cuotas.vue:', cuotaPagada);
   // 1. Configuramos el mensaje del modal
   mensajeModalExito.value = `La cuota del mes ${cuotaPagada.mes} fue pagada correctamente.`;
   // 2. Mostramos el modal

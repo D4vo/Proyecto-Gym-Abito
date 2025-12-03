@@ -30,11 +30,13 @@ export const obtenerOcupacionTotal = async () => {
     }
 }
 
-// --- Futuras funciones ---
-// Aquí podrías añadir más funciones si necesitas interactuar
-// con otros endpoints de horarios, como:
-// - obtenerHorariosPorDia(dia) -> GET /horarios/dia/{dia}
-// - crearHorario(data) -> POST /horarios/
-// - asignarDiaAGrupo(data) -> POST /horarios/asignar-dia
-// etc.
-// -------------------------
+export const obtenerKPIs = async () => {
+    try {
+        const response = await apiClient.get('/estadisticas/kpis');
+        return response.data;
+    } catch (error) {
+        console.error("Error al obtener KPIs:", error);
+        throw error; // Re-lanzamos para manejarlo en la vista si es necesario
+    }
+};
+

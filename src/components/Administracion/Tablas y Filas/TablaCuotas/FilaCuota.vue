@@ -286,6 +286,7 @@ const iniciarPollingDePago = () => {
       
       // 3. Actualizamos la vista visualmente
       // (Vue 3 permite mutar objetos prop y se refleja, aunque idealmente deberías emitir un evento de recarga)
+      console.log('Emitiendo PagoExitoso para cuota:', props.cuota);
       emit('PagoExitoso', props.cuota);
       //props.cuota.pagada = true; 
       
