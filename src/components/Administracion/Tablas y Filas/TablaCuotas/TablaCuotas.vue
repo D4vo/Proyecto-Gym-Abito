@@ -180,6 +180,7 @@ onMounted(() => { /* ... sin cambios ... */
 onUnmounted(() => { /* ... sin cambios ... */
   window.removeEventListener('resize', checkIsMobile);
 });
+
 </script>
 
 <style scoped>

@@ -116,9 +116,50 @@
       </div>
     </transition>
   </div>
+
+
+  <tr v-if="!isMobile" class="fila-cuota desktop-view">
+     </tr>
+
+  <div v-else class="cuota-card mobile-view">
+     </div>
+
+  <Teleport to="body">
+    <div v-if="mostrarModalQR" class="modal-overlay" @click.self="cerrarQR">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Escaneá para Pagar</h3>
+          <button class="close-btn" @click="cerrarQR">&times;</button>
+        </div>
+        
+        <p class="modal-subtitle">
+          Cuota: {{ obtenerNombreMes(cuota.mes) }} - {{ cuota.trabajo }}
+        </p>
+        
+        <div class="qr-wrapper">
+          <qrcode-vue :value="urlPagoQR" :size="220" level="H" render-as="svg" />
+        </div>
+  
+        <p class="instruccion">
+          Abrí la App de Mercado Pago y escaneá este código.
+        </p>
+        
+        <div class="modal-actions">
+          <a :href="urlPagoQR" class="btn-link-directo" target="_blank">
+            O pagá con este link directo
+          </a>
+        </div>
+      </div>
+    </div>
+  </Teleport>
 </template>
 
 <script setup>
+import QrcodeVue from 'qrcode.vue';
+
+const mostrarModalQR = ref(false);
+const urlPagoQR = ref('');
+
 
 import pagosService from '@/api/services/pagosService';
 
@@ -196,42 +237,80 @@ const claseVencimiento = computed(() => {
 });
 
 const procesandoPago = ref(false);
+let intervaloPolling = null;
 
 // Acciones (sin cambios)
 const manejarAccionPrincipal = async () => {
   if (props.modo === 'cuota') {
-    // === LÓGICA DE PAGO ===
+    // === LÓGICA DE PAGO MODIFICADA ===
     console.log('Iniciando pago para cuota:', props.cuota.idCuota);
     
     try {
       procesandoPago.value = true;
       
-      // 1. Llamamos a nuestro backend
       const data = await pagosService.iniciarPago(props.cuota.idCuota);
       
-      // 2. Obtenemos la URL de pago (Sandbox para pruebas)
-      // Cuando vayas a producción, cambiarás esto por data.init_point
+      // Usamos el init_point de producción
       const urlPago = data.init_point; 
       
       if (urlPago) {
-        // 3. Redirigir al usuario a Mercado Pago
-        window.location.href = urlPago;
+        urlPagoQR.value = urlPago;
+        mostrarModalQR.value = true;
+        
+        // === NUEVO: INICIAR POLLING ===
+        iniciarPollingDePago(); 
       } else {
-        alert('Error: No se recibió la URL de pago del servidor.');
+        alert('Error: No se recibió URL.');
       }
       
     } catch (error) {
       console.error(error);
-      alert('Hubo un error al intentar iniciar el pago. Intenta nuevamente.');
+      alert('Hubo un error al intentar iniciar el pago.');
     } finally {
       procesandoPago.value = false;
     }
 
   } else {
-    // Lógica existente para staff (marcar pagada manualmente)
-    console.log('Acción de MARCAR PAGADA para cuota:', props.cuota);
+    // Lógica staff (sin cambios)
     emit('accion-principal', props.cuota);
   }
+};
+
+// --- NUEVAS FUNCIONES DE POLLING ---
+const iniciarPollingDePago = () => {
+  // Consultar cada 3 segundos (3000 ms)
+  intervaloPolling = setInterval(async () => {
+    const estaPagada = await pagosService.verificarEstadoPago(props.cuota.idCuota);
+    
+    if (estaPagada) {
+      // 1. Detenemos el polling
+      detenerPolling();
+      
+      // 2. Cerramos el modal
+      cerrarQR();
+      
+      // 3. Actualizamos la vista visualmente
+      // (Vue 3 permite mutar objetos prop y se refleja, aunque idealmente deberías emitir un evento de recarga)
+      props.cuota.pagada = true; 
+      
+      // 4. Feedback al usuario (Opcional)
+      // alert("¡Pago confirmado!"); 
+    }
+  }, 3000);
+};
+
+const detenerPolling = () => {
+  if (intervaloPolling) {
+    clearInterval(intervaloPolling);
+    intervaloPolling = null;
+  }
+};
+
+// --- MODIFICA LA FUNCIÓN cerrarQR PARA LIMPIAR EL INTERVALO ---
+const cerrarQR = () => {
+  mostrarModalQR.value = false;
+  urlPagoQR.value = '';
+  detenerPolling(); // <--- IMPORTANTE: Dejar de preguntar si cierra el modal
 };
 
 
@@ -451,6 +530,102 @@ const manejarEliminar = () => {
   .aumento-vencimiento-desktop {
      font-size: 0.75rem;
   }
+}
+
+/* === AGREGAR AL FINAL DE LOS ESTILOS === */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  backdrop-filter: blur(2px);
+}
+
+.modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 380px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  animation: popIn 0.3s ease;
+  position: relative;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  color: #95a5a6;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+}
+
+.modal-subtitle {
+  color: #7f8c8d;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+}
+
+.qr-wrapper {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 12px;
+  display: inline-block;
+  margin-bottom: 1.5rem;
+  border: 1px solid #eee;
+}
+
+.instruccion {
+  font-size: 0.9rem;
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+}
+
+.btn-link-directo {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #009ee3; /* Azul MP */
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.btn-link-directo:hover {
+  background-color: #007eb5;
+}
+
+@keyframes popIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
 </style>
