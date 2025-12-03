@@ -242,27 +242,21 @@ let intervaloPolling = null;
 // Acciones (sin cambios)
 const manejarAccionPrincipal = async () => {
   if (props.modo === 'cuota') {
-    // === LÓGICA DE PAGO MODIFICADA ===
     console.log('Iniciando pago para cuota:', props.cuota.idCuota);
-    
     try {
       procesandoPago.value = true;
-      
       const data = await pagosService.iniciarPago(props.cuota.idCuota);
-      
-      // Usamos el init_point de producción
       const urlPago = data.init_point; 
       
       if (urlPago) {
         urlPagoQR.value = urlPago;
         mostrarModalQR.value = true;
         
-        // === NUEVO: INICIAR POLLING ===
+        // INICIAR POLLING 
         iniciarPollingDePago(); 
       } else {
         alert('Error: No se recibió URL.');
       }
-      
     } catch (error) {
       console.error(error);
       alert('Hubo un error al intentar iniciar el pago.');
@@ -271,7 +265,6 @@ const manejarAccionPrincipal = async () => {
     }
 
   } else {
-    // Lógica staff (sin cambios)
     emit('accion-principal', props.cuota);
   }
 };
@@ -281,6 +274,8 @@ const iniciarPollingDePago = () => {
   // Consultar cada 3 segundos (3000 ms)
   intervaloPolling = setInterval(async () => {
     const estaPagada = await pagosService.verificarEstadoPago(props.cuota.idCuota);
+
+    console.log('Estado de pago verificado:', estaPagada);
     
     if (estaPagada) {
       // 1. Detenemos el polling
@@ -296,7 +291,7 @@ const iniciarPollingDePago = () => {
       // 4. Feedback al usuario (Opcional)
       // alert("¡Pago confirmado!"); 
     }
-  }, 3000);
+  }, 1500);
 };
 
 const detenerPolling = () => {
