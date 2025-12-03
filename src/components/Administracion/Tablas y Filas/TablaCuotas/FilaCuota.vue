@@ -211,7 +211,7 @@ const manejarAccionPrincipal = async () => {
       
       // 2. Obtenemos la URL de pago (Sandbox para pruebas)
       // Cuando vayas a producción, cambiarás esto por data.init_point
-      const urlPago = data.sandbox_init_point; 
+      const urlPago = data.init_point; 
       
       if (urlPago) {
         // 3. Redirigir al usuario a Mercado Pago
