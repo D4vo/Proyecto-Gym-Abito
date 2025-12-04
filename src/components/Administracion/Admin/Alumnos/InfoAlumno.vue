@@ -53,6 +53,7 @@
               :cargando="loading"
               @solicitud-modificar-cuota="manejarSolicitudModificar"
               @solicitud-eliminar-cuota="manejarSolicitudEliminar"
+              @PagoExitoso="ProcesarPagoExistoso"
             />
           </template>
           <template v-else>
@@ -719,6 +720,13 @@ const guardarModificacionCuota = async (cuotaModificada) => {
 
 // ----- FIN: Manejo de Cuotas -----
 
+const ProcesarPagoExistoso = (cuotaPagada) => {
+  console.log('Pago exitoso recibido en Cuotas.vue:', cuotaPagada);
+  // 1. Configuramos el mensaje del modal
+  mensajeModalExito.value = `La cuota del mes ${cuotaPagada.mes} fue pagada correctamente.`;
+  // 2. Mostramos el modal
+  mostrarModalExito.value = true;
+}
 
 </script>
 
