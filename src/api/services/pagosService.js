@@ -56,3 +56,15 @@ export const verComprobante = async (idCuota) => {
         throw error;
     }
 };
+
+export const marcarPagadaAdmin = async (idCuota) => {
+    try {
+        // PUT /pagos/marcar-pagada/{id}
+        await apiClient.put(`/pagos/marcar-pagada/${idCuota}`);
+        return true;
+    } catch (error) {
+        console.error("Error al marcar pago manual:", error);
+        throw error;
+    }
+};
+

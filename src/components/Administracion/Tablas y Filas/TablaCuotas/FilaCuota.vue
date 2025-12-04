@@ -163,7 +163,7 @@ const urlPagoQR = ref('');
 
 import pagosService from '@/api/services/pagosService';
 
-import { verComprobante } from '@/api/services/pagosService';
+import { verComprobante, marcarPagadaAdmin } from '@/api/services/pagosService';
 
 import { ref, computed } from 'vue';
 import BotonAccion from './BotonAccion.vue';
@@ -243,34 +243,34 @@ let intervaloPolling = null;
 
 // Acciones 
 const manejarAccionPrincipal = async () => {
+  // === MODO ALUMNO ===
   if (props.modo === 'cuota') {
     if (props.cuota.pagada) {
-      // ACCIÓN PARA VER COMPROBANTE
+      // Ver comprobante (Alumno)
       try {
-        procesandoPago.value = true; // Reutilizamos tu variable de loading si quieres mostrar spinner
+        procesandoPago.value = true;
         await verComprobante(props.cuota.idCuota);
       } catch (e) {
-        console.error('No se pudo generar el comprobante.', e);
+        console.error('Error al ver comprobante:', e);
       } finally {
         procesandoPago.value = false;
       }
       return;
     }
-    console.log("modo de cuota", props.modo);
-    console.log('Iniciando pago para cuota:', props.cuota.idCuota);
+    
+    // Iniciar pago con MercadoPago (Alumno)
+    console.log('Iniciando pago QR para cuota:', props.cuota.idCuota);
     try {
       procesandoPago.value = true;
-      const data = await pagosService.iniciarPago(props.cuota.idCuota);
+      const data = await iniciarPago(props.cuota.idCuota);
       const urlPago = data.init_point; 
       
       if (urlPago) {
         urlPagoQR.value = urlPago;
         mostrarModalQR.value = true;
-        
-        // INICIAR POLLING 
         iniciarPollingDePago(); 
       } else {
-        alert('Error: No se recibió URL.');
+        alert('Error: No se recibió URL de pago.');
       }
     } catch (error) {
       console.error(error);
@@ -279,18 +279,42 @@ const manejarAccionPrincipal = async () => {
       procesandoPago.value = false;
     }
 
-  } else {
-    // --- MODO ADMIN ---
-    emit('accion-principal', props.cuota);
-    console.log('Acción principal emitida para cuota:', props.cuota);
+  } else { 
+    // === MODO ADMIN ===
     
-    // Si el Admin también quiere ver el comprobante directamente aquí:
+    // CASO A: Ya está pagada -> El Admin quiere ver el comprobante
     if (props.cuota.pagada) {
       try {
         await verComprobante(props.cuota.idCuota);
       } catch (e) {
         console.error(e);
+        alert('No se pudo generar el comprobante.');
       }
+      return;
+    }
+
+    // CASO B: No está pagada -> El Admin quiere marcarla como PAGADA
+    if (!confirm(`¿Confirmar que recibiste el pago de la cuota #${props.cuota.idCuota}?`)) {
+      return;
+    }
+
+    try {
+      procesandoPago.value = true;
+      
+      // Llamada a la nueva API de Admin
+      await marcarPagadaAdmin(props.cuota.idCuota);
+      
+      alert('Pago registrado correctamente.');
+      
+      // Emitimos evento para que el componente padre recargue la lista de cuotas
+      // Es importante que en el padre escuches este evento para refrescar los datos
+      emit('pago-realizado', props.cuota); 
+      
+    } catch (error) {
+      console.error(error);
+      alert('Error al registrar el pago manual.');
+    } finally {
+      procesandoPago.value = false;
     }
   }
 };
