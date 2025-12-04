@@ -36,3 +36,23 @@ export default {
   }
 };
 
+export const verComprobante = async (idCuota) => {
+    try {
+        const response = await apiClient.get(`/pagos/comprobante/${idCuota}`, {
+            responseType: 'blob' // ¡Crucial! Indica que esperamos un archivo
+        });
+        
+        // Crear una URL temporal para el archivo PDF
+        const pdfUrl = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+        
+        // Abrir en nueva pestaña
+        window.open(pdfUrl, '_blank');
+        
+        // Opcional: Liberar memoria después de un tiempo
+        // setTimeout(() => window.URL.revokeObjectURL(pdfUrl), 10000);
+        
+    } catch (error) {
+        console.error("Error al descargar comprobante:", error);
+        throw error;
+    }
+};

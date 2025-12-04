@@ -163,6 +163,8 @@ const urlPagoQR = ref('');
 
 import pagosService from '@/api/services/pagosService';
 
+import { verComprobante } from '@/api/services/pagosService';
+
 import { ref, computed } from 'vue';
 import BotonAccion from './BotonAccion.vue';
 import Estado from '../../Estado.vue';
@@ -239,9 +241,22 @@ const claseVencimiento = computed(() => {
 const procesandoPago = ref(false);
 let intervaloPolling = null;
 
-// Acciones (sin cambios)
+// Acciones 
 const manejarAccionPrincipal = async () => {
   if (props.modo === 'cuota') {
+    if (props.cuota.pagada) {
+      // ACCIÓN PARA VER COMPROBANTE
+      try {
+        procesandoPago.value = true; // Reutilizamos tu variable de loading si quieres mostrar spinner
+        await verComprobante(props.cuota.idCuota);
+      } catch (e) {
+        console.error('No se pudo generar el comprobante.', e);
+      } finally {
+        procesandoPago.value = false;
+      }
+      return;
+    }
+    console.log("modo de cuota", props.modo);
     console.log('Iniciando pago para cuota:', props.cuota.idCuota);
     try {
       procesandoPago.value = true;
@@ -265,7 +280,18 @@ const manejarAccionPrincipal = async () => {
     }
 
   } else {
+    // --- MODO ADMIN ---
     emit('accion-principal', props.cuota);
+    console.log('Acción principal emitida para cuota:', props.cuota);
+    
+    // Si el Admin también quiere ver el comprobante directamente aquí:
+    if (props.cuota.pagada) {
+      try {
+        await verComprobante(props.cuota.idCuota);
+      } catch (e) {
+        console.error(e);
+      }
+    }
   }
 };
 
