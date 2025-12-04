@@ -307,7 +307,7 @@ const confirmarPago = async () => {
     alert('Pago registrado correctamente.');
     
     // Emitimos evento para que el componente padre recargue la lista de cuotas
-    emit('pago-realizado', props.cuota); 
+    emit('PagoExitoso', props.cuota); 
     
   } catch (error) {
     console.error(error);
