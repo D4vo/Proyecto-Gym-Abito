@@ -220,22 +220,26 @@ const handleContinuarError = () => { mostrarModalError.value = false; }
 }
 
 .btn-anadir {
-  /* Rojo de la marca pero con degradado para profundidad */
-  background-color: #D32F2F; /* Rojo marca limpio */
-  color: white;
-  border: none;
-  padding: 0.9rem 2.2rem;
+  padding: 0.75rem 1.5rem;
+  background-color: #ffffff;
+  border: 2px solid #333; /* Borde negro como en la img */
+  color: #333;
   border-radius: 8px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  display: flex; align-items: center; gap: 0.8rem;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 10px rgba(211, 47, 47, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .btn-anadir:hover {
-  background-color: #b71c1c; transform: translateY(-2px); box-shadow: 0 6px 15px rgba(211, 47, 47, 0.3);
+  background-color: #f4f4f4;
+  border-color: #e50914; /* Rojo al hacer hover */
+  color: #e50914;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
 .icon-circle {
