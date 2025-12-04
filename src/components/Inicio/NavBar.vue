@@ -11,7 +11,9 @@
         <!-- Links de navegación desktop -->
         <div class="nav-links">
           <a href="#metodologias" class="nav-link">Metodologías</a>
+          <a href="#historia" class="nav-link">Historia</a>
           <a href="#precios" class="nav-link">Precios</a>
+          <a href="#ubicacion" class="nav-link">Ubicacion</a>
         </div>
       </div>
 

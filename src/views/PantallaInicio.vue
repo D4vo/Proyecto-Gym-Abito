@@ -4,6 +4,7 @@
     <div class="bg-pattern-fixed"></div>
 
     <div class="hero-container">
+      <!-- El parallax del Hero (fondo) lo dejamos, ese está bien -->
       <div class="hero-parallax-layer" :style="{ transform: `translateY(${scrollY * 0.5}px)` }">
         <FondoInicio />
       </div>
@@ -31,7 +32,8 @@
             />
           </div>
           
-          <div class="column-right" :style="{ transform: `translateY(-${scrollY * 0.06}px)` }">
+          <!-- CORRECCIÓN AQUÍ: Eliminé el :style con el transform -->
+          <div class="column-right">
              <Metodologia
               v-for="(item, index) in metodologiasImpares"
               :key="item.id || index"

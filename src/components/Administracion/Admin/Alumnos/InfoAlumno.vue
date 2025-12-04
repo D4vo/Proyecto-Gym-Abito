@@ -383,6 +383,7 @@ const iniciarCambioEstado = () => {
     
     mensajeModalConfirmacion.value = `
       <p>¿Está seguro que desea <strong>activar</strong> a ${alumno.value.nombre} ${alumno.value.apellido}?</p>
+      <p><strong>ADVERTENCIA:</strong> Cuando se active al alumno debera de asignarle horarios obligatoriamente</p>
     `;
   }
 
@@ -425,7 +426,7 @@ const ejecutarCambioEstado = async () => {
   // Simulación Éxito:
   alumno.value.activo = nuevoEstado;
   mensajeModalExito.value = nuevoEstado 
-    ? 'El alumno se activó correctamente' 
+    ? 'El alumno se activó correctamente, POR FAVOR ASIGNE LOS HORARIOS PARA EL ALUMNO' 
     : 'El alumno se desactivó correctamente';
   mostrarModalExito.value = true;
 }

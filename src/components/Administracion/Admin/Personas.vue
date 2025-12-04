@@ -307,8 +307,8 @@ const handleContinuarError = () => {
 }
 .input-busqueda:focus {
   outline: none;
-  border-color: #e91e63;
-  box-shadow: 0 0 0 3px rgba(233, 30, 99, 0.1);
+  border-color: #ea280ae0;
+  box-shadow: 0 0 0 3px rgba(233, 44, 30, 0.1);
 }
 .btn-limpiar-busqueda {
   position: absolute;

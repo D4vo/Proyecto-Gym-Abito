@@ -3,7 +3,7 @@
     <div class="glow-effect"></div>
 
     <div class="card-top">
-      <span class="plan-type">MEMBERSHIP</span>
+      <span class="plan-type">MEMBRESÍA</span>
       <h3 class="plan-name">{{ precio.nombreSuscripcion }}</h3>
       
       <div class="price-container">

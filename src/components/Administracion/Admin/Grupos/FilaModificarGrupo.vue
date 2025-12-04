@@ -1,127 +1,132 @@
 <template>
-  <div class="fila-grupo-card" :class="{ 'modo-edicion': modoEdicion }">
+  <div class="fila-pro" :class="{ 'editando': modoEdicion, 'nuevo': grupo._isNew }">
     
-    <Transition name="slide-fade" mode="out-in">
+    <div class="wrapper-transicion">
+      <Transition name="smooth-expand" mode="out-in">
 
-      <div v-if="!modoEdicion" key="vista" class="vista-container">
-        <div class="vista-header">
-          <div class="vista-header-info">
-            <i class="fas fa-layer-group"></i>
-            <span class="numero-grupo">Grupo {{ grupo.nroGrupo }}</span>
-          </div>
-        </div>
-        
-        <div class="vista-body">
-          <div class="info-item info-horario">
-            <label>Horario</label> 
-            <span>
-              <i class="fas fa-clock"></i> 
-              {{ formatoHora(grupo.horaInicio) }} - {{ formatoHora(grupo.horaFin) }}
-            </span>
-          </div>
-          <div class="info-item info-dias">
-            <label>Días Asignados</label>
-            <span>
-              <i class="fas fa-calendar-check"></i>
-              {{ grupo.dias_asignados.length > 0 ? grupo.dias_asignados.length + ' día(s)' : 'Ninguno' }}
-            </span>
-          </div>
-        </div>
-
-        <div class="vista-footer">
-            <div class="botones-fila">
-              <button class="btn-fila btn-modificar" @click="activarModoEdicion">
-                <i class="fas fa-pen"></i> Modificar
-              </button>
-              <button class="btn-fila btn-eliminar" @click="emitirEliminarGrupo">
-                <i class="fas fa-trash"></i> Eliminar
-              </button>
+        <!-- ================= VISTA LECTURA ================= -->
+        <div v-if="!modoEdicion" key="vista" class="vista-flex">
+          
+          <div class="bloque-id-centrado">
+            <div class="icono-grupo-wrapper">
+              <i class="fas fa-user-friends"></i> 
             </div>
-        </div>
-      </div>
-
-      <form v-else key="edicion" class="form-edicion" @submit.prevent="guardarCambios">
-        
-        <div class="seccion-info-principal">
-          <div class="info-item-edit nro-grupo-edit">
-            <label :for="'nro-' + grupo.nroGrupo">Nro Grupo</label>
-            <input 
-              :id="'nro-' + grupo.nroGrupo"
-              type="text" 
-              v-model="grupoEditable.nroGrupo" 
-              class="input-estilizado"
-              title="Este dato debe ser único para cada grupo y no se puede saltear."
-              aria-label="Número de Grupo, debe ser único y no puede saltearse."
-              
-              :disabled="!props.grupo._isNew"
-              
-            />
+            <div class="texto-id">
+              <span class="label-id">GRUPO</span>
+              <span class="numero-id">{{ grupo.nroGrupo }}</span>
+            </div>
           </div>
-
-          <div class="info-item-edit hora-inicio-edit">
-            <label :for="'inicio-' + grupo.nroGrupo">Hora Inicio</label>
-            <input 
-              type="time" 
-              class="input-estilizado time-input"
-              step="1800" 
-              v-model="horaInicioEdit"
-              :id="'inicio-' + grupo.nroGrupo"
-            />
-          </div>
-          <div class="info-item-edit hora-fin-edit">
-            <label :for="'fin-' + grupo.nroGrupo">Hora Fin</label>
-            <input 
-              type="time" 
-              class="input-estilizado time-input"
-              step="1800" 
-              v-model="horaFinEdit"
-              :id="'fin-' + grupo.nroGrupo"
-            />
-          </div>
-        </div>
-
-        <div class="seccion-dias">
-          <h4><i class="fas fa-calendar-alt"></i> Selección de días y cupos</h4>
-          <div class="dias-contenedor">
-            <div v-for="dia in diasEditables" :key="dia.nombre" class="dia-item">
-              <label 
-                class="dia-label" 
-                :class="{ 'seleccionado': dia.seleccionado }"
-              >
-                <input 
-                  type="checkbox" 
-                  v-model="dia.seleccionado"
-                  @change="limpiarCupoSiNoSeleccionado(dia)"
-                />
-                <span class="nombre-dia">{{ dia.nombre.substring(0, 3) }}</span>
-                <i v-if="dia.seleccionado" class="fas fa-check-circle check-icon"></i>
-              </label>
-              <div class="cupo-input-wrapper">
-                <label :for="'cupo-' + dia.nombre" class="cupo-label">Cupos</label>
-                <input
-                  :id="'cupo-' + dia.nombre"
-                  type="number"
-                  class="cupo-input"
-                  v-model.number="dia.capacidadMax"
-                  :disabled="!dia.seleccionado"
-                  placeholder="-"
-                />
+          
+          <div class="bloque-datos">
+            <div class="dato-item">
+              <i class="far fa-clock icono-acento"></i>
+              <div class="info-textos">
+                <span class="dato-label">HORARIO</span>
+                <span class="dato-valor">{{ formatoHora(grupo.horaInicio) }} - {{ formatoHora(grupo.horaFin) }}</span>
+              </div>
+            </div>
+            
+            <div class="dato-item">
+              <i class="far fa-calendar-alt icono-acento"></i>
+              <div class="info-textos">
+                <span class="dato-label">Días Asignados</span>
+                <span class="dato-valor">
+                  {{ grupo.dias_asignados.length > 0 ? grupo.dias_asignados.length + ' días / Semana' : 'Sin asignar' }}
+                </span>
               </div>
             </div>
           </div>
+
+          <div class="bloque-acciones">
+            <button class="btn-accion-sutil editar" @click="activarModoEdicion" title="Modificar">
+              <i class="fas fa-pen"></i>
+            </button>
+            <button class="btn-accion-sutil eliminar" @click="emitirEliminarGrupo" title="Eliminar">
+              <i class="far fa-trash-alt"></i>
+            </button>
+          </div>
         </div>
 
-        <div class="botones-fila-edit">
-          <button type="button" class="btn-fila btn-cancelar" @click="cancelarEdicion">
-            Cancelar
-          </button>
-          <button type="submit" class="btn-fila btn-guardar">
-            <i class="fas fa-save"></i> Guardar
-          </button>
-        </div>
+        <!-- ================= MODO EDICIÓN ================= -->
+        <form v-else key="edicion" class="form-compacto" @submit.prevent="guardarCambios">
+          
+          <div class="header-edit-layout">
+            
+            <div class="col-input-grupo">
+              <label class="label-superior">Número de Grupo</label>
+              <input 
+                type="text" 
+                v-model="grupoEditable.nroGrupo" 
+                class="input-clean input-num"
+                :disabled="!props.grupo._isNew"
+              />
+            </div>
 
-      </form>
-    </Transition>
+            <div class="col-input-hora">
+               
+               <div class="hora-box">
+                  <label class="label-superior">Hora Inicio</label>
+                  <div class="input-time-wrapper">
+                    <input type="time" class="input-clean time" v-model="horaInicioEdit" />
+                  </div>
+               </div>
+
+               <div class="separador-container">
+                 <span class="separador-hora">-</span>
+               </div>
+
+               <div class="hora-box">
+                  <label class="label-superior">Hora Fin</label>
+                  <div class="input-time-wrapper">
+                    <input type="time" class="input-clean time" v-model="horaFinEdit" />
+                  </div>
+               </div>
+
+            </div>
+          </div>
+
+          <div class="seccion-dias-compacta">
+            <p class="label-seccion">Días y Cupos</p>
+            <div class="grid-dias-compacto">
+              <div 
+                v-for="dia in diasEditables" 
+                :key="dia.nombre" 
+                class="card-dia"
+                :class="{ 'seleccionado': dia.seleccionado }"
+                @click="toggleDia(dia)"
+              >
+                <div class="card-dia-header">
+                  <i class="fas fa-check-circle icon-check"></i>
+                  <span class="dia-nombre">{{ dia.nombre.substring(0, 3) }}</span>
+                </div>
+                
+                <div class="card-dia-body" @click.stop>
+                   <div v-if="dia.seleccionado" class="cupo-input-group">
+                      <label>Cupo</label>
+                      <input
+                        type="number"
+                        class="input-cupo-mini"
+                        v-model.number="dia.capacidadMax"
+                        min="1"
+                        placeholder="-"
+                      />
+                   </div>
+                   <span v-else class="placeholder-dash">—</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-footer">
+            <button type="button" class="btn-texto" @click="cancelarEdicion">Cancelar</button>
+            <button type="submit" class="btn-slate-guardar">
+              Guardar Cambios
+            </button>
+          </div>
+
+        </form>
+      </Transition>
+    </div>
 
   </div>
 </template>
@@ -129,30 +134,21 @@
 <script setup>
 import { ref, watchEffect } from 'vue'
 
-const props = defineProps({
-  grupo: {
-    type: Object,
-    required: true
-  }
-})
-
+const props = defineProps({ grupo: { type: Object, required: true } })
 const emit = defineEmits(['guardar-grupo', 'eliminar-grupo'])
 
 const modoEdicion = ref(false)
 const grupoEditable = ref(null) 
 const diasEditables = ref([]) 
 const nroGrupoOriginal = ref(null); 
-
 const horaInicioEdit = ref('00:00')
 const horaFinEdit = ref('00:00')
 
 const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo']
 
-// Función para inicializar el formulario de edición
 const activarModoEdicion = () => {
   grupoEditable.value = JSON.parse(JSON.stringify(props.grupo))
   nroGrupoOriginal.value = props.grupo.nroGrupo; 
-
   horaInicioEdit.value = props.grupo.horaInicio.substring(0, 5)
   horaFinEdit.value = props.grupo.horaFin.substring(0, 5)
 
@@ -160,37 +156,29 @@ const activarModoEdicion = () => {
   diasSemana.forEach(nombreDia => {
     const diaExistente = props.grupo.dias_asignados.find(d => d.dia === nombreDia)
     if (diaExistente) {
-      diasNuevos.push({
-        ...diaExistente,
-        nombre: nombreDia, 
-        seleccionado: true
-      })
+      diasNuevos.push({ ...diaExistente, nombre: nombreDia, seleccionado: true })
     } else {
-      diasNuevos.push({
-        nombre: nombreDia,
-        seleccionado: false,
-        capacidadMax: null,
-        alumnos_inscritos: 0, 
-        empleado: null 
-      })
+      diasNuevos.push({ nombre: nombreDia, seleccionado: false, capacidadMax: null, alumnos_inscritos: 0, empleado: null })
     }
   })
   diasEditables.value = diasNuevos
   modoEdicion.value = true
 }
 
-// Lógica para el botón Guardar
+const toggleDia = (dia) => {
+  dia.seleccionado = !dia.seleccionado;
+  if (!dia.seleccionado) dia.capacidadMax = null;
+}
+
 const guardarCambios = () => {
   const nuevosDiasAsignados = diasEditables.value
     .filter(dia => dia.seleccionado) 
-    .map(dia => {
-      return {
+    .map(dia => ({
         dia: dia.nombre,
         capacidadMax: dia.capacidadMax || 0,
         alumnos_inscritos: dia.alumnos_inscritos, 
         empleado: dia.empleado 
-      }
-    })
+    }))
 
   const grupoActualizado = {
     ...grupoEditable.value,
@@ -208,472 +196,271 @@ const guardarCambios = () => {
   modoEdicion.value = false
 }
 
-// Lógica para el botón Cancelar
 const cancelarEdicion = () => {
-  if (props.grupo._isNew) {
-    emit('eliminar-grupo', props.grupo)
-  }
+  if (props.grupo._isNew) emit('eliminar-grupo', props.grupo)
   modoEdicion.value = false
 }
+const emitirEliminarGrupo = () => { emit('eliminar-grupo', props.grupo) }
+const formatoHora = (h) => (!h || typeof h !== 'string') ? '--:--' : h.substring(0, 5)
 
-// Lógica para el botón Eliminar
-const emitirEliminarGrupo = () => {
-  emit('eliminar-grupo', props.grupo)
-}
-
-// Helper para limpiar el cupo si se des-selecciona un día
-const limpiarCupoSiNoSeleccionado = (dia) => {
-  if (!dia.seleccionado) {
-    dia.capacidadMax = null
-  }
-}
-
-// Helper para mostrar HH:MM
-const formatoHora = (horaCompleta) => {
-  if (!horaCompleta || typeof horaCompleta !== 'string') return '--:--'
-  return horaCompleta.substring(0, 5)
-}
-
-// Watcher para activar el modo edición si es un grupo nuevo
-watchEffect(() => {
-  if (props.grupo._isNew) {
-    activarModoEdicion()
-  }
-})
+watchEffect(() => { if (props.grupo._isNew) activarModoEdicion() })
 </script>
 
 <style scoped>
-/* --- ESTILO DE FICHA (TARJETA) PROFESIONAL --- */
-.fila-grupo-card {
-  background: #ffffff;
+/* --- TARJETA BASE --- */
+.fila-pro {
+  background: white;
   border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.06);
-  transition: all 0.3s ease-in-out; 
-  overflow: hidden; 
-  /* Borde inicial sutil */
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
   border: 1px solid #eee;
+  border-left: 6px solid #D32F2F; 
+  overflow: hidden;
+  margin-bottom: 0; 
+  transition: all 0.3s ease;
+}
+.fila-pro:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+}
+.fila-pro.editando {
+  transform: none;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.06);
+  border: 1px solid #ddd;
+  border-left: 6px solid #D32F2F;
 }
 
-/* --- EFECTO HOVER (MÁS NOTORIO) --- */
-.fila-grupo-card:not(.modo-edicion):hover {
-  transform: translateY(-4px); /* Lo levantamos un poco más */
-  /* Sombra roja sutil para el efecto "neon" */
-  box-shadow: 0 8px 25px rgba(0,0,0,0.1), 0 0 20px rgba(220, 53, 69, 0.2); 
-  border-color: #dc3545; /* Borde rojo */
+/* --- VISTA LECTURA --- */
+.vista-flex {
+  display: flex; align-items: center; padding: 1.5rem 2rem; gap: 2rem; 
 }
 
-.fila-grupo-card.modo-edicion {
-  border-color: #dc3545; 
-  box-shadow: 0 6px 20px rgba(220, 53, 69, 0.15); 
+/* ID Grupo */
+.bloque-id-centrado {
+  display: flex; align-items: center; gap: 1.2rem; padding-right: 2rem; border-right: 1px solid #f0f0f0;
+  min-width: 140px;
 }
+.icono-grupo-wrapper {
+  font-size: 1.4rem; color: #D32F2F; 
+  background: #fff0f0; 
+  width: 48px; height: 48px; border-radius: 50%; 
+  display: flex; align-items: center; justify-content: center;
+}
+.texto-id { display: flex; flex-direction: column; justify-content: center; }
+.label-id { font-size: 0.75rem; font-weight: 700; color: #999; letter-spacing: 0.5px; }
+.numero-id { font-size: 2rem; font-weight: 800; color: #333; line-height: 1; }
 
-/* --- MODO VISTA (Rediseñado con Grid) --- */
-/* Contenedor para la animación */
-.vista-container {
-  display: grid;
-  grid-template-columns: 1fr auto; 
-  grid-template-areas:
-    "header buttons"
-    "body   buttons";
-  align-items: start;
-}
+/* Datos */
+.bloque-datos { flex: 1; display: flex; gap: 4rem; align-items: center; }
+.dato-item { display: flex; align-items: center; gap: 0.8rem; }
+.icono-acento { font-size: 1.4rem; color: #D32F2F; opacity: 0.9; }
+.info-textos { display: flex; flex-direction: column; }
+.dato-label { font-size: 0.75rem; color: #888; font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 2px; }
+.dato-valor { font-size: 1.1rem; color: #333; font-weight: 600; }
 
-.vista-header {
-  grid-area: header;
-  padding: 1.5rem 0 0.5rem 1.5rem; 
+/* Acciones */
+.bloque-acciones { display: flex; gap: 0.8rem; }
+.btn-accion-sutil {
+  width: 40px; height: 40px; border-radius: 50%; border: 1px solid transparent; background: #f8f9fa;
+  color: #666; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem;
+  transition: all 0.2s;
 }
-.vista-header-info {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-.vista-header-info i {
-  color: #dc3545; 
-  font-size: 1.2rem;
-}
-.vista-header-info .numero-grupo {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #333;
-}
-
-/* --- AJUSTE DE LAYOUT (COLUMNAS JUNTAS) --- */
-.vista-body {
-  grid-area: body;
-  display: grid;
-  grid-template-columns: auto auto; 
-  justify-content: flex-start; 
-  padding: 0.5rem 1.5rem 1.5rem 1.5rem; 
-  gap: 2rem; 
-}
-.info-item {
-  display: flex;
-  flex-direction: column;
-}
-.info-item label {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: #888;
-  margin-bottom: 0.35rem;
-  text-transform: uppercase;
-}
-.info-item span {
-  font-size: 1rem; 
-  font-weight: 500;
-  color: #333;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-.info-item span i {
-  color: #555;
-  font-size: 0.9rem;
-}
-
-/* El footer contiene los botones en desktop */
-.vista-footer {
-  grid-area: buttons;
-  padding: 1.5rem 1.5rem 1.5rem 1rem;
-  display: flex;
-  align-items: center; 
-  height: 100%;
-  border-left: 1px solid #f0f0f0;
-}
-.botones-fila {
-  display: flex;
-  flex-direction: column; 
-  gap: 0.5rem;
-  width: 100%;
-}
+.btn-accion-sutil:hover { background: #e9ecef; color: #333; }
+.btn-accion-sutil.eliminar:hover { background: #fff0f0; color: #D32F2F; }
 
 
 /* --- MODO EDICIÓN --- */
-.form-edicion {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem; 
-  padding: 1.5rem;
+.form-compacto { padding: 1.5rem 2rem; background: #fff; }
+
+/* LAYOUT SUPERIOR: Flexbox en escritorio */
+.header-edit-layout {
+  display: flex; 
+  justify-content: space-between; 
+  align-items: flex-start;
+  margin-bottom: 2rem; 
+  gap: 2rem;
 }
 
-/* Sección de Nro Grupo y Horarios */
-.seccion-info-principal {
-  display: grid;
-  grid-template-columns: 1fr auto auto; 
-  gap: 1.5rem;
+/* Columna Numero Grupo */
+.col-input-grupo { flex: 0 0 auto; }
+.input-num { width: 150px; }
+
+/* Columna Horas (Alineada a la derecha) */
+.col-input-hora {
+  display: flex; 
   align-items: flex-end; 
+  gap: 1rem;
 }
+.hora-box { display: flex; flex-direction: column; }
+.input-clean {
+  padding: 0.6rem 0.8rem; border: 1px solid #ccc; border-radius: 6px; font-size: 1rem; color: #333;
+  transition: border 0.2s; background: #fdfdfd;
+}
+.input-clean:focus { border-color: #D32F2F; outline: none; background: white; }
+.input-clean.time { text-align: center; font-weight: 600; width: 110px; }
 
-.info-item-edit {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-.info-item-edit.nro-grupo-edit {
-  width: 100%;
-}
-.info-item-edit.hora-inicio-edit,
-.info-item-edit.hora-fin-edit {
-  width: auto; 
-}
+.label-superior { font-size: 0.95rem; font-weight: 700; color: #333; margin-bottom: 0.4rem; display: block; }
+.separador-container { display: flex; align-items: center; padding-bottom: 0.6rem; }
+.separador-hora { font-weight: bold; color: #ccc; font-size: 1.2rem; }
 
-
-.info-item-edit label {
-  font-weight: 600;
-  color: #333;
-  font-size: 0.9rem;
-}
-
-/* Input y Selects Estilizados */
-.input-estilizado {
-  width: 100%;
-  padding: 0.8rem 1rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 1rem;
-  background: #fdfdfd;
-  font-family: 'Poppins', sans-serif;
-  transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.input-estilizado:focus {
-  outline: none;
-  border-color: #dc3545; 
-  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15); 
-}
-.input-estilizado[type="text"] {
-  max-width: 200px; 
-}
-
-/* ===== ESTILO PARA INPUT DESHABILITADO ===== */
-.input-estilizado:disabled {
-  background: #f0f0f0;
-  color: #999;
-  cursor: not-allowed;
-  border-color: #eee;
-}
-
-/* Campos de tiempo más estrechos */
-.time-input {
-  max-width: 150px; 
-  min-width: 130px; 
-}
-
-/* --- SECCIÓN DÍAS Y CUPOS --- */
-.seccion-dias h4 {
-  margin: 0 0 1rem 0;
-  font-weight: 600;
-  color: #333;
-  border-bottom: 2px solid #f0f0f0;
-  padding-bottom: 0.5rem;
-  font-size: 1.1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-.seccion-dias h4 i {
-  color: #dc3545; 
-}
-
-.dias-contenedor {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(85px, 1fr)); 
+/* SECCIÓN DÍAS */
+.seccion-dias-compacta { margin-bottom: 2rem; }
+.label-seccion { font-weight: 700; color: #333; margin-bottom: 0.8rem; font-size: 0.95rem; }
+.grid-dias-compacto { 
+  display: grid; 
+  /* Por defecto: Tarjetas fluidas */
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); 
   gap: 0.8rem; 
 }
 
-.dia-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  align-items: center;
+.card-dia {
+  border: 1px solid #e0e0e0; border-radius: 8px; cursor: pointer; transition: all 0.2s;
+  display: flex; flex-direction: column; overflow: hidden; background: white;
+}
+.card-dia-header {
+  padding: 0.5rem; 
+  display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+  background: #fdfdfd; border-bottom: 1px solid #f0f0f0; color: #888;
+}
+.icon-check { font-size: 0.9rem; opacity: 0.3; transition: all 0.2s; }
+.dia-nombre { font-weight: 700; text-transform: uppercase; font-size: 0.8rem; }
+
+/* SELECCIÓN */
+.card-dia.seleccionado {
+  border-color: #546E7A; /* Azul Grisáceo */
+  background-color: #fcfcfc;
+}
+.card-dia.seleccionado .card-dia-header {
+  color: #546E7A; 
+  border-bottom-color: rgba(84, 110, 122, 0.2);
+}
+.card-dia.seleccionado .icon-check { opacity: 1; color: #546E7A; }
+
+.card-dia-body { 
+  padding: 0.5rem 0.2rem; 
+  text-align: center; min-height: 50px; 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center;    
+  justify-content: center; 
 }
 
-/* Botón de día (Checkbox) */
-.dia-label {
+/* === CENTRADO DE CUPOS (CORREGIDO Y FORZADO) === */
+.cupo-input-group {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: center; /* Centra horizontalmente el contenido */
   justify-content: center;
-  gap: 0.4rem; 
-  padding: 0.6rem 0.4rem; 
-  border: 2px solid #ccc; 
-  border-radius: 8px;
   width: 100%;
-  min-height: 60px; /* Alto fijo */
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-weight: 500;
-  position: relative;
-  box-sizing: border-box; 
-  background-color: #f8f8f8; 
 }
-.dia-label input[type="checkbox"] {
-  display: none; 
-}
-.dia-label .nombre-dia {
-  font-size: 1rem; 
+
+.cupo-input-group label { 
+  width: 100%;
+  text-align: center; 
+  font-size: 0.6rem; 
+  color: #546E7A; 
+  margin-bottom: 4px; 
   font-weight: 700; 
-  color: #555; 
+  text-transform: uppercase; 
+  display: block; /* Asegura bloque */
 }
 
-.dia-label:hover {
-  background: #f0f0f0;
-  border-color: #bbb;
-}
-
-.dia-label.seleccionado {
-  border-color: #28a745; 
-  background: #F0F8F0; 
-  color: #1a7a2e; 
-}
-.dia-label.seleccionado .nombre-dia {
-  color: #1a7a2e; 
-}
-.check-icon {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  color: #28a745; 
-  font-size: 0.9rem;
-}
-
-/* Wrapper para el Input de Cupo con Label */
-.cupo-input-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.25rem;
-  width: 100%;
-}
-
-.cupo-label {
-  font-size: 0.75rem; 
-  font-weight: 600;
-  color: #777;
-}
-
-/* Input de Cupo - Más estrecho */
-.cupo-input {
-  width: 100%;
-  max-width: 60px; 
-  padding: 0.4rem; 
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  text-align: center;
-  font-size: 0.9rem;
-  box-sizing: border-box; 
-}
-.cupo-input::-webkit-outer-spin-button,
-.cupo-input::-webkit-inner-spin-button {
+/* --- QUITAR FLECHAS DE INPUT NUMBER PARA CENTRAR --- */
+.input-cupo-mini::-webkit-outer-spin-button,
+.input-cupo-mini::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
-.cupo-input::placeholder {
-  color: #aaa;
+.input-cupo-mini {
+  width: 70%; 
+  text-align: center; 
+  border: 1px solid #ccc; 
+  border-radius: 4px; 
+  padding: 3px;
+  font-size: 1rem; 
+  font-weight: 700; 
+  color: #333; 
+  display: block; 
+  margin: 0 auto; 
 }
-.cupo-input:disabled {
-  background: #f0f0f0;
-  color: #ccc;
-  cursor: not-allowed;
-  border-color: #eee;
+.input-cupo-mini:focus { border-color: #546E7A; outline: none; }
+.placeholder-dash { color: #eee; font-size: 1.5rem; font-weight: 300; }
+
+/* BOTONES FOOTER */
+.form-footer { display: flex; justify-content: flex-end; gap: 1rem; padding-top: 1.2rem; border-top: 1px solid #f0f0f0; align-items: center; }
+.btn-texto { background: none; border: none; font-size: 0.9rem; color: #666; font-weight: 600; cursor: pointer; padding: 0.5rem 1rem; }
+.btn-texto:hover { color: #333; text-decoration: underline; }
+
+/* Botón SLATE */
+.btn-slate-guardar {
+  background-color: #37474F; 
+  color: white; border: none; padding: 0.7rem 2rem; border-radius: 6px;
+  font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: background 0.2s;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
 }
+.btn-slate-guardar:hover { background-color: #263238; transform: translateY(-1px); }
 
-/* Botones de Edición (Guardar/Cancelar) */
-.botones-fila-edit {
-  display: flex;
-  gap: 1rem;
-  justify-content: flex-end;
-  padding-top: 1.5rem;
-  border-top: 1px solid #f0f0f0;
-  flex-wrap: wrap; 
+/* Animación Expandir SUAVE */
+.smooth-expand-enter-active,
+.smooth-expand-leave-active {
+  transition: all 0.4s ease;
+  max-height: 600px;
+  opacity: 1;
+  overflow: hidden;
 }
-
-/* --- Botones Comunes --- */
-.btn-fila {
-  padding: 0.7rem 1.2rem;
-  border: none;
-  border-radius: 20px; 
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap; 
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-}
-.btn-fila:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-}
-
-.btn-modificar { background: #007bff; color: white; } 
-.btn-modificar:hover { background: #0069d9; }
-
-.btn-eliminar { background: #dc3545; color: white; } 
-.btn-eliminar:hover { background: #c82333; }
-
-.btn-cancelar { background: #6c757d; color: white; } 
-.btn-cancelar:hover { background: #5a6268; }
-
-.btn-guardar { background: #28a745; color: white; } 
-.btn-guardar:hover { background: #218838; }
-
-/* Responsive */
-@media (max-width: 768px) {
-  .vista-body {
-    grid-template-columns: 1fr; 
-    gap: 1rem;
-  }
-  .seccion-info-principal {
-    grid-template-columns: 1fr 1fr; 
-  }
-  .info-item-edit.nro-grupo-edit {
-    grid-column: 1 / -1; 
-  }
-  .dias-contenedor {
-    grid-template-columns: repeat(auto-fit, minmax(75px, 1fr)); 
-  }
-  .time-input {
-    max-width: 100%; 
-  }
-}
-
-/* --- CORRECCIÓN MÓVIL (max-width: 480px) --- */
-@media (max-width: 480px) {
-  /* En móvil, volvemos a un layout de bloque/flujo */
-  .vista-container {
-    display: block; /* Anula el grid */
-  }
-  
-  .vista-header {
-    grid-area: unset; 
-    padding: 1rem 1.5rem;
-    border-bottom: 1px solid #f0f0f0;
-  }
-
-  .vista-body {
-    grid-area: unset; 
-    padding: 1.25rem 1.5rem;
-    grid-template-columns: 1fr;
-  }
-
-  .vista-footer {
-    grid-area: unset; 
-    padding: 0 1.5rem 1.5rem 1.5rem;
-    border-left: none; 
-  }
-
-  .botones-fila {
-    flex-direction: column; 
-  }
-  
-  .btn-fila {
-    width: 100%;
-    justify-content: center;
-    padding: 0.8rem;
-  }
-  
-  /* --- Estilos de Edición en Móvil --- */
-  .form-edicion {
-    padding: 1rem;
-  }
-  .seccion-info-principal {
-    grid-template-columns: 1fr; /* 1 columna */
-  }
-  .input-estilizado[type="text"] {
-    max-width: 100%; 
-  }
-  .time-input {
-    max-width: 100%;
-  }
-  .dias-contenedor {
-    grid-template-columns: repeat(3, 1fr); 
-    gap: 0.5rem;
-  }
-  .dia-label {
-    min-height: 55px; 
-    padding: 0.6rem 0.3rem;
-  }
-  .dia-label .nombre-dia {
-    font-size: 0.9rem; 
-  }
-  .botones-fila-edit {
-    flex-direction: column;
-  }
-}
-
-/* --- ESTILOS DE TRANSICIÓN (Animación) --- */
-/* Animación de deslizamiento y difuminado */
-.slide-fade-enter-active {
-  transition: all 0.3s ease-out;
-}
-.slide-fade-leave-active {
-  transition: all 0.2s cubic-bezier(1, 0.5, 0.8, 1);
-}
-.slide-fade-enter-from,
-.slide-fade-leave-to {
-  transform: translateY(20px);
+.smooth-expand-enter-from,
+.smooth-expand-leave-to {
+  max-height: 0;
   opacity: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* ================= RESPONSIVE ================= */
+
+/* Tablet y Desktop pequeño */
+@media (max-width: 900px) {
+  .vista-flex { flex-direction: column; align-items: flex-start; gap: 1.5rem; padding: 1.2rem; }
+  .bloque-id-centrado { border-right: none; border-bottom: 1px solid #eee; padding-bottom: 1rem; width: 100%; }
+  .bloque-datos { flex-direction: column; align-items: flex-start; gap: 1rem; width: 100%; }
+  .bloque-acciones { width: 100%; justify-content: flex-end; }
+  
+  .form-footer { flex-direction: column-reverse; gap: 1rem; }
+  .btn-slate-guardar, .btn-texto { width: 100%; }
+}
+
+/* === CELULARES (Layout Específico) === */
+@media (max-width: 600px) {
+  /* Header Edición: Se apila y se distribuye mejor */
+  .header-edit-layout { 
+    flex-direction: column; 
+    gap: 1.5rem; 
+    align-items: stretch; /* Ocupar ancho completo */
+  }
+  
+  /* Input Grupo Full Width */
+  .col-input-grupo { width: 100%; }
+  .input-num { width: 100%; } 
+
+  /* Horarios en Grid para alinear bien Inicio y Fin */
+  .col-input-hora {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr; /* Inicio - Sep - Fin */
+    align-items: end;
+    gap: 0.5rem;
+    width: 100%;
+  }
+  
+  .hora-box { width: 100%; min-width: 0; } /* Asegura que no se desborden */
+  .input-clean.time { width: 100%; min-width: 0; text-align: center; }
+  
+  /* Centrar separador verticalmente */
+  .separador-container { 
+    display: flex; justify-content: center; padding-bottom: 0.8rem; 
+  }
+
+  /* Grid Días: 2 Columnas Estrictas */
+  .grid-dias-compacto { 
+    grid-template-columns: repeat(2, 1fr); 
+  }
 }
 </style>
