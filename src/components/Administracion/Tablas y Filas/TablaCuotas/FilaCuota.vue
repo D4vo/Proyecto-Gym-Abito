@@ -163,7 +163,7 @@ const urlPagoQR = ref('');
 
 import pagosService from '@/api/services/pagosService';
 
-import { verComprobante, marcarPagadaAdmin } from '@/api/services/pagosService';
+import { verComprobante, marcarPagadaAdmin, iniciarPago, verificarEstadoPago } from '@/api/services/pagosService';
 
 import { ref, computed } from 'vue';
 import BotonAccion from './BotonAccion.vue';
@@ -262,7 +262,7 @@ const manejarAccionPrincipal = async () => {
     console.log('Iniciando pago QR para cuota:', props.cuota.idCuota);
     try {
       procesandoPago.value = true;
-      const data = await iniciarPago(props.cuota.idCuota);
+      const data = await pagosService.iniciarPago(props.cuota.idCuota);
       const urlPago = data.init_point; 
       
       if (urlPago) {
