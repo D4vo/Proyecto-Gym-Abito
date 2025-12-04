@@ -1,15 +1,13 @@
 <template>
   <div class="contenedor">
     <div class="dashboard-admin-container">
-      <!-- <h1 class="dashboard-title">Estadísticas Generales</h1> -->
-
+      
       <DashboardSection title="Indicadores Clave">
         <KpiList :kpis="kpiData" />
       </DashboardSection>
 
       <div class="dashboard-grid">
-
-
+        
         <DashboardSection title="Alumnos por Metodología">
           <DonutChart
               :chart-data="alumnosPorMetodologiaData"
@@ -36,10 +34,19 @@
           />
         </DashboardSection>
 
-        
+      </div> <DashboardSection title="Rendimiento del Staff" class="staff-section">
+        <div class="trainers-grid"> <TrainerCard 
+            v-for="entrenador in staffStats" 
+            :key="entrenador.dni"
+            :entrenador="entrenador"
+          />
+          
+          <div v-if="staffStats.length === 0" class="no-data-message">
+            No hay datos de entrenadores disponibles.
+          </div>
+        </div>
+      </DashboardSection>
 
-
-      </div>
     </div>
   </div>
 </template>
@@ -52,13 +59,15 @@ import KpiList from '@/components/DashBoard/KPIs/KpiList.vue';
 import OccupancyGrid from '@/components/DashBoard/Charts/OccupancyGrid.vue';
 import DonutChart from '@/components/DashBoard/Charts/DonutChart.vue';
 import BarChart from '@/components/DashBoard/Charts/BarChart.vue';
+import TrainerCard from '@/components/DashBoard/KPIs/TrainerCard.vue';
 
 // --- Servicios ---
 import { 
   obtenerHorariosCompletos, 
   obtenerOcupacionTotal, 
   obtenerKPIs,
-  obtenerAlumnosPorTurno // <--- Nuevo servicio
+  obtenerAlumnosPorTurno,
+  obtenerRendimientoStaff
 } from '@/api/services/dashboardService';
 
 // --- Utilidades ---
@@ -74,6 +83,7 @@ const formatoMoneda = (valor) => {
 // 1. ESTADO DE KPIS (Indicadores)
 // ==========================================
 const kpiData = ref([]);
+const staffStats = ref([]);
 
 // ==========================================
 // 2. GRÁFICO DE BARRAS APILADAS (Turnos)
@@ -264,6 +274,15 @@ const cargarDatosDashboard = async () => {
   } catch (error) {
     console.error("Error metodologías:", error);
   }
+
+  // --- E) Cargar Rendimiento Staff ---
+  try {
+    const staffResponse = await obtenerRendimientoStaff();
+    staffStats.value = staffResponse;
+    console.log("Rendimiento staff cargado");
+  } catch (error) {
+    console.error("Error staff:", error);
+  }
 };
 
 onMounted(() => {
@@ -331,5 +350,36 @@ onMounted(() => {
     grid-column: span 1;
   }
 }
+/* Grid para las tarjetas de entrenadores */
+.trainers-grid {
+  display: grid;
+  /* En pantallas grandes: 2 columnas */
+  /* grid-template-columns: repeat(2, 1fr);  */
+  gap: 1.5rem;
+  /* Opcional: si quieres que el título y la grilla se separen un poco */
+  margin-top: 1rem; 
+}
 
+.no-data-message {
+  grid-column: 1 / -1; /* Si no hay datos, el mensaje ocupa todo el ancho */
+  text-align: center;
+  color: #888;
+  padding: 2rem;
+  font-style: italic;
+  background: #f8f9fa;
+  border-radius: 12px;
+}
+
+/* Responsive: En tablets y móviles pasa a 1 sola columna */
+@media (max-width: 992px) {
+  .trainers-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Agrega esto a tu estilo existente */
+.staff-section {
+  margin-top: 1.5rem;
+}
 </style>
+

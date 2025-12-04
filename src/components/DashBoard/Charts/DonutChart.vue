@@ -2,6 +2,7 @@
     <div class="chart-card">
         <div class="card-header">
             <h3 class="card-title">{{ chartTitle }}</h3>
+            
         </div>
         <div class="card-body">
             <Doughnut v-if="chartData && chartData.labels && chartData.labels.length > 0" :data="chartData"

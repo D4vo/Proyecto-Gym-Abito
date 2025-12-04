@@ -50,3 +50,13 @@ export const obtenerAlumnosPorTurno = async () => {
     }
 };
 
+export const obtenerRendimientoStaff = async () => {
+    try {
+        const response = await apiClient.get('/admin/rendimiento-staff');
+        return response.data;
+    } catch (error) {
+        console.error("Error al obtener rendimiento staff:", error);
+        return []; // Retornar array vacío en caso de error para no romper la UI
+    }
+};
+

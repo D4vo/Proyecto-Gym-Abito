@@ -118,11 +118,11 @@
   </div>
 
 
-  <tr v-if="!isMobile" class="fila-cuota desktop-view">
+  <!-- <tr v-if="!isMobile" class="fila-cuota desktop-view">
      </tr>
 
   <div v-else class="cuota-card mobile-view">
-     </div>
+     </div> -->
 
   <Teleport to="body">
     <div v-if="mostrarModalQR" class="modal-overlay" @click.self="cerrarQR">
