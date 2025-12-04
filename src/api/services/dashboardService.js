@@ -1,5 +1,5 @@
 // src/api/services/horarioService.js
-import api from '../index'; // Importa la instancia centralizada de Axios
+import apiClient from '../index'; // Importa la instancia centralizada de Axios
 
 /**
  * Obtiene la lista completa de horarios con sus días asignados,
@@ -9,7 +9,7 @@ import api from '../index'; // Importa la instancia centralizada de Axios
 export const obtenerHorariosCompletos = async () => {
     try {
         // Llama al endpoint GET /horarios/ de tu API
-        const response = await api.get('/horarios/');
+        const response = await apiClient.get('/horarios/');
         
         // Devuelve el array con los datos de los horarios
         return response.data;
@@ -22,7 +22,7 @@ export const obtenerHorariosCompletos = async () => {
 
 export const obtenerOcupacionTotal = async () => {
     try {
-        const response = await api.get('/admin/estadisticas/alumnos-por-trabajo');
+        const response = await apiClient.get('/admin/estadisticas/alumnos-por-trabajo');
         return response.data;
     } catch (error) {
         console.error("Error en la carga de datos de las metodologias:", error.response?.data  || error.message);
@@ -32,11 +32,21 @@ export const obtenerOcupacionTotal = async () => {
 
 export const obtenerKPIs = async () => {
     try {
-        const response = await apiClient.get('/estadisticas/kpis');
+        const response = await apiClient.get('/admin/kpis');
         return response.data;
     } catch (error) {
         console.error("Error al obtener KPIs:", error);
         throw error; // Re-lanzamos para manejarlo en la vista si es necesario
+    }
+};
+
+export const obtenerAlumnosPorTurno = async () => {
+    try {
+        const response = await apiClient.get('/admin/alumnos-turno');
+        return response.data;
+    } catch (error) {
+        console.error("Error al obtener alumnos por turno:", error);
+        throw error;
     }
 };
 

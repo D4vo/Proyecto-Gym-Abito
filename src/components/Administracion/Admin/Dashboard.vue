@@ -45,97 +45,51 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue';
 
-import { ref, onMounted, computed } from 'vue';
-
+// --- Componentes Visuales ---
 import KpiList from '@/components/DashBoard/KPIs/KpiList.vue';
 import OccupancyGrid from '@/components/DashBoard/Charts/OccupancyGrid.vue';
 import DonutChart from '@/components/DashBoard/Charts/DonutChart.vue';
 import BarChart from '@/components/DashBoard/Charts/BarChart.vue';
 
+// --- Servicios ---
+import { 
+  obtenerHorariosCompletos, 
+  obtenerOcupacionTotal, 
+  obtenerKPIs,
+  obtenerAlumnosPorTurno // <--- Nuevo servicio
+} from '@/api/services/dashboardService';
+
+// --- Utilidades ---
+const formatoMoneda = (valor) => {
+  return new Intl.NumberFormat('es-AR', {
+    style: 'currency',
+    currency: 'ARS',
+    maximumFractionDigits: 0
+  }).format(valor);
+};
+
+// ==========================================
+// 1. ESTADO DE KPIS (Indicadores)
+// ==========================================
 const kpiData = ref([]);
 
-
-// Ref para los datos del gráfico de torta
-const alumnosPorMetodologiaData = ref({
-  labels: [],
-  datasets: [{ backgroundColor: [], data: [] }]
-});
-
-// --- 👇 Variable local (ref) con los datos de ejemplo ---
-const datosMetodologiaEjemplo = ref(
-  [
-  {
-    "id": 1,
-    "data": [
-      {
-        "nombre": "Musculación",
-        "cantidad": 85
-      }
-    ]
-  },
-  {
-    "id": 2,
-    "data": [
-      {
-        "nombre": "Funcional",
-        "cantidad": 42
-      }
-    ]
-  },
-  {
-    "id": 3,
-    "data": [
-      {
-        "nombre": "Preparación Física",
-        "cantidad": 26
-      }
-    ]
-  },
-  {
-    "id": 4,
-    "data": [
-      {
-        "nombre": "Rehabilitación",
-        "cantidad": 15
-      }
-    ]
-  }
-]
-);
-
+// ==========================================
+// 2. GRÁFICO DE BARRAS APILADAS (Turnos)
+// ==========================================
 const alumnosPorTurnoMesData = ref({
-  labels: ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul"], // Puedes poner los 12 meses
-  datasets: [
-    {
-      label: "Mañana",
-      data: [65, 59, 80, 81, 56, 55, 40], // Datos de ejemplo
-      backgroundColor: "rgba(210, 214, 222, 0.8)", // Gris claro
-      borderColor: "rgba(210, 214, 222, 1)",
-      borderWidth: 1
-    },
-    {
-      label: "Tarde",
-      data: [45, 68, 50, 39, 86, 27, 90], // Datos de ejemplo
-      backgroundColor: "rgba(0, 192, 239, 0.8)", // Celeste info
-      borderColor: "rgba(0, 192, 239, 1)",
-      borderWidth: 1
-    }
-  ]
+  labels: [],
+  datasets: []
 });
 
-// --- 👇 Opciones Específicas para el Gráfico Apilado ---
 const stackedBarChartOptions = ref({
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
-    legend: {
-      position: 'top',
-    },
-    title: {
-        display: false, // El título está en el DashboardSection
-    },
-    tooltip: { // Opcional: mostrar total en tooltip
+    legend: { position: 'top' },
+    title: { display: false },
+    tooltip: {
         mode: 'index',
         intersect: false,
         callbacks: {
@@ -150,45 +104,32 @@ const stackedBarChartOptions = ref({
     }
   },
   scales: {
-    x: {
-      stacked: true, // ¡Importante para apilar!
-      grid: {
-        display: false // Opcional: Ocultar líneas de grid verticales
-      }
-    },
-    y: {
-      stacked: true, // ¡Importante para apilar!
-      beginAtZero: true,
-      grid: {
-        color: '#e9ecef' // Opcional: Color suave para líneas horizontales
-      }
-    }
+    x: { stacked: true, grid: { display: false } },
+    y: { stacked: true, beginAtZero: true, grid: { color: '#e9ecef' } }
   }
 });
 
+// ==========================================
+// 3. GRÁFICO DE TORTA (Metodologías)
+// ==========================================
+const alumnosPorMetodologiaData = ref({
+  labels: [],
+  datasets: [{ backgroundColor: [], data: [] }]
+});
+const datosMetodologiaEjemplo = ref([]); // Variable para raw data
 
-const loadingMetodologias = ref(true);
-const errorMetodologias = ref(false);
-
-// Opciones personalizadas (opcional)
 const donutChartOptions = ref({
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
-    legend: {
-      position: 'top',
-    },
+    legend: { position: 'top' },
     tooltip: {
-       callbacks: { // Mostrar porcentaje en tooltip
+       callbacks: {
           label: function(context) {
               let label = context.label || '';
-              if (label) {
-                  label += ': ';
-              }
+              if (label) label += ': ';
               if (context.parsed !== null) {
-                  // Calcula el total
                   const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                  // Calcula el porcentaje
                   const percentage = ((context.parsed / total) * 100).toFixed(1) + '%';
                   label += `${context.parsed} (${percentage})`;
               }
@@ -209,19 +150,15 @@ const procesarDatosMetodologia = (rawData) => {
   const data = [];
 
   rawData.forEach(item => {
-    // Accede a 'nombre' y 'cantidad' dentro del array 'data'
     if (item.data && Array.isArray(item.data) && item.data.length > 0) {
-       // Asume que el array data solo tiene un objeto con nombre y cantidad
       const info = item.data.find(d => d.nombre && typeof d.cantidad === 'number');
       if (info) {
-            labels.push(info.nombre); // El nombre de la metodología
-            data.push(info.cantidad); // La cantidad de alumnos
+            labels.push(info.nombre);
+            data.push(info.cantidad);
         }
     }
   });
 
-
-  // Paleta de colores (sin cambios)
   const backgroundColors = [
     '#E74C3C', '#2ECC71', '#F1C40F', '#3498DB', '#9B59B6',
     '#34495E', '#1ABC9C', '#E67E22', '#BDC3C7', '#7F8C8D'
@@ -229,71 +166,109 @@ const procesarDatosMetodologia = (rawData) => {
 
   alumnosPorMetodologiaData.value = {
     labels: labels,
-    datasets: [
-      {
+    datasets: [{
         backgroundColor: backgroundColors.slice(0, labels.length),
         data: data
-      }
-    ]
+      }]
   };
 };
 
-import { obtenerHorariosCompletos, obtenerOcupacionTotal } from '@/api/services/dashboardService';
-
-
-
+// ==========================================
+// 4. OCUPACIÓN Y ASISTENCIA
+// ==========================================
 const datosOcupacion = ref([]);
-//const loadingOcupacion = ref(true);
+const loadingOcupacion = ref(true);
 const errorOcupacion = ref(false);
-const horariosPicoData = ref({});
 
 
-
-const cantCuotas = 25; // Ejemplo de dato
-const deudaTotal = 50000; // Ejemplo de dato
-// `Deuda Total: $${deudaTotal}`
+// ==========================================
+// LÓGICA DE CARGA GENERAL
+// ==========================================
 const cargarDatosDashboard = async () => {
-  // --- Datos de Ejemplo ---
-  kpiData.value = [
-    { title: 'Alumnos Activos', value: '153', icon: 'fas fa-users', color: 'info' }, // Usa 'info' o tu mapeo
-    { title: 'Cuotas Vencidas', value: `${cantCuotas}|$${deudaTotal}`, icon: 'fas fa-dollar-sign', color: 'success' },
-    { title: 'Ingreso Mensual (cobrado)', value: '$35.000', icon: 'fas fa-exclamation-triangle', color: 'warning' },
-    { title: 'Ingreso mensual (facturado)', value: '75%', icon: 'fas fa-chart-pie', color: 'danger' }, // Ejemplo con %
-  ];
-  console.log('Datos de KPIs cargados (ejemplo)');
+  
+  // --- A) Cargar KPIs ---
+  try {
+    const kpiResponse = await obtenerKPIs();
+    
+    // Formateamos "Cant | $Monto" para las cuotas vencidas
+    const textoVencidas = `${kpiResponse.cuotas_vencidas} | ${formatoMoneda(kpiResponse.monto_cuotas_vencidas)}`;
 
-  // Carga datos de ocupación
+    kpiData.value = [
+      { 
+        title: 'Alumnos Activos', 
+        value: kpiResponse.alumnos_activos.toString(), 
+        icon: 'fas fa-users', 
+        color: 'info' 
+      },
+      { 
+        title: 'Cuotas Vencidas', 
+        value: textoVencidas, 
+        icon: 'fas fa-exclamation-circle', 
+        color: 'danger' 
+      },
+      { 
+        title: 'Ingreso Mensual (cobrado)', 
+        value: formatoMoneda(kpiResponse.cantidad_cobrado), 
+        icon: 'fas fa-dollar-sign', 
+        color: 'success' 
+      },
+      { 
+        title: 'Efectividad de Cobro', 
+        value: `${kpiResponse.porcentaje_cobro}%`, 
+        icon: 'fas fa-chart-pie', 
+        color: 'warning' 
+      },
+    ];
+    console.log('KPIs cargados');
+  } catch (error) {
+    console.error("Error KPIs:", error);
+    // Datos vacíos en caso de error para no romper la UI
+    kpiData.value = [
+      { title: 'Alumnos Activos', value: '-', icon: 'fas fa-users', color: 'info' },
+      { title: 'Cuotas Vencidas', value: '-', icon: 'fas fa-exclamation-circle', color: 'danger' },
+      { title: 'Ingreso Mensual', value: '-', icon: 'fas fa-dollar-sign', color: 'success' },
+      { title: 'Efectividad', value: '-', icon: 'fas fa-chart-pie', color: 'warning' },
+    ];
+  }
+
+  // --- B) Cargar Gráfico de Barras (Turnos) ---
+  try {
+    const turnosResponse = await obtenerAlumnosPorTurno();
+    // La API ya devuelve la estructura { labels: [], datasets: [] } correcta para Chart.js
+    alumnosPorTurnoMesData.value = turnosResponse;
+    console.log('Gráfico Turnos cargado');
+  } catch (error) {
+    console.error("Error Gráfico Turnos:", error);
+  }
+
+  // --- C) Cargar Ocupación ---
   errorOcupacion.value = false;
+  loadingOcupacion.value = true;
   try {
     const response = await obtenerHorariosCompletos();
     datosOcupacion.value = response;
-    console.log("Datos de ocupación cargados:", datosOcupacion.value);
+    console.log("Datos ocupación cargados");
   } catch (error) {
-    console.error("Error al cargar datos de ocupación:", error);
+    console.error("Error ocupación:", error);
     errorOcupacion.value = true;
   } finally {
-    // carga del componente finalizada
+    loadingOcupacion.value = false;
   }
 
-  // Carga de datos de Metodologías
+  // --- D) Cargar Metodologías ---
   try {
     const response = await obtenerOcupacionTotal();
     datosMetodologiaEjemplo.value = response;
-    console.log("datos de las metodologías:", datosMetodologiaEjemplo.value);
+    procesarDatosMetodologia(datosMetodologiaEjemplo.value);
+    console.log("Datos metodologías cargados");
   } catch (error) {
-    console.error("Error al cargar datos de ocupación:", error);
-  } finally {
-    // carga del componente finalizada
+    console.error("Error metodologías:", error);
   }
-
-
-  procesarDatosMetodologia(datosMetodologiaEjemplo.value);
 };
 
 onMounted(() => {
   cargarDatosDashboard();
 });
-
 </script>
 
 <style scoped>
