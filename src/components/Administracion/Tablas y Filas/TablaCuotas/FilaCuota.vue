@@ -167,7 +167,12 @@
         </div>
       </Transition>
   </Teleport>
-
+  <ModalMetodoPago 
+    v-if="mostrarModalMetodo"
+    :mes-nombre="obtenerNombreMes(cuota.mes)"
+    @cancelar="mostrarModalMetodo = false"
+    @confirmar="abrirConfirmacionFinal"
+  />
 </template>
 <script setup>
 import QrcodeVue from 'qrcode.vue';
@@ -176,7 +181,10 @@ import { verComprobante, marcarPagadaAdmin, iniciarPago } from '@/api/services/p
 import { ref, computed } from 'vue';
 import BotonAccion from './BotonAccion.vue';
 import Estado from '../../Estado.vue';
+import ModalMetodoPago from './ModalMetodoPago.vue'; // Ajusta la ruta
 
+const mostrarModalMetodo = ref(false);
+const metodoSeleccionadoFinal = ref('');
 const props = defineProps({
   cuota: Object,
   isMobile: Boolean,
@@ -304,27 +312,53 @@ const manejarAccionPrincipal = async () => {
       return;
     }
 
+    mostrarModalMetodo.value = true;
     // CASO B: No está pagada -> El Admin quiere marcarla como PAGADA
     // AQUÍ ES DONDE LLAMAMOS AL MODAL EN VEZ DEL CONFIRM NATIVO
-    mensajeModalConfirmacion.value = `¿Estás seguro que deseas marcar como pagada la cuota de  #${props.cuota.mes}?`;
-    mostrarModalConfirmacion.value = true;
+    //mensajeModalConfirmacion.value = `¿Estás seguro que deseas marcar como pagada la cuota de  #${props.cuota.mes}?`;
+    //mostrarModalConfirmacion.value = true;
   }
 };
 
-// --- FUNCIÓN QUE EJECUTA EL PAGO DESPUÉS DEL MODAL ---
+
+
+
+// Se ejecuta cuando elegís Efectivo/Transf. en el primer modal
+const abrirConfirmacionFinal = (metodo) => {
+
+  // -----------ACA ESTE EL METODO DE PAGO SELECCIONADO-----------
+
+
+  metodoSeleccionadoFinal.value = metodo; // ACA ESTA EL METODO SELECCIONADOO (Efect o tranf)
+
+
+  //---------------------------------------------------------------------------------------
+  mostrarModalMetodo.value = false;       // Cerramos el selector
+  
+  // PASO 2: Abrir el modal de confirmación que ya tenías
+  mensajeModalConfirmacion.value = `¿Estás seguro que deseas marcar como pagada (en ${metodo}) la cuota de #${props.cuota.mes}?`;
+  mostrarModalConfirmacion.value = true;
+};
+
+
+
+
+
+
+
+//Tu función confirmarPago (el paso final)
 const confirmarPago = async () => {
-  // Cerramos modal
   mostrarModalConfirmacion.value = false;
 
   try {
     procesandoPago.value = true;
     
-    // Llamada a la nueva API de Admin
+    // Aquí es donde en el futuro enviaremos metodoSeleccionadoFinal.value a la API
+    console.log("Método a enviar:", metodoSeleccionadoFinal.value);
+    
     await marcarPagadaAdmin(props.cuota.idCuota);
     
-    alert('Pago registrado correctamente.');
-    
-    // Emitimos evento para que el componente padre recargue la lista de cuotas
+    alert(`Pago en ${metodoSeleccionadoFinal.value} registrado correctamente.`);
     emit('PagoExitoso', props.cuota); 
     
   } catch (error) {
