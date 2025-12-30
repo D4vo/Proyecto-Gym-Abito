@@ -38,6 +38,16 @@
         </div>
       </div>
     </td>
+    <td v-if="modo === 'infoAlumno'" class="col-adicional">
+      <div class="botones-adicionales">
+        <button class="boton-modificar" @click="manejarModificar">
+          Modificar
+        </button>
+        <button class="boton-eliminar" @click="manejarEliminar">
+          Eliminar
+        </button>
+      </div>
+    </td>
   </tr>
 
   <div v-else class="cuota-card mobile-view" :class="{ 'expandida': expandida, 'pagada': cuota.pagada, 'vencida': esPendiente && estaVencida, 'por-vencer': esPendiente && estaPorVencer }">
@@ -93,6 +103,14 @@
             :is-mobile="true"
             @accion-click="manejarAccionPrincipal"
           />
+        </div>
+        <div v-if="modo === 'infoAlumno'" class="botones-adicionales-mobile">
+          <button class="boton-modificar" @click="manejarModificar">
+            Modificar
+          </button>
+          <button class="boton-eliminar" @click="manejarEliminar">
+            Eliminar
+          </button>
         </div>
       </div>
     </transition>
