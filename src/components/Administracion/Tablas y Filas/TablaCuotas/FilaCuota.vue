@@ -84,11 +84,11 @@
         </div>
 
         <div v-if="esPendiente" class="detail-row info-vencimiento-mobile" :class="claseVencimiento">
-           <span class="detail-label">Vencimiento:</span>
-           <span class="detail-value">
-               <i v-if="estaPorVencer && !estaVencida" class="fas fa-exclamation-triangle warning-icon"></i>
-               {{ textoVencimiento }}
-           </span>
+          <span class="detail-label">Vencimiento:</span>
+          <span class="detail-value">
+              <i v-if="estaPorVencer && !estaVencida" class="fas fa-exclamation-triangle warning-icon"></i>
+              {{ textoVencimiento }}
+          </span>
         </div>
 
         <div v-if="esPendiente && estaVencida" class="detail-row aumento-vencimiento-mobile">
@@ -144,7 +144,7 @@ const obtenerNombreMes = (mes) => {
   const mesNum = parseInt(mes);
   if (isNaN(mesNum) || mesNum < 1 || mesNum > 12) return mes;
   const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-                 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+                'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
   return meses[mesNum - 1];
 };
 
@@ -195,8 +195,11 @@ const claseVencimiento = computed(() => {
 
 // Acciones (sin cambios)
 const manejarAccionPrincipal = () => {
-  if (props.modo === 'cuota') { console.log('Acción de PAGAR para cuota:', props.cuota); }
-  else { console.log('Acción de MARCAR PAGADA para cuota:', props.cuota); }
+  if (props.modo === 'cuota') {
+    console.log('Acción de PAGAR para cuota:', props.cuota);
+  } else {
+    console.log('Acción de MARCAR PAGADA para cuota:', props.cuota);
+  }
   emit('accion-principal', props.cuota);
 };
 const manejarModificar = () => {
