@@ -173,6 +173,13 @@
     @cancelar="mostrarModalMetodo = false"
     @confirmar="abrirConfirmacionFinal"
   />
+  <ModalResumenPago 
+    v-if="mostrarResumenPago"
+    :cuota="cuota"
+    :esVencida="estaVencida"
+    @cancelar="mostrarResumenPago = false"
+    @confirmar="procederAlPagoMercadoPago"
+  />
 </template>
 <script setup>
 import QrcodeVue from 'qrcode.vue';
@@ -182,7 +189,7 @@ import { ref, computed } from 'vue';
 import BotonAccion from './BotonAccion.vue';
 import Estado from '../../Estado.vue';
 import ModalMetodoPago from './ModalMetodoPago.vue'; // Ajusta la ruta
-
+import ModalResumenPago from './ModalResumenPago.vue';
 const mostrarModalMetodo = ref(false);
 const metodoSeleccionadoFinal = ref('');
 const props = defineProps({
@@ -261,24 +268,23 @@ const claseVencimiento = computed(() => {
 const procesandoPago = ref(false);
 let intervaloPolling = null;
 
-// --- MANEJO DE ACCIONES ---
-const manejarAccionPrincipal = async () => {
-  // === MODO ALUMNO ===
-  if (props.modo === 'cuota') {
-    if (props.cuota.pagada) {
-      try {
-        procesandoPago.value = true;
-        await verComprobante(props.cuota.idCuota);
-      } catch (e) {
-        console.error('Error al ver comprobante:', e);
-      } finally {
-        procesandoPago.value = false;
-      }
-      return;
-    }
-    
-    // Iniciar pago con MercadoPago
-    console.log('Iniciando pago QR para cuota:', props.cuota.idCuota);
+//Modal de resumen de cuota
+
+// 2. Crear el ref para controlar la visibilidad
+const mostrarResumenPago = ref(false);
+
+// 3. Crear una función para abrir el resumen
+const abrirResumenDePago = () => {
+  mostrarResumenPago.value = true;
+};
+//Modal de resumen de cuota
+
+const procederAlPagoMercadoPago = async (montoFinal) => {
+  console.log("Monto final a procesar en MP:", montoFinal);
+  mostrarResumenPago.value = false;
+  
+  // Aquí llamaremos luego a la lógica de Mercado Pago
+      console.log('Iniciando pago QR para cuota:', props.cuota.idCuota);
     try {
       procesandoPago.value = true;
       const data = await pagosService.iniciarPago(props.cuota.idCuota);
@@ -297,6 +303,29 @@ const manejarAccionPrincipal = async () => {
     } finally {
       procesandoPago.value = false;
     }
+};
+
+
+
+
+
+// --- MANEJO DE ACCIONES ---
+const manejarAccionPrincipal = async () => {
+  // === MODO ALUMNO ===
+  if (props.modo === 'cuota') {
+    if (props.cuota.pagada) {
+      try {
+        procesandoPago.value = true;
+        await verComprobante(props.cuota.idCuota);
+      } catch (e) {
+        console.error('Error al ver comprobante:', e);
+      } finally {
+        procesandoPago.value = false;
+      }
+      return;
+    }
+    abrirResumenDePago();
+    // Iniciar pago con MercadoPago
 
   } else { 
     // === MODO ADMIN ===
