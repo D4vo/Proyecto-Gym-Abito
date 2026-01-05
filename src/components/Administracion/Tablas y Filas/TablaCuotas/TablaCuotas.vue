@@ -33,7 +33,6 @@
               @modificar="onModificarCuota"
               @eliminar="onEliminarCuota"
               @PagoExitoso="ProcesarPagoExistoso"
-              @PagoParcial="PagoParcial"
             />
           </tbody>
         </table>
@@ -48,7 +47,6 @@
             @modificar="onModificarCuota"
             @eliminar="onEliminarCuota"
             @PagoExitoso="ProcesarPagoExistoso"
-            @PagoParcial="PagoParcial"
           />
         </div>
       </template>
@@ -94,7 +92,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import FilaCuota from './FilaCuota.vue';
-const emit = defineEmits(['solicitud-modificar-cuota', 'solicitud-eliminar-cuota','PagoExitoso','solicitud-pago-parcial']);
+const emit = defineEmits(['solicitud-modificar-cuota', 'solicitud-eliminar-cuota','PagoExitoso']);
 
 const onModificarCuota = (cuota) => {
   console.log('Modificar cuota TablaCuota:', cuota);
@@ -105,10 +103,6 @@ const onEliminarCuota = (cuota) => {
   emit('solicitud-eliminar-cuota', cuota);
 }
 
-const PagoParcial = (cuota) => {
-  console.log('Emitiendo pago parcial TablaCuota:', cuota);
-  emit('solicitud-pago-parcial', cuota);
-};
 //evento para procesar el pago existoso
 const ProcesarPagoExistoso = (cuota) => {
   console.log('Pago exitoso recibido en TablaCuotas:', cuota);
