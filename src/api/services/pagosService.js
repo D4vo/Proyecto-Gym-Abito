@@ -5,12 +5,19 @@ export default {
   /**
    * Llama al backend para crear la preferencia de pago de una cuota
    * @param {Number} idCuota - El ID de la cuota a pagar
+   * @param {Number} montoFinal - El monto final calculado en el front (con recargos si aplica)
    * @returns {Promise<Object>} - Retorna el objeto con init_point y sandbox_init_point
    */
-  async iniciarPago(idCuota) {
+  async iniciarPago(idCuota, montoFinal) {
     try {
-        // Llamamos a la ruta que creamos en el backend
-        const response = await apiClient.post(`/pagos/crear-preferencia/${idCuota}`);
+        // Preparamos el cuerpo de la petición. 
+        // La clave debe ser "monto_final" porque así lo espera el backend (snake_case).
+        const payload = {
+            monto_final: montoFinal
+        };
+
+        // Enviamos el payload en el segundo argumento del post
+        const response = await apiClient.post(`/pagos/crear-preferencia/${idCuota}`, payload);
         return response.data;
     } catch (error) {
         console.error('Error al iniciar pago:', error);

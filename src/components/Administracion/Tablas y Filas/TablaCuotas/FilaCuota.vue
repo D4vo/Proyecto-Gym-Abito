@@ -287,7 +287,7 @@ const procederAlPagoMercadoPago = async (montoFinal) => {
       console.log('Iniciando pago QR para cuota:', props.cuota.idCuota);
     try {
       procesandoPago.value = true;
-      const data = await pagosService.iniciarPago(props.cuota.idCuota);
+      const data = await pagosService.iniciarPago(props.cuota.idCuota, montoFinal);
       const urlPago = data.init_point; 
       
       if (urlPago) {
