@@ -190,6 +190,11 @@ const iniciarTransicionABoton = () => {
   mostrarFormulario.value = false;
   trabajoEditando.value = null;
   nuevoTrabajo.value = { nombre: '', descripcion: '' };
+
+  // Respaldo de seguridad
+  setTimeout(() => {
+    transicionEnProgreso.value = false;
+  }, 350);
 };
 const editarTrabajo = (trabajo) => {
   nuevoTrabajo.value = { ...trabajo };

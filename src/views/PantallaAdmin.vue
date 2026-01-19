@@ -89,6 +89,14 @@
           <i class="fas fa-exclamation-triangle icon"></i>
           Reclamos
         </button>
+        <button
+          class="menu-btn"
+          :class="{ activo: vistaActiva === 'ReportesContables' }"
+          @click="cambiarVista('ReportesContables')"
+        >
+          <i class="fas fa-file-invoice-dollar icon"></i>
+          Reportes Contables
+        </button>
       </Sidebar>
 
       <NavbarMobile
@@ -177,6 +185,14 @@
           <i class="fas fa-exclamation-triangle icon"></i>
           Reclamos
         </button>
+        <button
+          class="menu-btn"
+          :class="{ activo: vistaActiva === 'ReportesContables' }"
+          @click="cambiarVista('ReportesContables')"
+        >
+          <i class="fas fa-file-invoice-dollar icon"></i>
+          Reportes Contables
+        </button>
       </NavbarMobile>
 
       <div class="contenido" :class="{ 'contenido-mobile': isMobile, 'sidebar-collapsed': isSidebarCollapsed && !isMobile }">
@@ -255,6 +271,7 @@ import Personas from '@/components/Administracion/Admin/Personas.vue'
 import IngresoPersona from '@/components/Administracion/Admin/IngresoPersona.vue'
 import ReclamosAdmin from '@/components/Administracion/Admin/ReclamosAdmin.vue';
 // *****************************************************************************************
+import ReportesContables from '@/components/Administracion/Admin/Contabilidad/ReportesContables.vue';
 
 const isSidebarCollapsed = ref(false);
 
@@ -363,7 +380,8 @@ const vistaComponente = computed(() => {
     case 'modificarGrupos': return ModificarGrupos;
     case 'avisos': return Avisos;
     case 'empleados': return Empleados;
-    case 'reclamos': return ReclamosAdmin
+    case 'reclamos': return ReclamosAdmin;
+    case 'ReportesContables': return ReportesContables
     default: return Dashboard;
   }
 })

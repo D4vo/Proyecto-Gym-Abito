@@ -212,6 +212,12 @@ const iniciarTransicionABoton = () => {
   mostrarFormulario.value = false;
   suscripcionEditando.value = null;
   datosFormulario.value = { descripcion: '', precio: '' };
+
+  // Agregamos este respaldo para asegurar que el botón aparezca
+  // independientemente de si la transición de Vue termina o no.
+  setTimeout(() => {
+    transicionEnProgreso.value = false;
+  }, 350); // 350ms es suficiente para que termine la animación CSS
 };
 const editarSuscripcion = (suscripcion) => {
   datosFormulario.value = {
