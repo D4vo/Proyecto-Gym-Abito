@@ -16,12 +16,12 @@
 
             <div class="detalles-lista">
               <div class="detalle-item">
-                <span>Monto Cuota</span>
+                <span>Monto cuota</span>
                 <span>${{ cuota.monto.toLocaleString('es-AR') }}</span>
               </div>
 
               <div class="detalle-item" :class="{ 'con-recargo': esVencida }">
-                <span>Recargo por mora (10%)</span>
+                <span>Recargo por vencimiento (10%)</span>
                 <span>${{ recargoMora.toLocaleString('es-AR') }}</span>
               </div>
 
@@ -38,8 +38,13 @@
               </div>
             </div>
             
+            <div class="alerta-comision">
+              <i class="fas fa-exclamation-circle"></i>
+              <p>
+                <strong>Importante:</strong> El costo por servicio de Mercado Pago se aplica solo en pagos online. Si abona en <strong>efectivo o transferencia</strong> (enviando el comprobante a los profesores), no se le cobrará este porcentaje y solo deberá pagar el <strong>monto neto de la cuota</strong>.
+              </p>
+            </div>
             <p class="nota-pago">
-              <i class="fas fa-info-circle"></i> 
               Al continuar, serás redirigido para generar el código QR de pago.
             </p>
           </div>
@@ -243,5 +248,42 @@ const totalFinal = computed(() => {
   .total {
     font-size: 1.15rem !important;
   }
+}
+.alerta-comision {
+  background-color: #f0f7ff;
+  border-left: 4px solid #009ee3;
+  padding: 1rem;
+  margin-top: 1.5rem;
+  border-radius: 8px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.alerta-comision i {
+  color: #009ee3;
+  font-size: 1.1rem;
+  margin-top: 2px;
+}
+
+.alerta-comision p {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: #334155;
+}
+
+.alerta-comision strong {
+  color: #0f172a;
+}
+
+/* Ajuste a la nota de pago inferior para que no compita visualmente */
+.nota-pago {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-top: 1rem;
+  text-align: center;
+  line-height: 1.4;
 }
 </style>
