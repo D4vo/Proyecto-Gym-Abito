@@ -18,10 +18,10 @@
             <div class="opciones-pago">
               <button 
                 class="btn-opcion" 
-                :class="{ 'seleccionado': metodoSeleccionado === 'Efectivo' }"
-                @click="metodoSeleccionado = 'Efectivo'"
+                :class="{ 'seleccionado': metodoSeleccionado === 'efectivo' }"
+                @click="metodoSeleccionado = 'efectivo'"
               >
-                <div class="check-icon" v-if="metodoSeleccionado === 'Efectivo'">
+                <div class="check-icon" v-if="metodoSeleccionado === 'efectivo'">
                   <i class="fas fa-check-circle"></i>
                 </div>
                 <i class="fas fa-money-bill-wave icon-main"></i>
@@ -30,10 +30,10 @@
               
               <button 
                 class="btn-opcion" 
-                :class="{ 'seleccionado': metodoSeleccionado === 'Transferencia' }"
-                @click="metodoSeleccionado = 'Transferencia'"
+                :class="{ 'seleccionado': metodoSeleccionado === 'transferencia' }"
+                @click="metodoSeleccionado = 'transferencia'"
               >
-                <div class="check-icon" v-if="metodoSeleccionado === 'Transferencia'">
+                <div class="check-icon" v-if="metodoSeleccionado === 'transferencia'">
                   <i class="fas fa-check-circle"></i>
                 </div>
                 <i class="fas fa-university icon-main"></i>
