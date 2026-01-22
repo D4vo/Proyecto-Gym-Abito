@@ -385,7 +385,7 @@ const confirmarPago = async () => {
     // Aquí es donde en el futuro enviaremos metodoSeleccionadoFinal.value a la API
     console.log("Método a enviar:", metodoSeleccionadoFinal.value);
     
-    await marcarPagadaAdmin(props.cuota.idCuota);
+    await marcarPagadaAdmin(props.cuota.idCuotam, metodoSeleccionadoFinal.value);
     
     alert(`Pago en ${metodoSeleccionadoFinal.value} registrado correctamente.`);
     emit('PagoExitoso', props.cuota); 

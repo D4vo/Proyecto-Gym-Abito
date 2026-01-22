@@ -64,10 +64,15 @@ export const verComprobante = async (idCuota) => {
     }
 };
 
-export const marcarPagadaAdmin = async (idCuota) => {
+export const marcarPagadaAdmin = async (idCuota, metodoPago) => {
     try {
         // PUT /pagos/marcar-pagada/{id}
-        await apiClient.put(`/pagos/marcar-pagada/${idCuota}`);
+        // Enviamos el body { "metodo_pago": "..." }
+        // Nota: la clave debe ser snake_case ("metodo_pago") para coincidir con Python si usas embed=True automático, 
+        // o camelCase si configuraste Pydantic diferente. Por defecto FastAPI con Body(embed=True) usa el nombre del argumento.
+        const payload = { metodo_pago: metodoPago };
+        
+        await apiClient.put(`/pagos/marcar-pagada/${idCuota}`, payload);
         return true;
     } catch (error) {
         console.error("Error al marcar pago manual:", error);
