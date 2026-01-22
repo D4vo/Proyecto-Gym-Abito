@@ -32,3 +32,41 @@ export const obtenerCuotasDeAlumno = async (dni) => {
         return [];
     }
 };
+
+
+/**
+ * Modifica una cuota existente (ADMIN).
+ * Recibe el objeto completo con los datos a actualizar.
+ * @param {Number} idCuota 
+ * @param {Object} datosCuota 
+ */
+export const modificarCuota = async (idCuota, datosCuota) => {
+    try {
+        // Petición PUT a /cuotas/{id}
+        const response = await apiClient.put(`/cuotas/${idCuota}`, datosCuota);
+        return response.data;
+    } catch (error) {
+        console.error(`Error al modificar la cuota ${idCuota}:`, error);
+        throw error; // Re-lanzamos para manejarlo en el componente
+    }
+};
+
+
+/**
+ * Elimina una cuota por su ID (ADMIN).
+ * @param {Number} idCuota 
+ */
+export const eliminarCuota = async (idCuota) => {
+    try {
+        const response = await apiClient.delete(`/cuotas/${idCuota}`);
+        return response.data;
+    } catch (error) {
+        console.error(`Error al eliminar la cuota ${idCuota}:`, error);
+        throw error;
+    }
+};
+
+
+
+
+

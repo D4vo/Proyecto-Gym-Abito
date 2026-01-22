@@ -273,7 +273,12 @@ import {
   actualizarPerfilAlumno
 } from '@/api/services/alumnoService'
 
-import { obtenerCuotasDeAlumno } from '@/api/services/cuotasService'
+import {
+  obtenerCuotasDeAlumno,
+  modificarCuota,
+  eliminarCuota
+} from '@/api/services/cuotasService'
+
 const loading = ref(false)
 const alumno = ref(null)
 const horariosAlumno = ref([])
@@ -595,7 +600,6 @@ const mensajeModalError = ref('');
  * Configura el modal y pide confirmación.
  */
 const manejarSolicitudEliminar = (cuota) => {
-  console.log('Solicitud para ELIMINAR cuota:', cuota);
   
   // Guardamos la cuota en la variable reactiva para usarla luego en la confirmación
   cuotaParaEliminar.value = cuota;
@@ -627,16 +631,10 @@ const confirmarEliminarCuota = async () => {
   // Obtenemos el ID de la variable que guardamos en el paso anterior
   const idCuota = cuotaParaEliminar.value.idCuota;
 
-  // ===========================================================
-  // ==      TODO: AQUÍ VA LA LLAMADA A LA API (ELIMINAR)     ==
-  // ===========================================================
   try {
-    // loading.value = true; 
-    console.log(`Iniciando eliminación de cuota ID: ${idCuota} en la API...`);
 
-    // --- SIMULACIÓN DE LLAMADA ---
-    // await api.eliminarCuota(idCuota);
-    // --- FIN SIMULACIÓN ---
+    // LLAMADA REAL A LA API
+    await eliminarCuota(idCuota);
 
     // Éxito: Configuramos y mostramos el modal de éxito
     mensajeModalExito.value = 'La cuota se eliminó correctamente.';
@@ -686,35 +684,32 @@ const cancelarModificacionCuota = () => {
  */
 const guardarModificacionCuota = async (cuotaModificada) => {
   
-  // ===========================================================
-  // ==      TODO: AQUÍ VA LA LLAMADA A LA API (ACTUALIZAR)   ==
-  // ===========================================================
-  
   try {
-    // Opcional: loading.value = true;
-    console.log("Enviando actualización de cuota a la API:", cuotaModificada);
+    loading.value = true;
 
-    // --- SIMULACIÓN DE LLAMADA ---
-    // await api.actualizarCuota(cuotaModificada.idCuota, cuotaModificada);
+    const payload = {
+      ...cuotaModificada,
+      monto: parseFloat(cuotaModificada.monto),
+      anio: parseInt(cuotaModificada.anio),
+      // Si se desmarcó 'pagada', forzamos null en el método de pago 
+      // (aunque el backend también lo hace, es bueno tenerlo limpio desde acá)
+      metodoDePago: cuotaModificada.pagada ? cuotaModificada.metodoDePago : null 
+    };
+
+    await modificarCuota(payload.idCuota, payload);
     
-    // --- FIN SIMULACIÓN ---
-
-    // 1. Cerrar el formulario de edición (volver a la tabla)
     cuotaParaModificar.value = null;
 
-    // 2. Mostrar Modal de Éxito
     mensajeModalExito.value = 'La cuota se modificó correctamente.';
     mostrarModalExito.value = true;
     
-    // NOTA: Al cerrar este modal, 'handleContinuarExito' recargará los datos.
 
   } catch (error) {
-    // 3. Mostrar Modal de Error (El formulario sigue abierto para reintentar)
     console.error('Error al guardar la cuota:', error);
     mensajeModalError.value = error.response?.data?.detail || 'Ocurrió un error al intentar guardar los cambios de la cuota.';
     mostrarModalError.value = true;
   } finally {
-    // loading.value = false;
+    loading.value = false;
   }
 };
 
