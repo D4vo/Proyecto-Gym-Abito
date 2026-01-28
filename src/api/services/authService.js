@@ -16,19 +16,17 @@ export const login = async (username, password) => {
         params.append('username', username);
         params.append('password', password);
 
-        // Usa apiClient. Es importante que el interceptor maneje el Content-Type correcto para esta ruta
-        const response = await apiClient.post('/auth/login', params); // El interceptor ajustará el Content-Type
+        const response = await apiClient.post('/auth/login', params);
+        
+        // AQUI ESTABA EL ERROR: No estabas leyendo el refresh_token
+        const { access_token, refresh_token } = response.data; 
 
-        const { access_token } = response.data;
-
-        // Pedimos los datos del usuario con el token obtenido
-        // Creamos una solicitud directa con el token porque el interceptor aún no lo tendrá
         const userResponse = await apiClient.get('/auth/me', {
             headers: { Authorization: `Bearer ${access_token}` },
         });
 
-        // Guardamos todo en el storage
-        saveUser(access_token, userResponse.data);
+        // Pasamos el refresh_token al storage
+        saveUser(access_token, refresh_token, userResponse.data);
 
         return userResponse.data;
     } catch (error) {
