@@ -6,7 +6,7 @@
       </td>
       <td class="col-nombre">
         <div class="nombre-container">
-          <div class="nombre-completo">{{ alumno.nombre }} {{ alumno.apellido }}</div>
+          <div class="nombre-completo">{{ alumno.apellido }} {{ alumno.nombre }}</div>
         </div>
       </td>
       <td class="col-cuotas">
@@ -37,7 +37,7 @@
       </td>
       <td class="col-nombre-personas">
         <div class="nombre-container">
-          <div class="nombre-completo">{{ alumno.nombre }} {{ alumno.apellido }}</div>
+          <div class="nombre-completo">{{ alumno.apellido }} {{ alumno.nombre }}</div>
         </div>
       </td>
       <td class="col-acciones-personas">
@@ -60,7 +60,7 @@
       <div class="card-header" @click="toggleExpandida">
         <div class="info-basica">
            <div class="dni-mobile">{{ alumno.dni }}</div>
-           <div class="nombre-mobile">{{ alumno.nombre }} {{ alumno.apellido }}</div>
+           <div class="nombre-mobile">{{ alumno.apellido }} {{ alumno.nombre }}</div>
         </div>
         <div class="estado-cuotas-mobile">
           <span class="cuotas-mobile" :class="{'ninguna': alumno.cuotasPendientes === 0}">
@@ -108,7 +108,7 @@
        <div class="card-header-personas" @click="toggleExpandida">
         <div class="info-basica">
            <div class="dni-mobile">{{ alumno.dni }}</div>
-           <div class="nombre-mobile">{{ alumno.nombre }} {{ alumno.apellido }}</div>
+           <div class="nombre-mobile">{{ alumno.apellido }} {{ alumno.nombre }}</div>
         </div>
         <div class="expand-icon">
           <i :class="expandida ? 'fas fa-chevron-up' : 'fas fa-chevron-down'"></i>
