@@ -104,7 +104,7 @@
                 >
                   <div class="horario-info">
                     <span class="horario-texto">{{ horarioObj.horario.replace('-', ' a ') }}</span>
-                    <span class="cupos-mobile" v-if="!props.modoEmpleado">
+                    <span class="cupos-mobile" v-if="modoEdicion && !props.modoEmpleado">
                       {{ obtenerCuposDia(dia, horarioObj) }} cupos
                     </span>
                   </div>
@@ -840,6 +840,185 @@ onUnmounted(() => {
   /* MODIFICADO: repeat(7, 1fr) para 7 días */
   .fila-horario {
     grid-template-columns: 140px repeat(7, 1fr);
+  }
+}
+/* ============================================================
+   NUEVA VISTA MOBILE MEJORADA (Corregida sin tocar estética)
+   ============================================================ */
+@media (max-width: 768px) {
+  /* SOLUCIÓN AL FOCO: Aplicado a los elementos interactivos */
+  .dia-header-mobile, 
+  .dia-mobile-card,
+  .horario-mobile-item {
+    -webkit-tap-highlight-color: transparent !important;
+    outline: none !important;
+    user-select: none;
+  }
+
+  /* Evita que el navegador emule un hover persistente en móviles */
+  @media (hover: none) {
+    .dia-header-mobile:hover,
+    .dia-mobile-card:hover {
+      background-color: white !important;
+    }
+  }
+
+  .tabla-horarios {
+    padding: 1rem;
+    background: #f8fafc; 
+    border: none;
+  }
+
+  .titulo {
+    font-size: 1.2rem;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+
+  .controles {
+    width: 100%;
+    justify-content: center;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .btn-accion {
+    width: 100%;
+    justify-content: center;
+    padding: 0.8rem;
+    font-size: 1rem;
+  }
+
+  .mobile-contenedor {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .dia-mobile-card {
+    border: none;
+    border-radius: 16px;
+    background: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-left: 5px solid #e0e0e0;
+  }
+
+  .dia-mobile-card.expandido {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    border-left-color: #e91e63;
+  }
+
+  .dia-header-mobile {
+    padding: 1.2rem;
+    background: white;
+    min-height: 70px;
+    display: flex; /* Asegura alineación */
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 16px;
+  }
+
+  .dia-nombre {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1e293b;
+  }
+
+  .dia-cupos {
+    background: #f1f5f9;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+    color: #64748b;
+  }
+
+  .horarios-mobile-list {
+    padding: 0 1rem 1.2rem 1rem;
+    gap: 10px;
+  }
+
+  .horario-mobile-item {
+    border: 1px solid #f1f5f9;
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 1rem;
+    min-height: auto;
+    transition: all 0.2s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .horario-mobile-item.seleccionado {
+    background: #eff6ff;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 1px #3b82f6;
+  }
+
+  .horario-texto {
+    font-size: 1rem;
+    color: #1e293b;
+  }
+
+  .cupos-mobile {
+    font-weight: 500;
+    color: #64748b;
+    margin-top: 2px;
+  }
+
+  .estado-mobile i {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 0.9rem;
+    background: #f1f5f9;
+  }
+
+  .estado-mobile i.seleccionado {
+    background: #3b82f6;
+    color: white !important;
+  }
+
+  .estado-mobile i.disponible {
+    background: #dcfce7;
+    color: #16a34a !important;
+  }
+
+  .horario-mobile-item.no-disponible {
+    background: #fdf2f2;
+    border-color: #fee2e2;
+    opacity: 0.8;
+  }
+
+  .estado-mobile i.no-disponible {
+    background: #fee2e2;
+    color: #ef4444 !important;
+  }
+
+  .horario-mobile-item.no-trabaja {
+    background: #f1f5f9;
+    border: 1px dashed #cbd5e1;
+    opacity: 0.5;
+  }
+
+  .fila-horario {
+    grid-template-columns: 100px repeat(7, 1fr);
+    gap: 4px;
+  }
+
+  .celda-horario {
+    height: 65px;
+    font-size: 0.75rem;
+  }
+
+  .celda-dia {
+    height: 65px;
   }
 }
 </style>

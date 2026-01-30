@@ -1,14 +1,11 @@
 <template>
   <nav ref="navbar" class="navbar" id="navbar">
     <div class="nav-container">
-      <!-- IZQUIERDA: Logo y navegación -->
       <div class="nav-left">
         <a class="nav-brand" href="#">
           <span class="brand-text">GIMNASIO</span>
           <span class="brand-accent">Abito</span>
         </a>
-        
-        <!-- Links de navegación desktop -->
         <div class="nav-links">
           <a href="#metodologias" class="nav-link">Metodologías</a>
           <a href="#historia" class="nav-link">Historia</a>
@@ -17,31 +14,36 @@
         </div>
       </div>
 
-      <!-- DERECHA: Botones de acción -->
       <div class="nav-right">
         <button @click="irLogin('login')" class="btn btn-login">Iniciar Sesión</button>
         <button @click="irLogin('registro')" class="btn btn-primary">Registrarse</button>
       </div>
 
-      <!-- Botón hamburguesa -->
-      <button class="nav-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#mobileMenu">
+      <button 
+        class="nav-toggle" 
+        type="button" 
+        @click="menuAbierto = !menuAbierto"
+      >
         <span class="toggle-bar"></span>
         <span class="toggle-bar"></span>
         <span class="toggle-bar"></span>
       </button>
     </div>
 
-    <!-- Menú móvil colapsable -->
-    <div class="collapse navbar-collapse mobile-menu" id="mobileMenu">
-      <div class="mobile-nav-content">
-        <a href="#metodologias" class="mobile-nav-link">Metodologías</a>
-        <a href="#precios" class="mobile-nav-link">Precios</a>
-        <div class="mobile-actions">
-          <button @click="irLogin('login')" class="btn btn-login mobile-btn">Iniciar Sesión</button>
-          <button @click="irLogin('registro')" class="btn btn-primary mobile-btn">Registrarse</button>
+    <Transition name="slide">
+      <div v-if="menuAbierto" class="collapse navbar-collapse mobile-menu show" id="mobileMenu">
+        <div class="mobile-nav-content">
+          <a href="#metodologias" class="mobile-nav-link" @click="menuAbierto = false">Metodologías</a>
+          <a href="#precios" class="mobile-nav-link" @click="menuAbierto = false">Precios</a>
+          <a href="#precios" class="mobile-nav-link" @click="menuAbierto = false">Precios</a>
+          <a href="#ubicacion" class="mobile-nav-link" @click="menuAbierto = false">Ubicacion</a>
+          <div class="mobile-actions">
+            <button @click="irLogin('login')" class="btn btn-login mobile-btn">Iniciar Sesión</button>
+            <button @click="irLogin('registro')" class="btn btn-primary mobile-btn">Registrarse</button>
+          </div>
         </div>
       </div>
-    </div>
+    </Transition>
   </nav>
 </template>
 
@@ -51,46 +53,60 @@ import { useRouter } from 'vue-router'
 
 const navbar = ref(null)
 const router = useRouter()
+const menuAbierto = ref(false) // VARIABLE PARA EL TOGGLE
 
-// Efecto de scroll corregido
 onMounted(() => {
   let lastScrollY = window.scrollY
   const navbarElement = navbar.value
   
   window.addEventListener('scroll', () => {
     const scrollY = window.scrollY
-    
     if (navbarElement) {
       if (scrollY <= 100) {
-        // Solo en la parte superior - navbar visible
-        navbarElement.style.transform = 'translateY(0)'
-        navbarElement.style.opacity = '1'
-        navbarElement.style.visibility = 'visible'
+        navbarElement.style.transform = 'translateY(0)'; navbarElement.style.opacity = '1'; navbarElement.style.visibility = 'visible'
       } else if (scrollY > lastScrollY) {
-        // Scrolling hacia abajo - ocultar
-        navbarElement.style.transform = 'translateY(-100%)'
-        navbarElement.style.opacity = '0'
-        navbarElement.style.visibility = 'hidden'
-      } else {
-        // Scrolling hacia arriba pero NO en la parte superior - mantener oculto
-        if (scrollY > 100) {
-          navbarElement.style.transform = 'translateY(-100%)'
-          navbarElement.style.opacity = '0'
-          navbarElement.style.visibility = 'hidden'
-        }
+        navbarElement.style.transform = 'translateY(-100%)'; navbarElement.style.opacity = '0'; navbarElement.style.visibility = 'hidden';
+        menuAbierto.value = false // Cerramos si scrollea
+      } else if (scrollY > 100) {
+        navbarElement.style.transform = 'translateY(-100%)'; navbarElement.style.opacity = '0'; navbarElement.style.visibility = 'hidden'
       }
     }
-    
     lastScrollY = scrollY
   })
 })
 
 function irLogin(modo) {
+  menuAbierto.value = false
   router.push({ path: '/login', query: { modo } })
 }
 </script>
 
 <style scoped>
+/* TODO TU CSS ORIGINAL SE MANTIENE EXACTAMENTE IGUAL */
+
+/* SOLO AGREGAMOS ESTE BLOQUE AL FINAL PARA ACTIVAR LA ANIMACIÓN DE VUE */
+.slide-enter-active,
+.slide-leave-active {
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Mismo tiempo que tu navbar */
+}
+
+.slide-enter-from,
+.slide-leave-to {
+  transform: translateY(-20px);
+  opacity: 0;
+}
+
+/* TUS ANIMACIONES DE LAS BARRITAS (Asegúrate de que el selector coincida) */
+.navbar:has(.mobile-menu.show) .nav-toggle .toggle-bar:nth-child(1) {
+  transform: rotate(45deg) translate(6px, 6px);
+}
+.navbar:has(.mobile-menu.show) .nav-toggle .toggle-bar:nth-child(2) {
+  opacity: 0;
+}
+.navbar:has(.mobile-menu.show) .nav-toggle .toggle-bar:nth-child(3) {
+  transform: rotate(-45deg) translate(6px, -6px);
+}
+/* ... resto de tu CSS original ... */
 /* NAVBAR PRINCIPAL */
 .navbar {
   position: fixed;
@@ -272,18 +288,32 @@ function irLogin(modo) {
 
 /* MENÚ MÓVIL */
 .mobile-menu {
-  background: rgba(15, 15, 15, 0.98);
-  backdrop-filter: blur(20px);
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  /* Fondo con desenfoque profundo en lugar de negro sólido */
+  background: rgba(20, 20, 20, 0.7); 
+  backdrop-filter: blur(25px) saturate(150%);
+  -webkit-backdrop-filter: blur(25px) saturate(150%);
+  
+  /* Bordes suavizados en la parte inferior para que parezca una tarjeta flotante */
+  border-bottom-left-radius: 24px;
+  border-bottom-right-radius: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  
+  /* Sombra para dar profundidad */
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+  
+  /* Transición suave de despliegue */
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
 }
 
 .mobile-nav-content {
-  padding: 1.5rem 2rem;
+  padding: 2rem 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.5rem;
 }
-
+/*
 .mobile-nav-link {
   color: rgba(255, 255, 255, 0.9);
   text-decoration: none;
@@ -292,6 +322,21 @@ function irLogin(modo) {
   padding: 0.75rem 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   transition: all 0.3s ease;
+}
+*/
+.mobile-nav-link {
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1.1rem;
+  padding: 1rem 1.2rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  margin-bottom: 0.5rem;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .mobile-nav-link:hover {
@@ -302,12 +347,19 @@ function irLogin(modo) {
 .mobile-actions {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  margin-top: 1rem;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .mobile-btn {
   width: 100%;
+  padding: 0.9rem !important; /* Más grande para que sea fácil de tocar en móvil */
+  font-size: 1rem !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 /* RESPONSIVE */
@@ -322,7 +374,23 @@ function irLogin(modo) {
   }
   
   .nav-toggle {
-    display: flex;
+    display: flex; /* Asegúrate de mantener el display flex */
+    flex-direction: column;
+    background: rgba(255, 255, 255, 0.08);
+    padding: 0.8rem;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    gap: 0.25rem;
+    cursor: pointer;
+  }
+
+  /* Busca y reemplaza el .toggle-bar que ya tenías */
+  .toggle-bar {
+    width: 22px;
+    height: 2px;
+    background: #ffffff;
+    transition: all 0.3s ease;
+    border-radius: 1px;
   }
   
   .nav-brand {

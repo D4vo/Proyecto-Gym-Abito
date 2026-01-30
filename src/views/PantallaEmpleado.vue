@@ -65,6 +65,14 @@
           <i class="fas fa-envelope-square icon"></i>
           Avisos
         </button>
+        <button
+          class="menu-btn"
+          :class="{ activo: vistaActiva === 'ReportesContables' }"
+          @click="cambiarVista('ReportesContables')"
+        >
+          <i class="fas fa-file-invoice-dollar icon"></i>
+          Reportes Contables
+        </button>
       </Sidebar>
 
       <NavbarMobile
@@ -128,6 +136,14 @@
         >
           <i class="fas fa-envelope-square icon"></i>
           Avisos
+        </button>
+        <button
+          class="menu-btn"
+          :class="{ activo: vistaActiva === 'ReportesContables' }"
+          @click="cambiarVista('ReportesContables')"
+        >
+          <i class="fas fa-file-invoice-dollar icon"></i>
+          Reportes Contables
         </button>
       </NavbarMobile>
 
@@ -193,6 +209,7 @@ import Trabajos_Metodologias from '@/components/Administracion/Admin/Suscripcion
 import NuevoAlumno from '@/components/Administracion/Admin/NuevoAlumno.vue';
 import ModificarGrupos from '@/components/Administracion/Admin/Grupos/ModificarGrupos.vue';
 import Avisos from '@/components/Administracion/Admin/Avisos/AdminAvisos.vue';
+import ReportesContables from '@/components/Administracion/Admin/Contabilidad/ReportesContables.vue';
 // *** ===================== NUEVO: Importar Personas e IngresoPersona ===================== ***
 // *** USA TUS RUTAS CORRECTAS ***
 import Personas from '@/components/Administracion/Admin/Personas.vue'
@@ -297,6 +314,7 @@ const vistaComponente = computed(() => {
     case 'nuevoalumno': return NuevoAlumno;
     case 'modificarGrupos': return ModificarGrupos;
     case 'avisos': return Avisos;
+    case 'ReportesContables': return ReportesContables
     default: return Alumnos;
   }
 })
