@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const GEOREF_API_URL = 'https://apis.datos.gob.ar/georef/api';
+const GEOREF_API_URL = process.env.VUE_APP_GEOREF_API_URL
 
 /**
  * Obtiene todas las provincias de Argentina.

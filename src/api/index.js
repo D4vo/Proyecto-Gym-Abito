@@ -2,7 +2,7 @@ import axios from 'axios';
 import { getToken, getRefreshToken, saveUser, removeUser, getUser } from './storage/userStorage';
 import router from '@/router'; // Importar el router para redirigir si falla todo
 
-export const API_BASE_URL = 'http://localhost:8000';
+export const API_BASE_URL = process.env.VUE_APP_API_BASE_URL
 
 const apiClient = axios.create({
     baseURL: API_BASE_URL,

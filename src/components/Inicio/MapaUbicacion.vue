@@ -9,7 +9,7 @@
 import { onMounted } from 'vue';
 
 // TU CLAVE REAL (La que comprobamos que funciona en el HTML)
-const apiKey = "AIzaSyCepmnnMYIlg5qWBPofm-W0wZ7YQn2jYj4";
+const apiKey = process.env.VUE_APP_GOOGLEAPIKEY;
 
 const initMap = () => {
   // Verificamos si Google Maps ya está cargado para no romper nada
