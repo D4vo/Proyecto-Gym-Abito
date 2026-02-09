@@ -110,57 +110,87 @@ onUnmounted(() => {
   overflow-x: auto;
 }
 
-/* ESTILOS PARA PC */
+/* ESTILOS PARA PC - MEJORADOS */
 .tabla-reclamos {
   width: 100%;
   border-collapse: collapse;
   font-family: 'Poppins', sans-serif;
+  table-layout: fixed; /* Ayuda a una distribución más prolija */
+}
+
+thead {
+  background-color: #f8f9fa; /* Gris más sutil y minimalista */
+  border-bottom: 2px solid #edf2f7;
 }
 
 th {
   text-align: left;
   vertical-align: middle;
-  font-weight: bold;
-  padding: 0.75rem;
-  color: #333;
-  font-size: 1rem;
+  font-weight: 600;
+  padding: 1rem;
+  color: #4a5568; /* Color de texto más suave */
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-thead {
-  background-color: #f2f2f2;
-}
+/* Ajuste de anchos para mejor visualización en PC */
+th:nth-child(1) { width: 15%; }
+th:nth-child(2) { width: 25%; }
+th:nth-child(3) { width: 60%; }
 
 .fila-reclamo {
-  height: 64px;
-  border-bottom: 1px solid #ccc;
+  transition: background-color 0.2s ease;
+}
+
+.fila-reclamo:hover {
+  background-color: #fcfcfc;
+}
+
+.fila-reclamo:not(:last-child) {
+  border-bottom: 1px solid #edf2f7;
 }
 
 td {
-  vertical-align: middle;
-  color: #222;
-  padding: 0.75rem;
+  vertical-align: middle; /* Alineación vertical corregida */
+  color: #2d3748;
+  padding: 1.2rem 1rem;
+  font-size: 0.95rem;
 }
 
 .numero {
-  font-weight: 600;
-  color: #e91e63;
+  font-weight: 700;
+  color: #334155;
+  display: flex;
+  align-items: center; /* Asegura alineación interna */
 }
 
 .fecha-hora {
   font-weight: 500;
-  min-width: 170px;
+  line-height: 1.2;
 }
 
 .hora {
-  color: #666;
-  font-size: 0.9rem;
+  color: #718096;
+  font-size: 0.85rem;
+  display: block;
+  margin-top: 2px;
 }
 
 .descripcion {
-  line-height: 1.4;
+  line-height: 1.5;
+  color: #4a5568;
+  word-wrap: break-word;
 }
 
-/* ESTILOS PARA MÓVIL */
+.no-reclamos {
+  text-align: center;
+  padding: 3rem;
+  color: #a0aec0;
+  font-style: italic;
+}
+
+/* ESTILOS PARA MÓVIL - SIN CAMBIOS ESTÉTICOS SEGÚN SOLICITUD */
 .mobile-view {
   display: flex;
   flex-direction: column;
@@ -190,13 +220,13 @@ td {
   gap: 0.3rem;
 }
 
-.numero {
+.mobile-view .numero {
   font-weight: 600;
-  color: #e91e63;
+  color: #334155;
   font-size: 1.1rem;
 }
 
-.fecha-hora {
+.mobile-view .fecha-hora {
   display: flex;
   gap: 0.8rem;
   font-size: 0.9rem;
@@ -226,25 +256,13 @@ td {
 }
 
 @keyframes slideDown {
-  from {
-    max-height: 0;
-    opacity: 0;
-  }
-  to {
-    max-height: 200px;
-    opacity: 1;
-  }
+  from { max-height: 0; opacity: 0; }
+  to { max-height: 200px; opacity: 1; }
 }
 
 @keyframes slideUp {
-  from {
-    max-height: 200px;
-    opacity: 1;
-  }
-  to {
-    max-height: 0;
-    opacity: 0;
-  }
+  from { max-height: 200px; opacity: 1; }
+  to { max-height: 0; opacity: 0; }
 }
 
 .card-details {
@@ -271,28 +289,22 @@ td {
   .lista-reclamos-container {
     padding: 0.8rem;
   }
-  
   .card-header {
     padding: 0.8rem;
   }
-  
-  .numero {
+  .mobile-view .numero {
     font-size: 1rem;
   }
-  
-  .fecha-hora {
+  .mobile-view .fecha-hora {
     font-size: 0.85rem;
     gap: 0.5rem;
   }
-  
   .card-details {
     padding: 0.8rem;
   }
-  
   .detalle-descripcion h4 {
     font-size: 0.85rem;
   }
-  
   .detalle-descripcion p {
     font-size: 0.85rem;
   }

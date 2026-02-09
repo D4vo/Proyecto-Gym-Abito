@@ -36,10 +36,8 @@ const cargarDatos = async () => {
 
     // 2. Decidimos qué servicio llamar
     if (user && user.esAlumno) {
-      console.log("Cargando perfil de ALUMNO...");
       response = await obtenerDataCurrentUser();
     } else {
-      console.log("Cargando perfil de PERSONA...");
       // Este servicio llama a /personas/mi-perfil
       response = await getMiPerfilPersona();
     }

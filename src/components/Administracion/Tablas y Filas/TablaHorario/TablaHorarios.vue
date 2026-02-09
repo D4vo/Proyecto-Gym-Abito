@@ -188,7 +188,7 @@ const convertirFormatoApiAInterno = (data) => {
   } 
   else if (Array.isArray(data)) {
     if (data.length > 0 && data[0].hasOwnProperty('horario')) {
-        console.log("TablaHorarios: Detectado formato interno, usando directamente.");
+        
         return [...data]; 
     }
     horariosAPI = data; 
@@ -226,7 +226,7 @@ const revertirFormatoInternoAApi = (horariosInternos) => {
 watch(() => props.horariosAlumno, (nuevosHorariosProp) => {
   if (datosListos.value) { 
     if (!modoEdicion.value) { 
-      console.log("TablaHorarios Watch: props cambiaron (modo no-edición), traduciendo.");
+      
       horariosSeleccionados.value = convertirFormatoApiAInterno(nuevosHorariosProp);
     } else if (props.modoEmbebido) { 
       let arrayEntrante = [];
@@ -236,7 +236,7 @@ watch(() => props.horariosAlumno, (nuevosHorariosProp) => {
         arrayEntrante = nuevosHorariosProp;
       }
       if (arrayEntrante.length === 0) {
-        console.log("TablaHorarios Watch: Props reseteados, limpiando selección interna (modo embebido).");
+        
         horariosSeleccionados.value = [];
       }
     }
@@ -250,7 +250,7 @@ const cargarDatos = async () => {
     const response = await obtenerHorariosCompletos();
     datosGrupos.value = response;
     datosListos.value = true; 
-    console.log("TablaHorarios: datosGrupos cargados (diccionario listo).");
+    
   } catch (error) {
     console.error('Error cargando grupos.json:', error);
   }
@@ -323,20 +323,16 @@ const obtenerAsignadosDia = (dia) => { return horariosSeleccionados.value.filter
 const toggleModoEdicion = () => {
   if (modoEdicion.value) {
     if (esSeleccionValida.value) {
-      console.log("TablaHorarios: Guardando. Estado interno:", horariosSeleccionados.value);
       const horariosTraducidos = revertirFormatoInternoAApi(horariosSeleccionados.value);
       const datosParaEmitir = { horarios: horariosTraducidos }; 
-      console.log("TablaHorarios: Emitiendo objeto formato API:", datosParaEmitir);
       emit('horarios-actualizados', datosParaEmitir); 
       modoEdicion.value = false; 
-      console.log("TablaHorarios: Cambios guardados, volviendo a modo visualización.");
     } else {
         alert(`Debes seleccionar exactamente ${limiteDias.value} días diferentes.`);
     }
   } else {
     horariosSeleccionados.value = convertirFormatoApiAInterno(props.horariosAlumno);
     modoEdicion.value = true;
-    console.log("TablaHorarios: Entrando en modo edición, horarios copiados y convertidos:", horariosSeleccionados.value);
   }
 };
 
@@ -410,9 +406,7 @@ onMounted(async () => {
   checkIsMobile();
   window.addEventListener('resize', checkIsMobile);
   await cargarDatos(); 
-  console.log("TablaHorarios onMounted: Datos cargados. Convirtiendo props iniciales...");
   horariosSeleccionados.value = convertirFormatoApiAInterno(props.horariosAlumno);
-  console.log("TablaHorarios: Montado. Horarios internos iniciales:", horariosSeleccionados.value, "Modo Edición inicial:", modoEdicion.value);
 });
 onUnmounted(() => {
   window.removeEventListener('resize', checkIsMobile);

@@ -95,17 +95,14 @@ import FilaCuota from './FilaCuota.vue';
 const emit = defineEmits(['solicitud-modificar-cuota', 'solicitud-eliminar-cuota','PagoExitoso']);
 
 const onModificarCuota = (cuota) => {
-  console.log('Modificar cuota TablaCuota:', cuota);
   emit('solicitud-modificar-cuota', cuota);
 }
 const onEliminarCuota = (cuota) => {
-  console.log('Eliminar cuota TablaCuota:', cuota);
   emit('solicitud-eliminar-cuota', cuota);
 }
 
 //evento para procesar el pago existoso
 const ProcesarPagoExistoso = (cuota) => {
-  console.log('Pago exitoso recibido en TablaCuotas:', cuota);
   emit('PagoExitoso', cuota);
 }
 const props = defineProps({

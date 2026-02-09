@@ -31,7 +31,6 @@ const cargarHorarios = async () => {
     const res = await obtenerHorarioCurrentUser();
     horario.value = res;
   } catch (error) {
-    console.error('Error cargando horarios:', error);
     errorCarga.value = 'No se pudieron cargar las horarios.';
   } finally {
     cargando.value = false;

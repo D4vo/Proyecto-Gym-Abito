@@ -2,8 +2,11 @@
   <div class="contenedor-reclamos">
     <div class="encabezado">
       <Titulo texto="RECLAMOS" />
-      <p class="subtitulo">Dinos que te disgusta para poder mejorar</p>
-      <p class="subtitulo">Los reclamos son anónimos</p>
+      <p class="subtitulo">
+        Ayúdanos a mejorar<br>
+        <span class="aclaracion-anonimo">Los reclamos son anónimos</span>
+      </p>
+      
     </div>
     <div class="controles-superiores">
       <button 
@@ -444,6 +447,14 @@ gap: 0.3rem;
   font-size: 1.1rem;
   font-weight: 300;
   letter-spacing: 0.5px;
+  line-height: 1.4; /* Añadido para que las líneas no se peguen */
+}
+
+.aclaracion-anonimo {
+  font-size: 0.85rem; /* Un poco más pequeña */
+  opacity: 0.8;       /* Un poco más sutil */
+  display: block;    /* Asegura que el salto de línea se respete */
+  margin-top: 5px;   /* Separación respecto a la línea de arriba */
 }
 .encabezado {
   text-align: center;

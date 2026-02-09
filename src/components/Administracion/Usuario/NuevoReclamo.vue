@@ -60,86 +60,131 @@ const cancelar = () => {
 
 <style scoped>
 .nuevo-reclamo-container {
-  background-color: rgba(255, 255, 255, 0.9);
-  border-radius: 20px;
+  background-color: #ffffff;
+  border-radius: 16px;
   padding: 1.5rem;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f0f0f0;
+  margin-bottom: 1rem;
 }
 
 .subtitulo {
-  font-size: 1.5rem;
-  color: #e91e63;
-  margin-bottom: 1rem;
+  font-size: 1.3rem;
+  /* Cambiado a un azul pizarra profesional para evitar la sensación de "peligro" */
+  color: #334155; 
+  margin-bottom: 1.2rem;
+  font-weight: 700;
   font-family: 'Poppins', sans-serif;
+  letter-spacing: -0.5px;
+  text-align: left; /* Asegurado a la izquierda */
 }
 
 .form-group {
-  margin-bottom: 1rem;
+  margin-bottom: 1.2rem;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: #555;
+  margin-bottom: 0.6rem;
+  font-weight: 600;
+  color: #475569;
   font-family: 'Poppins', sans-serif;
+  font-size: 0.95rem;
 }
 
 .campo-texto {
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  padding: 0.8rem;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
   font-family: 'Poppins', sans-serif;
-  resize: vertical;
+  font-size: 0.9rem;
+  color: #1e293b;
+  background-color: #f8fafc;
+  transition: all 0.3s ease;
+  resize: none;
+  box-sizing: border-box;
+}
+
+.campo-texto:focus {
+  outline: none;
+  border-color: #10b981; /* Verde al hacer foco para una sensación positiva */
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
 }
 
 .acciones {
   display: flex;
-  gap: 1rem;
-  margin-top: 1rem;
+  gap: 0.8rem;
+  margin-top: 0.5rem;
 }
 
 .btn-guardar {
-  background-color: #42b983;
+  flex: 1;
+  background-color: #10b981;
   color: white;
   border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
+  padding: 0.85rem;
+  border-radius: 10px;
   cursor: pointer;
   font-family: 'Poppins', sans-serif;
-  font-weight: 500;
-  transition: background-color 0.3s;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
+  gap: 0.6rem;
 }
 
 .btn-guardar:hover {
-  background-color: #3aa876;
+  background-color: #059669;
+  transform: translateY(-1px);
 }
 
 .btn-cancelar {
-  background-color: #f44336;
+  flex: 1;
+  background-color: #64748b; /* Gris azulado neutro para cancelar */
   color: white;
   border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
+  padding: 0.85rem;
+  border-radius: 10px;
   cursor: pointer;
   font-family: 'Poppins', sans-serif;
-  font-weight: 500;
-  transition: background-color 0.3s;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
+  gap: 0.6rem;
 }
 
 .btn-cancelar:hover {
-  background-color: #e53935;
+  background-color: #475569;
+  transform: translateY(-1px);
 }
 
-.compacto {
-  margin-top: 0;
-  padding-top: 0;
+/* RESPONSIVE MÓVIL CORREGIDO */
+@media (max-width: 480px) {
+  .nuevo-reclamo-container {
+    padding: 1.2rem;
+    border-radius: 12px;
+  }
+
+  .subtitulo {
+    font-size: 1.2rem;
+    text-align: left; /* CORRECCIÓN: Ahora se queda a la izquierda en móvil */
+  }
+
+  .acciones {
+    flex-direction: row; 
+    gap: 0.5rem;
+  }
+
+  .btn-guardar, .btn-cancelar {
+    padding: 0.75rem;
+    font-size: 0.85rem;
+  }
 }
 </style>

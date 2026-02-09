@@ -115,7 +115,7 @@ const cerrarAviso = () => {
 // ------------------------
 // --- LÓGICA DE PAGO EXITOSO ---
 const ProcesarPagoExistoso = (cuotaPagada) => {
-  console.log('Pago exitoso recibido en Cuotas.vue:', cuotaPagada);
+
   // 1. Configuramos el mensaje del modal
   mensajeModalExito.value = `La cuota del mes ${cuotaPagada.mes} fue pagada correctamente.`;
   // 2. Mostramos el modal
@@ -193,7 +193,7 @@ const toggleFiltroPendientes = () => {
   /* --- ESTILO BASE (PC) --- */
   position: absolute;
   top: 2rem;       
-  left: 2rem;      
+  left: 2rem;       
   
   /* CAMBIO: Más ancho para ocupar el espacio horizontal disponible */
   width: 320px;    
@@ -364,7 +364,7 @@ const toggleFiltroPendientes = () => {
 }
 
 /* ================================================= */
-/* ===          ESTILOS DEL RESTO                === */
+/* ===           ESTILOS DEL RESTO               === */
 /* ================================================= */
 
 .encabezado-cuotas {
@@ -426,42 +426,77 @@ const toggleFiltroPendientes = () => {
   margin: 0 0.5rem;
 }
 
+/* ================================================= */
+/* ===    ESTILO MINIMALISTA BOTÓN FILTRAR       === */
+/* ================================================= */
+
 .btn-filtrar {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.7rem 1.2rem;
-  border: 2px solid #e91e63;
+  gap: 0.6rem;
+  padding: 0.6rem 1.2rem;
+  /* Neutro por defecto */
+  border: 1px solid #dee2e6;
   background: white;
-  border-radius: 25px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   font-family: 'Poppins', sans-serif;
   font-weight: 500;
-  color: #e91e63;
+  color: #495057;
   white-space: nowrap;
   position: relative;
 }
-.btn-filtrar:hover { background: #fce4ec; transform: translateY(-1px); }
-.btn-filtrar.activo { background: #e91e63; color: white; }
-.btn-filtrar.activo:hover { background: #d81b60; transform: translateY(-1px); }
+
+.btn-filtrar i {
+  font-size: 0.85rem;
+  color: #adb5bd;
+}
+
+.btn-filtrar:hover {
+  background: #f8f9fa;
+  border-color: #ced4da;
+}
+
+/* Estado Activo: Rojo institucional */
+.btn-filtrar.activo {
+  border-color: #D32F2F;
+  background: #fff5f5;
+  color: #D32F2F;
+}
+
+.btn-filtrar.activo i {
+  color: #D32F2F;
+}
 
 .btn-texto { font-size: 0.85rem; }
+
 .btn-badge {
-  background: #ff4d4d;
+  background: #D32F2F;
   color: white;
-  border-radius: 12px;
-  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  padding: 0.1rem 0.5rem;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
   margin-left: 0.3rem;
+  box-shadow: 0 2px 4px rgba(211, 47, 47, 0.2);
 }
+
+/* ================================================= */
+/* ===                RESPONSIVE                 === */
+/* ================================================= */
 
 @media (max-width: 768px) {
   .contenedor-cuotas { padding: 1.5rem; }
   .controles-superiores { flex-direction: column; gap: 1rem; }
   .estado-cuotas-sutil { width: 100%; }
-  .btn-filtrar { width: 100%; justify-content: center; }
+  
+  /* Mantener el botón centrado y con ancho contenido en móvil */
+  .btn-filtrar { 
+    width: auto; 
+    min-width: 200px;
+    justify-content: center; 
+  }
 }
 
 @media (max-width: 480px) {

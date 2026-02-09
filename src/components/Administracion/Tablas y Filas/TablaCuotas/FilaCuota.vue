@@ -280,11 +280,9 @@ const abrirResumenDePago = () => {
 //Modal de resumen de cuota
 
 const procederAlPagoMercadoPago = async (montoFinal) => {
-  console.log("Monto final a procesar en MP:", montoFinal);
   mostrarResumenPago.value = false;
   
   // Aquí llamaremos luego a la lógica de Mercado Pago
-      console.log('Iniciando pago QR para cuota:', props.cuota.idCuota);
     try {
       procesandoPago.value = true;
       const data = await pagosService.iniciarPago(props.cuota.idCuota, montoFinal);
@@ -383,7 +381,6 @@ const confirmarPago = async () => {
     procesandoPago.value = true;
     
     // Aquí es donde en el futuro enviaremos metodoSeleccionadoFinal.value a la API
-    console.log("Método a enviar:", metodoSeleccionadoFinal.value);
     
     await marcarPagadaAdmin(props.cuota.idCuota, metodoSeleccionadoFinal.value);
 
@@ -401,12 +398,10 @@ const confirmarPago = async () => {
 const iniciarPollingDePago = () => {
   intervaloPolling = setInterval(async () => {
     const estaPagada = await pagosService.verificarEstadoPago(props.cuota.idCuota);
-    console.log('Estado de pago verificado:', estaPagada);
     
     if (estaPagada) {
       detenerPolling();
       cerrarQR();
-      console.log('Emitiendo PagoExitoso para cuota:', props.cuota);
       emit('PagoExitoso', props.cuota);
     }
   }, 1500);
@@ -426,11 +421,9 @@ const cerrarQR = () => {
 };
 
 const manejarModificar = () => {
-  console.log('Modificar cuota:', props.cuota);
   emit('modificar', props.cuota);
 };
 const manejarEliminar = () => {
-  console.log('Eliminar cuota:', props.cuota);
   emit('eliminar', props.cuota);
 };
 </script>
