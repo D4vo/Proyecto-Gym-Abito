@@ -39,6 +39,11 @@
           >
           <label for="reg-username" class="form-label">Usuario</label>
         </div>
+        <div class="password-requirements" style="margin-bottom: 5px;">
+          <div class="req-item" :class="{ 'met': usernameHasNoSpaces }">
+            <span class="dot">•</span> No debe contener espacios
+          </div>
+        </div>
       </div>
 
       <div class="form-group">
@@ -98,7 +103,7 @@
       
       <div v-if="passwordError" class="error-banner">{{ passwordError }}</div>
 
-      <button type="submit" class="auth-btn primary" :disabled="loading">
+      <button type="submit" class="auth-btn primary" :disabled="loading || !usernameHasNoSpaces">
         <span v-if="!loading">CONTINUAR</span>
         <div class="btn-loader" v-else></div>
       </button>
@@ -126,9 +131,6 @@
       </div>
     </div>
 
-    <!-- ================================================= -->
-    <!-- ===             MODAL DE ERROR                === -->
-    <!-- ================================================= -->
     <Transition name="modal-fade">
       <div v-if="mostrarModalError" class="modal-overlay">
         <div class="modal-error"> 
@@ -147,7 +149,6 @@
         </div>
       </div>
     </Transition>
-
   </div>
 </template>
 
@@ -170,13 +171,16 @@ export default {
       passwordError: '',
       registerPasswordFieldType: 'password',
       registerConfirmPasswordFieldType: 'password',
-
-      // Variables para el Modal de Error
       mostrarModalError: false,
       mensajeModalError: ''
     }
   },
   computed: {
+    // Validación de usuario sin espacios (incluyendo intermedios)
+    usernameHasNoSpaces() {
+      if (!this.registerData.username) return false;
+      return !/\s/.test(this.registerData.username.trim());
+    },
     passwordChecks() {
       const pwd = this.registerData.password;
       return {
@@ -192,6 +196,19 @@ export default {
   },
   methods: {
     async enviarVerificacion() {
+      // 1. Limpieza de espacios accidentales (Sanitización)
+      this.registerData.email = this.registerData.email.trim();
+      this.registerData.username = this.registerData.username.trim();
+      this.registerData.password = this.registerData.password.trim();
+      this.registerData.confirmPassword = this.registerData.confirmPassword.trim();
+
+      // 2. Validaciones post-limpieza
+      if (!this.usernameHasNoSpaces) {
+        this.mensajeModalError = 'El nombre de usuario no debe contener espacios.';
+        this.mostrarModalError = true;
+        return;
+      }
+
       if (!this.isPasswordValid) {
         this.passwordError = 'La contraseña no cumple con los requisitos.';
         return;
@@ -212,26 +229,18 @@ export default {
         };
 
         await registroPaso1(payload);
-        
-        // Si todo sale bien
         this.correoEnviado = true;
         
       } catch (error) {
         console.error(error);
-        
-        // --- AQUÍ CAPTURAMOS EL ERROR DE LA API ---
-        // Intentamos leer el mensaje del backend (ej: "Email ya registrado")
         const mensajeAPI = error.response?.data?.detail || 'Error al conectar con el servidor';
-        
         this.mensajeModalError = mensajeAPI;
         this.mostrarModalError = true;
-
       } finally {
         this.loading = false;
       }
     },
     
-    // Función para cerrar el modal
     handleContinuarError() {
       this.mostrarModalError = false;
     },
@@ -241,7 +250,7 @@ export default {
         else this.registerConfirmPasswordFieldType = this.registerConfirmPasswordFieldType === 'password' ? 'text' : 'password';
     },
     validarEmail() {
-      const email = this.registerData.email;
+      const email = this.registerData.email.trim();
       const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (email && !regex.test(email)) {
         this.emailError = 'Correo inválido';
@@ -251,7 +260,7 @@ export default {
     },
     limpiarErrorEmail() { this.emailError = ''; },
     validarContraseñas() {
-      if (this.registerData.password !== this.registerData.confirmPassword) {
+      if (this.registerData.password.trim() !== this.registerData.confirmPassword.trim()) {
         this.passwordError = 'Las contraseñas no coinciden';
       } else {
         this.passwordError = '';
