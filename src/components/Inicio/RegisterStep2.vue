@@ -193,7 +193,6 @@
 
 <script>
 import { registroPaso2 } from '@/api/services/authService';
-// Importamos el nuevo servicio
 import { obtenerProvinciasArg, obtenerLocalidadesArg } from '@/api/services/georefService';
 
 export default {
@@ -214,14 +213,10 @@ export default {
         nombre: '', apellido: '', dni: '', telefono: '',
         sexo: '', provincia: '', localidad: '', calle: '', numero: ''
       },
-      
-      // Variables para Georef
       listaProvincias: [],
       listaLocalidades: [],
       cargandoProvincias: false,
       cargandoLocalidades: false,
-
-      // Modales
       mostrarModalExito: false,
       mensajeModalExito: '',
       mostrarModalError: false,
@@ -230,13 +225,11 @@ export default {
   },
   async mounted() {
     document.addEventListener('click', this.handleClickOutside);
-
     if (!this.token) {
       this.mensajeModalError = "Error: El enlace de registro no es válido.";
       this.mostrarModalError = true;
       setTimeout(() => this.$router.push('/'), 2000);
     } else {
-      // Cargamos las provincias al iniciar el componente
       await this.cargarProvincias();
     }
   },
@@ -244,34 +237,25 @@ export default {
     document.removeEventListener('click', this.handleClickOutside);
   },
   methods: {
-    // --- LÓGICA GEOREF ---
     async cargarProvincias() {
       this.cargandoProvincias = true;
-      // Obtenemos la lista desde la API externa
       this.listaProvincias = await obtenerProvinciasArg();
       this.cargandoProvincias = false;
     },
 
     async manejarCambioProvincia() {
-      // Limpiamos la localidad anterior
       this.profileData.localidad = '';
       this.listaLocalidades = [];
-      
-      // Buscamos el objeto provincia completo para obtener su ID
-      // (En profileData.provincia solo guardamos el NOMBRE para tu backend)
       const nombreSeleccionado = this.profileData.provincia;
       const provinciaObj = this.listaProvincias.find(p => p.nombre === nombreSeleccionado);
 
       if (provinciaObj) {
         this.cargandoLocalidades = true;
-        // Llamamos a la API usando el ID de la provincia
         this.listaLocalidades = await obtenerLocalidadesArg(provinciaObj.id);
         this.cargandoLocalidades = false;
       }
     },
-    // ---------------------
 
-    // ... Resto de métodos (toggleDropdown, selectCountry, handleClickOutside, filtrarNumeros, etc.) ...
     toggleDropdown() { this.isOpen = !this.isOpen; },
     selectCountry(country) { this.selectedCountry = country; this.isOpen = false; },
     handleClickOutside(event) { if (this.$refs.phoneContainer && !this.$refs.phoneContainer.contains(event.target)) this.isOpen = false; },
@@ -281,7 +265,16 @@ export default {
     handleContinuarError() { this.mostrarModalError = false; },
 
     async finalizarRegistro() {
-      // Validaciones
+      // --- APLICACIÓN DE TRIM (Limpieza de espacios accidentales) ---
+      this.profileData.nombre = this.profileData.nombre.trim();
+      this.profileData.apellido = this.profileData.apellido.trim();
+      this.profileData.dni = this.profileData.dni.trim();
+      this.profileData.telefono = this.profileData.telefono.trim();
+      this.profileData.calle = this.profileData.calle.trim();
+      this.profileData.numero = this.profileData.numero.trim();
+      // Nota: Provincia, Localidad y Sexo vienen de <select>, no requieren trim manual.
+
+      // Validaciones post-trim
       if (this.profileData.dni.length !== 8) {
         this.mensajeModalError = 'Atención: El DNI debe tener exactamente 8 dígitos.';
         this.mostrarModalError = true;
@@ -293,8 +286,6 @@ export default {
       try {
         const telefonoCompleto = `${this.selectedCountry.code}${this.profileData.telefono}`;
 
-        // El payload sigue enviando Strings en 'nomProvincia' y 'nomLocalidad'
-        // Esto es perfecto porque tu backend guarda el nombre y lo crea si no existe.
         const payload = {
           dni: this.profileData.dni,
           nombre: this.profileData.nombre,
