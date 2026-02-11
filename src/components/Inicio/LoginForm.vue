@@ -168,24 +168,20 @@
 import {
   login,
   forgotPassword
-} from '@/api/services/authService'; // <--- IMPORTAR forgotPassword
+} from '@/api/services/authService';
 
 export default {
   name: 'LoginForm',
   data() {
     return {
       loading: false,
-      viewMode: 'login', // 'login', 'recovery', 'success'
+      viewMode: 'login', 
       loginData: { username: '', password: '' },
       recoveryEmail: '',
       loginError: '',
       passwordFieldType: 'password',
-      
-      // Variables para Modal Error
       mostrarModalError: false,
       mensajeModalError: '',
-
-      // Variables para Reenvío
       tiempoEspera: 0,
       intervalo: null
     }
@@ -195,27 +191,26 @@ export default {
       this.loginError = '';
       this.mensajeModalError = '';
       this.viewMode = modo;
-      // Reseteamos el timer si salimos de la vista success
       if (modo !== 'success') {
         this.tiempoEspera = 0;
         if (this.intervalo) clearInterval(this.intervalo);
       }
     },
     async iniciarSesion() {
+      // --- APLICACIÓN DE TRIM (Limpieza de espacios accidentales) ---
+      this.loginData.username = this.loginData.username.trim();
+      this.loginData.password = this.loginData.password.trim();
+
       this.loading = true;
       this.loginError = '';
       try {
-        // 1. Hacemos login (esto guarda el token en storage)
         const userData = await login(this.loginData.username, this.loginData.password);
         
-        // 2. VERIFICACIÓN: ¿Requiere cambio de clave?
         if (userData.requiereCambioClave) {
-          // Redirigimos a la vista de recuperación en modo actualización
           this.$router.push('/Recuperacion?modo=actualizacion');
-          return; // Detenemos aquí para no redirigir al home
+          return;
         }
 
-        // 3. Redirección Normal (si no requiere cambio)
         if (userData.esAdmin) {
           this.$router.push('/admin');
         } else if (userData.esEmpleado) {
@@ -234,17 +229,16 @@ export default {
       }
     },
 
-    /// --- LÓGICA DE RECUPERACIÓN REAL ---
     async enviarCorreoRecuperacion(esReenvio = false) {
       if (typeof esReenvio !== 'boolean') esReenvio = false;
+
+      // --- APLICACIÓN DE TRIM ---
+      this.recoveryEmail = this.recoveryEmail.trim();
 
       this.loading = true;
       
       try {
-        // Llamada a la API real
         await forgotPassword(this.recoveryEmail);
-
-        console.log(`Correo de recuperación solicitado para: ${this.recoveryEmail}`);
         
         if (!esReenvio) {
           this.viewMode = 'success';
@@ -253,7 +247,6 @@ export default {
         }
 
       } catch (error) {
-        // Manejo de errores (ej: correo no existe)
         this.mensajeModalError = error.response?.data?.detail || 'Ocurrió un error. Verifique el correo.';
         this.mostrarModalError = true;
       } finally {
@@ -261,13 +254,12 @@ export default {
       }
     },
 
-    // Lógica para el botón de reenvío
     reenviarCorreo() {
-      this.enviarCorreoRecuperacion(true); // Aquí pasamos true explícitamente
+      this.enviarCorreoRecuperacion(true);
     },
 
     iniciarCuentaRegresiva() {
-      this.tiempoEspera = 60; // 1 minuto
+      this.tiempoEspera = 60; 
       this.intervalo = setInterval(() => {
         if (this.tiempoEspera > 0) {
           this.tiempoEspera--;
