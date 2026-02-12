@@ -86,8 +86,8 @@
           :class="{ activo: vistaActiva === 'reclamos' }"
           @click="cambiarVista('reclamos')"
         >
-          <i class="fas fa-exclamation-triangle icon"></i>
-          Reclamos
+          <i class="fa-solid fa-box-archive icon"></i>
+          Observaciones
         </button>
         <button
           class="menu-btn"
@@ -182,8 +182,8 @@
           :class="{ activo: vistaActiva === 'reclamos' }"
           @click="cambiarVista('reclamos')"
         >
-          <i class="fas fa-exclamation-triangle icon"></i>
-          Reclamos
+          <i class="fa-solid fa-box-archive icon"></i>
+          Observaciones
         </button>
         <button
           class="menu-btn"

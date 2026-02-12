@@ -27,8 +27,8 @@
         </button>
         <button class="menu-btn" :class="{ activo: vistaActiva === 'reclamos' }" @click="vistaActiva = 'reclamos'">
           <span class="texto-btn">
-            <i class="fas fa-exclamation-circle icon"></i>
-            Reclamos
+            <i class="fa-solid fa-box-archive icon"></i>
+            Observaciones
           </span>
         </button>
         <button class="menu-btn" :class="{ activo: vistaActiva === 'avisos' }" @click="vistaActiva = 'avisos'">
@@ -60,8 +60,8 @@
            Cuotas
         </button>
         <button class="menu-btn" :class="{ activo: vistaActiva === 'reclamos' }" @click="cambiarVista('reclamos')">
-          <i class="fas fa-exclamation-circle icon"></i>
-          Reclamos
+          <i class="fa-solid fa-box-archive icon"></i>
+          Observaciones
         </button>
         <button class="menu-btn" :class="{ activo: vistaActiva === 'avisos' }" @click="vistaActiva = 'avisos'">
           <span class="texto-btn">

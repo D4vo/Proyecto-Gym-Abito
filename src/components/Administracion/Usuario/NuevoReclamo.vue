@@ -1,7 +1,7 @@
 
 <template>
   <div class="nuevo-reclamo-container">
-    <h2 class="subtitulo">Nuevo Reclamo</h2>
+    <h2 class="subtitulo">Nueva observación</h2>
     
     <!-- FORMULARIO COMPACTO -->
     <div class="form-group compacto">
@@ -11,7 +11,7 @@
         class="campo-texto"
         rows="4"
         required
-        placeholder="Describe tu reclamo aquí..."
+        placeholder="Describe tu observación aquí..."
       ></textarea>
     </div>
     

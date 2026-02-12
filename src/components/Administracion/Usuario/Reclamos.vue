@@ -1,10 +1,10 @@
 <template>
   <div class="contenedor-reclamos">
     <div class="encabezado">
-      <Titulo texto="RECLAMOS" />
+      <Titulo texto="Observaciones" />
       <p class="subtitulo">
         Ayúdanos a mejorar<br>
-        <span class="aclaracion-anonimo">Los reclamos son anónimos</span>
+        <span class="aclaracion-anonimo">Las observaciones son anónimos</span>
       </p>
       
     </div>

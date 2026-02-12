@@ -3,7 +3,7 @@
     <table v-if="!isMobile" class="tabla-reclamos">
       <thead>
         <tr>
-          <th>Nro Reclamo</th>
+          <th>Nro observación</th>
           <th>Fecha y Hora</th>
           <th>Descripción</th>
         </tr>
@@ -27,7 +27,7 @@
     
     <div v-else class="mobile-view">
       <div v-if="reclamos.length === 0" class="no-reclamos-mobile">
-        Aún no has realizado ningún reclamo.
+        Aún no has realizado ningúna observación.
       </div>
       <div 
         v-for="reclamo in reclamos" 

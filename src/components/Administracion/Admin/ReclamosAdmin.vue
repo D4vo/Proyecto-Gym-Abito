@@ -1,6 +1,6 @@
 <template>
   <div class="contenedor-reclamos">
-    <Titulo texto="ADMINISTRACIÓN DE RECLAMOS" />
+    <Titulo texto="ADMINISTRACIÓN DE observaciones" />
     
     <div class="controles-superiores">
       
@@ -33,7 +33,7 @@
     <!-- PANTALLA DE CARGA (Estilo ModificarGrupo) -->
     <div v-if="loading" class="loading-container">
       <div class="spinner"></div>
-      <span>Cargando reclamos...</span>
+      <span>Cargando observaciones...</span>
     </div>
 
     <!-- LISTA Y PAGINACIÓN -->
