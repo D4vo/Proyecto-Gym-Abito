@@ -14,8 +14,7 @@
         @click="mostrarFormulario = true"
         class="btn-nuevo"
       >
-        <i class="fas fa-plus"></i>
-        Nuevo Reclamo
+        Nueva Observación
       </button>
 
       <div class="contador-reclamos" v-if="!mostrarFormulario">
