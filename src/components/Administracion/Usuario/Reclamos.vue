@@ -14,6 +14,7 @@
         @click="mostrarFormulario = true"
         class="btn-nuevo"
       >
+        <i class="fas fa-plus"></i>
         Nueva Observación
       </button>
 
