@@ -41,104 +41,100 @@ export default {
 };
 </script>
 
-<style>
-/* Estilos básicos para el modal */
-/* Contenedor principal del Modal */
+<style scoped>
+/* Contenedor principal con desenfoque moderno */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(15, 23, 42, 0.8); /* Fondo oscuro azulado profundo */
-  backdrop-filter: blur(4px); /* Efecto de desenfoque premium */
+  background: rgba(15, 23, 42, 0.7); /* Opacidad más suave */
+  backdrop-filter: blur(8px); /* Desenfoque más pronunciado para enfoque total */
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 10000;
   padding: 20px;
+  transition: all 0.3s ease;
 }
 
-/* Caja de contenido del Modal */
+/* Caja de contenido minimalista */
 .modal-content {
-  background: white;
+  background: #ffffff;
   width: 100%;
-  max-width: 400px;
-  padding: 2.5rem;
-  border-radius: 20px;
+  max-width: 380px;
+  padding: 3rem 2rem;
+  border-radius: 24px; /* Bordes más redondeados y modernos */
   text-align: center;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  border-top: 6px solid #e91e63; /* Borde superior con el color de la marca */
-  animation: modalIn 0.3s ease-out;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  animation: modalIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1); /* Animación con rebote sutil */
 }
 
-/* Icono o Título Principal */
+/* Título profesional */
 .modal-content h3 {
-  color: #1e293b;
-  font-size: 1.6rem;
-  font-weight: 800;
-  margin-bottom: 1rem;
-  letter-spacing: -0.02em;
+  color: #0f172a;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.025em;
 }
 
-/* Mensaje de texto */
+/* Párrafo con mejor legibilidad */
 .modal-content p {
-  color: #64748b;
-  font-size: 1rem;
-  line-height: 1.5;
-  margin-bottom: 2rem;
+  color: #475569;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-bottom: 2.5rem;
+  padding: 0 10px;
 }
 
-/* Botón Iniciar Sesión */
+/* Botón elegante y limpio */
 .modal-content button {
   width: 100%;
-  background: linear-gradient(135deg, #e91e63 0%, #d81b60 100%);
+  background: #e91e63; /* Color sólido para un look más flat/minimal */
   color: white;
   border: none;
-  padding: 1rem;
-  border-radius: 12px;
+  padding: 0.9rem;
+  border-radius: 14px;
   font-size: 1rem;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(233, 30, 99, 0.3);
+  transition: all 0.2s ease;
+  display: inline-block;
 }
 
 .modal-content button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(233, 30, 99, 0.4);
-  filter: brightness(1.1);
+  background: #d81b60;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 15px -3px rgba(233, 30, 99, 0.3);
 }
 
 .modal-content button:active {
   transform: translateY(0);
 }
 
-/* Animación de entrada */
+/* Animación de entrada refinada */
 @keyframes modalIn {
   from {
     opacity: 0;
-    transform: scale(0.9) translateY(20px);
+    transform: translateY(30px) scale(0.95);
   }
   to {
     opacity: 1;
-    transform: scale(1) translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
-/* Ajustes específicos para móviles */
+/* Adaptación para móviles */
 @media (max-width: 480px) {
   .modal-content {
-    padding: 2rem 1.5rem;
-    margin: 0 10px;
+    padding: 2.5rem 1.5rem;
+    margin: 0 15px;
   }
   
   .modal-content h3 {
-    font-size: 1.4rem;
-  }
-  
-  .modal-content p {
-    font-size: 0.95rem;
+    font-size: 1.35rem;
   }
 }
 </style>
