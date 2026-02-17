@@ -26,7 +26,7 @@
               </div>
 
               <div class="detalle-item">
-                <span>Servicio Mercado Pago (6.37%)</span>
+                <span>Servicio Mercado Pago (3%)</span>
                 <span>${{ comisionMP.toLocaleString('es-AR') }}</span>
               </div>
 
