@@ -98,7 +98,7 @@ const subtotalConMora = computed(() => {
 });
 
 const comisionMP = computed(() => {
-  return subtotalConMora.value * 0.0637;
+  return subtotalConMora.value * 0.03;
 });
 
 const totalFinal = computed(() => {
