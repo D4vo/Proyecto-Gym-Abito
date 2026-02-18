@@ -26,7 +26,7 @@
               </div>
 
               <div class="detalle-item">
-                <span>Servicio Mercado Pago (3%)</span>
+                <span>Servicio Mercado Pago (1%)</span>
                 <span>${{ comisionMP.toLocaleString('es-AR') }}</span>
               </div>
 
@@ -98,7 +98,7 @@ const subtotalConMora = computed(() => {
 });
 
 const comisionMP = computed(() => {
-  return subtotalConMora.value * 0.03;
+  return subtotalConMora.value * 0.01;
 });
 
 const totalFinal = computed(() => {
