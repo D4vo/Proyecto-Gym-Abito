@@ -15,7 +15,7 @@
             required
             autocomplete="username"
           >
-          <label for="username" class="form-label">Usuario</label>
+          <label for="username" class="form-label">Usuario o Correo</label>
         </div>
       </div>
 

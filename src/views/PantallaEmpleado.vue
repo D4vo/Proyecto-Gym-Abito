@@ -196,7 +196,7 @@
 // Imports ferchu :)
 import { useRouter } from 'vue-router'; // Importa useRouter
 import { logout } from '@/api/services/authService'; // Importa la función de logout
-
+import { getUser } from '@/api/storage/userStorage';
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 // Tus imports originales (SIN CAMBIOS)
 import Background from '@/components/Administracion/Background.vue'
@@ -249,7 +249,7 @@ const handleEscapeKey = (e) => {
 const alumnoSeleccionado = ref(null); // Para guardar el alumno al que se le hizo clic
 
 // ... (Resto de tus IMPORTANTE, SIN CAMBIOS) ...
-const usuario = { nombre: 'Beto', apellido: 'Cristoff' };
+const usuario = ref({ nombre: '', apellido: '' });
 // ... (Resto de tus IMPORTANTE, SIN CAMBIOS) ...
 
 const vistaActiva = ref('dashboard'); // O la que prefieras como inicial
@@ -321,14 +321,17 @@ const vistaComponente = computed(() => {
 
 // Tus onMounted/onUnmounted (MODIFICADOS para incluir handleEscapeKey)
 onMounted(() => { 
+  // --- Cargar datos reales ---
+  const user = getUser();
+  if (user) {
+    usuario.value.nombre = user.nombre || 'Empleado';
+    usuario.value.apellido = user.apellido || '';
+  }
+  // --------------------------
+
   checkIsMobile(); 
   window.addEventListener('resize', checkIsMobile); 
-  window.addEventListener('keydown', handleEscapeKey); // NUEVO
-});
-
-onUnmounted(() => { 
-  window.removeEventListener('resize', checkIsMobile); 
-  window.removeEventListener('keydown', handleEscapeKey); // NUEVO
+  window.addEventListener('keydown', handleEscapeKey); 
 });
 
 //Para que muestre Alumnos cuando se confirma un ingreso
