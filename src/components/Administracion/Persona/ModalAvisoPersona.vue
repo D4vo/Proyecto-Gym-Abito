@@ -14,7 +14,9 @@
         <p>
           Usted se ha registrado correctamente
           pero todavía no forma parte de nuestra comunidad. 
-          <strong>Aún no está registrado como alumno.</strong>
+        </p>
+        <p>
+            <strong>Aún no está registrado como alumno.</strong>
         </p>
         <p>
           Por favor, acérquese al gimnasio para poder activarlo como alumno 
