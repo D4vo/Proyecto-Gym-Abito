@@ -122,7 +122,7 @@ const emit = defineEmits(['verIngreso']);
 
 // --- Lógica de datos y filtros ---
 const personas = ref([]);
-const elementosPorPagina = 10;
+const elementosPorPagina = 30;
 const terminoBusqueda = ref('');
 const loading = ref(true); 
 

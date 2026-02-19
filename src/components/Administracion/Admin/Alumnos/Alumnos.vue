@@ -133,7 +133,7 @@ onMounted(async () => {
 });
 
 // --- LÓGICA DE FILTROS (SIN CAMBIOS) ---
-const elementosPorPagina = 10; // Lo mantenemos para pasarlo como prop
+const elementosPorPagina = 30; // Lo mantenemos para pasarlo como prop
 const mostrarSoloActivos = ref(false);
 const terminoBusqueda = ref('');
 const filtroTurno = ref(null);

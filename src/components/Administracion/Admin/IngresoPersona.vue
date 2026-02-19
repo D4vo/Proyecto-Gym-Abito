@@ -188,7 +188,7 @@ const datosParaEmitir = ref(null);
 
 onMounted(async () => {
   loading.value = true
-  await sleep(1000) // Simular retardo de carga
+  
   try {
     if (props.personaSeleccionada && personaID.value["dni"]) {
       const respuestaPersona = await obtenerPersonaPorDni(personaID.value["dni"])
