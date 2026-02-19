@@ -180,7 +180,7 @@
                 <i class="fas fa-clock"></i>
                 <div>
                   <h4>Horarios</h4>
-                  <span>Lunes a Viernes: 08:00 - 22:00</span>
+                  <span>Lunes a Viernes: 07:00 - 22:30</span>
                 </div>
               </div>
               <div class="detail-item">

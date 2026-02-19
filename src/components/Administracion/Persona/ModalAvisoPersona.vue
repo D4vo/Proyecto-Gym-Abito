@@ -12,7 +12,8 @@
 
       <div class="modal-text">
         <p>
-          Usted todavía no forma parte de nuestra comunidad. 
+          Usted se ha registrado correctamente
+          pero todavía no forma parte de nuestra comunidad. 
           <strong>Aún no está registrado como alumno.</strong>
         </p>
         <p>
