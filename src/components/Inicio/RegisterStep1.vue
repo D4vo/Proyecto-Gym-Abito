@@ -122,7 +122,7 @@
         <h3 class="success-title">Verifica tu correo</h3>
         <div class="success-message">
            <p>Hemos enviado un enlace de confirmación a <strong>{{ registerData.email }}</strong>.</p>
-           <p>Por favor, revisa tu bandeja de entrada y haz clic en el enlace para completar el paso 2 del registro.</p>
+           <p>Por favor, revisa tu bandeja de entrada o en spam y haz clic en el enlace para completar el paso 2 del registro.</p>
         </div>
         
         <button @click="reenviarCorreo" class="link-text" style="background:none; border:none; cursor:pointer;">
