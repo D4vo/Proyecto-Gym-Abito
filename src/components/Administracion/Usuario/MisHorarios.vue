@@ -1,7 +1,7 @@
 <template>
   <div class="contenedor">
     <Titulo texto="Mis Horarios" />
-    
+    <p class="subtitulo">Aquí podrás ver tus horarios asignados.</p>
     <div v-if="cargando" class="estado-carga">
       <div class="loader"></div>
       <p>Cargando horarios...</p>
@@ -103,7 +103,13 @@ onUnmounted(() => {
   animation: spin 1s linear infinite;
   margin: 0 auto 1rem auto;
 }
-
+.subtitulo {
+  color: #666;
+  font-size: 1.1rem;
+  font-weight: 300;
+  letter-spacing: 0.5px;
+  margin-bottom: 1.5rem;
+}
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
