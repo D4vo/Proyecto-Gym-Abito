@@ -125,4 +125,22 @@ onUnmounted(() => {
     padding: 1rem 0; /* Quitamos padding lateral para aprovechar toda la pantalla */
   }
 }
+/* Media query para dispositivos móviles */
+@media (max-width: 768px) {
+  .contenedor {
+    width: 100%;
+    padding: 1.5rem;
+    margin: 0;
+    box-sizing: border-box;
+    /* RESTAURAMOS EL FONDO Y LA SOMBRA */
+    background-color: rgba(255, 255, 255, 0.85); 
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+  }
+}
+
+@media (max-width: 480px) {
+  .contenedor {
+    padding: 1.2rem; /* Mantenemos un padding agradable para que no toque los bordes */
+  }
+}
 </style>
