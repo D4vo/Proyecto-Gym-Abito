@@ -15,26 +15,26 @@
             </div>
 
             <div class="detalles-lista">
-              <div class="detalle-item">
-                <span>Monto cuota</span>
-                <span>${{ cuota.monto.toLocaleString('es-AR') }}</span>
-              </div>
+    <div class="detalle-item">
+      <span>Monto cuota</span>
+      <span>${{ cuota.monto.toLocaleString('es-AR', { minimumFractionDigits: 2 }) }}</span>
+    </div>
 
-              <div class="detalle-item" :class="{ 'con-recargo': esVencida }">
+              <div v-if="esVencida" class="detalle-item con-recargo">
                 <span>Recargo por vencimiento (10%)</span>
-                <span>${{ recargoMora.toLocaleString('es-AR') }}</span>
+                <span>${{ recargoMora.toLocaleString('es-AR', { minimumFractionDigits: 2 }) }}</span>
               </div>
 
               <div class="detalle-item">
-                <span>Servicio Mercado Pago (1%)</span>
-                <span>${{ comisionMP.toLocaleString('es-AR') }}</span>
+                <span>Servicio Mercado Pago (6,6%)</span>
+                <span>${{ comisionMP.toLocaleString('es-AR', { minimumFractionDigits: 2 }) }}</span>
               </div>
 
               <div class="divisor"></div>
 
               <div class="detalle-item total">
                 <span>Total a pagar</span>
-                <span>${{ totalFinal.toLocaleString('es-AR') }}</span>
+                <span>${{ totalFinal.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
               </div>
             </div>
             
@@ -67,42 +67,38 @@
 import { computed } from 'vue';
 
 const props = defineProps({
-  cuota: {
-    type: Object,
-    required: true
-  },
-  esVencida: {
-    type: Boolean,
-    default: false
-  }
+  cuota: { type: Object, required: true },
+  esVencida: { type: Boolean, default: false }
 });
 
 const emit = defineEmits(['cancelar', 'confirmar']);
 
-// Lógica de Negocio
+// Constantes para el cálculo inverso
+const COMISION_PLATAFORMA = 0.0619; 
+const DIVISOR = 1 - COMISION_PLATAFORMA; // 0.9381
+
 const nombreMes = computed(() => {
   const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-  // Maneja tanto el nombre en inglés del JSON como el número
-  if (isNaN(props.cuota.mes)) {
-    return props.cuota.mes; 
-  }
-  return meses[parseInt(props.cuota.mes) - 1];
+  return isNaN(props.cuota.mes) ? props.cuota.mes : meses[parseInt(props.cuota.mes) - 1];
 });
 
+// 1. Calculamos el neto que vos tenés que recibir
 const recargoMora = computed(() => {
   return props.esVencida ? props.cuota.monto * 0.10 : 0;
 });
 
-const subtotalConMora = computed(() => {
+const subtotalNeto = computed(() => {
   return props.cuota.monto + recargoMora.value;
 });
 
-const comisionMP = computed(() => {
-  return subtotalConMora.value * 0.01;
+// 2. Calculamos el total final con el recargo aplicado (Monto / 0.9381)
+const totalFinal = computed(() => {
+  return subtotalNeto.value / DIVISOR;
 });
 
-const totalFinal = computed(() => {
-  return subtotalConMora.value + comisionMP.value;
+// 3. La comisión es la diferencia exacta
+const comisionMP = computed(() => {
+  return totalFinal.value - subtotalNeto.value;
 });
 </script>
 
