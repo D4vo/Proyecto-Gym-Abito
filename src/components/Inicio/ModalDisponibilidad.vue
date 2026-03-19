@@ -14,7 +14,7 @@
             <span>{{ telefonos.maniana }}</span>
           </div>
           <a :href="generarLink(telefonos.maniana, 'mañana')" target="_blank" class="action-btn">
-            CONSULTAR MAÑANA
+            CONSULTAR
           </a>
         </div>
 
@@ -27,7 +27,7 @@
             <span>{{ telefonos.sala1 }}</span>
           </div>
           <a :href="generarLink(telefonos.sala1, 'tarde')" target="_blank" class="action-btn">
-            CONSULTAR TARDE
+            CONSULTAR
           </a>
         </div>
       </div>
