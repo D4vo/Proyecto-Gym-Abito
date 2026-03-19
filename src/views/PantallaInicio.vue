@@ -331,8 +331,8 @@ const initMobileObserver = () => {
 
 <style scoped>
 .contacto-wrapper {
-  margin-top: 80px; /* Espacio generoso después de las tarjetas */
-  margin-bottom: 40px;
+  margin-top: 30px; /* Espacio generoso después de las tarjetas */
+  margin-bottom: 10px;
   display: flex;
   justify-content: center;
   align-items: center;

@@ -2,7 +2,7 @@
   <section id="clases-grupales" class="content-limit wide-limit section-spacing z-5 force-relative">
     
     <div class="header-group reveal-on-scroll">
-      <span class="brand-tag">SALA 02</span>
+      <span class="brand-tag">SALON 2</span>
       <h2 class="brand-title">CLASES GRUPALES</h2>
       <div class="title-decoration"></div>
       <p class="brand-subtitle">DINÁMICA, RESISTENCIA Y TRABAJO EN EQUIPO</p>
@@ -93,6 +93,15 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+#clases-grupales {
+  padding-top: 40px !important;
+}
+
+@media (max-width: 900px) {
+  #clases-grupales {
+    padding-top: 20px !important; /* Aún menos espacio en celulares */
+  }
+}
 .clases-container { 
   display: flex; 
   flex-direction: column; 

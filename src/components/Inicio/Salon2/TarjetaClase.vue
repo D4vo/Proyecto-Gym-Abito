@@ -144,7 +144,10 @@ const props = defineProps({
   .horizontal-card { 
     flex-direction: column; 
     min-height: auto; 
-    border-radius: 12px; 
+    border-radius: 12px;
+    width: 85%; /* Le da un poco de aire a los costados */
+    max-width: 350px; /* Un tope máximo para que no se estire de más */
+    margin: 0 auto; 
     /* Mantenemos el borde de 2px definido arriba */
   }
   
