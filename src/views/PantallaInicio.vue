@@ -44,8 +44,23 @@
           </div>
         </div>
       </div>
-    </section>
+      <div class="contacto-wrapper reveal-on-scroll">
+      <button class="btn-consultar" @click="mostrarModal = true">
+        CONSULTAR DISPONIBILIDAD
+      </button>
+      </div>
 
+      <Teleport to="body">
+        <ModalDisponibilidad 
+          v-if="mostrarModal" 
+          sala="sala1" 
+          @cerrar="mostrarModal = false" 
+        />
+      </Teleport>
+    </section>
+    <section class="section-container pattern-bg z-5">
+      <Salon2 />
+    </section>
     <div class="prices-layer-wrapper z-10 pattern-bg">
       
       <div class="double-marquee-container">
@@ -212,11 +227,13 @@ import FondoInicio from '@/components/Inicio/FondoInicio.vue'
 import Metodologia from '../components/Inicio/Metodologias.vue'
 import Precio from '../components/Inicio/Precio.vue'
 import MapaUbicacion from '@/components/Inicio/MapaUbicacion.vue'
+import Salon2 from '@/components/Inicio/Salon2/Salon2.vue'
+import ModalDisponibilidad from '@/components/Inicio/ModalDisponibilidad.vue'
 
 import { ref, onMounted, onUnmounted, computed, nextTick } from 'vue'
 import { obtenerTrabajos } from '@/api/services/trabajoService.js'
 import { obtenerSuscripciones } from '@/api/services/suscripcionesService'
-
+const mostrarModal = ref(false)
 const metodologias = ref([])
 const precios = ref([])
 const scrollY = ref(0) 
@@ -313,6 +330,40 @@ const initMobileObserver = () => {
 </script>
 
 <style scoped>
+.contacto-wrapper {
+  margin-top: 80px; /* Espacio generoso después de las tarjetas */
+  margin-bottom: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+/* El botón con el estilo de Abito */
+.btn-consultar {
+  background-color: #e50914; /* Rojo Abito */
+  color: white;
+  border: none;
+  padding: 18px 40px;
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.btn-consultar:hover {
+  background-color: #b0060f;
+  transform: scale(1.05);
+  box-shadow: 0 10px 20px rgba(229, 9, 20, 0.4);
+}
+
+/* Clase para la animación si usas ScrollReveal o similar */
+.reveal-on-scroll {
+  opacity: 1; /* Asegúrate de que sea visible si no usas librería de scroll */
+}
 /* =========================================
    BASE & LAYOUT
    ========================================= */
