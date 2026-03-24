@@ -8,6 +8,14 @@
         :apellido="usuario.apellido"
         @logout="pedirConfirmacionLogout"
       >
+        <button
+          class="menu-btn dashboard-btn"
+          :class="{ activo: vistaActiva === 'dashboard' }"
+          @click="cambiarVista('dashboard')"
+        >
+          <i class="fas fa-tachometer-alt icon"></i>
+          Estadísticas
+        </button>
         <hr class="separator" style="margin: 0.5rem 0;"/>
         <button
           class="menu-btn"
@@ -81,6 +89,14 @@
         :apellido="usuario.apellido"
         @logout="pedirConfirmacionLogout"
       >
+        <button
+          class="menu-btn"
+          :class="{ activo: vistaActiva === 'dashboard' }"
+          @click="cambiarVista('dashboard')"
+        >
+          <i class="fas fa-tachometer-alt icon"></i>
+          Estadísticas
+        </button>
         <button
           class="menu-btn"
           :class="{ activo: vistaActiva === 'alumnos' }"
@@ -214,6 +230,7 @@ import ReportesContables from '@/components/Administracion/Admin/Contabilidad/Re
 // *** USA TUS RUTAS CORRECTAS ***
 import Personas from '@/components/Administracion/Admin/Personas.vue'
 import IngresoPersona from '@/components/Administracion/Admin/IngresoPersona.vue'
+import Dashboard from '@/components/Administracion/Admin/Dashboard.vue'
 // *****************************************************************************************
 
 const isSidebarCollapsed = ref(false);
@@ -307,6 +324,7 @@ const vistaComponente = computed(() => {
 
 
   switch (vistaActiva.value) {
+    case 'dashboard': return Dashboard;
     case 'alumnos': return Alumnos;
     case 'suscripciones': return Suscripciones;
     case 'trabajo': return Trabajos_Metodologias;
