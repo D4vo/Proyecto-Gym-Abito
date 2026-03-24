@@ -8,6 +8,7 @@
         </a>
         <div class="nav-links">
           <a href="#metodologias" class="nav-link">Metodologías</a>
+          <a href="#salon2" class="nav-link">Salon 2</a>
           <a href="#historia" class="nav-link">Historia</a>
           <a href="#precios" class="nav-link">Precios</a>
           <a href="#ubicacion" class="nav-link">Ubicacion</a>
@@ -34,6 +35,7 @@
       <div v-if="menuAbierto" class="collapse navbar-collapse mobile-menu show" id="mobileMenu">
         <div class="mobile-nav-content">
           <a href="#metodologias" class="mobile-nav-link" @click="menuAbierto = false">Metodologías</a>
+          <a href="#salon2" class="mobile-nav-link" @click="menuAbierto = false">Salon 2</a>
           <a href="#historia" class="mobile-nav-link" @click="menuAbierto = false">Historia</a>
           <a href="#precios" class="mobile-nav-link" @click="menuAbierto = false">Precios</a>
           <a href="#ubicacion" class="mobile-nav-link" @click="menuAbierto = false">Ubicacion</a>

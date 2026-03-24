@@ -58,7 +58,7 @@
         />
       </Teleport>
     </section>
-    <section class="section-container pattern-bg z-5">
+    <section id="salon2" class="section-container pattern-bg z-5">
       <Salon2 />
     </section>
     <div class="prices-layer-wrapper z-10 pattern-bg">
