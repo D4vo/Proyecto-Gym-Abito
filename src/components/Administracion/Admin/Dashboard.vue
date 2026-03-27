@@ -64,6 +64,7 @@ import OccupancyGrid from '@/components/DashBoard/Charts/OccupancyGrid.vue';
 import DonutChart from '@/components/DashBoard/Charts/DonutChart.vue';
 import BarChart from '@/components/DashBoard/Charts/BarChart.vue';
 import TrainerCard from '@/components/DashBoard/KPIs/TrainerCard.vue';
+import ReporteRecaudacion from '@/components/DashBoard/KPIs/ReporteRecaudacion.vue';
 
 // --- Servicios ---
 import { 
