@@ -46,7 +46,11 @@
           </div>
         </div>
       </DashboardSection>
-
+      <div style="margin-top: 1.5rem; margin-bottom: 2rem;">
+        <DashboardSection title="Historial de Ingresos">
+          <ReporteRecaudacion />
+        </DashboardSection>
+      </div>
     </div>
   </div>
 </template>
@@ -291,6 +295,9 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.ingresos-section {
+  margin-top: 2rem;
+}
 .contenedor {
   padding: 2rem; /* <-- RESTAURADO: Padding general */
   background-color: rgba(255, 255, 255, 0.85);
