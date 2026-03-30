@@ -73,7 +73,7 @@ const props = defineProps({
 
 const nombre = ref('');
 const apellido = ref('');
-const username = ref('asd');
+const username = ref('');
 
 onMounted(() => {
   const usuario = getUser();

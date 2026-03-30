@@ -148,7 +148,7 @@ const cargarDatos = async () => {
     console.log(`Llamando a la API -> Mes: ${mesSeleccionado.value} | Año: ${anioSeleccionado.value}`);
     
     // =========================================================
-    // 🔴 AQUÍ IRÁ TU LLAMADA REAL A LA API EN EL FUTURO
+    // AQUÍ IRÁ TU LLAMADA REAL A LA API EN EL FUTURO
     // =========================================================
     // const response = await obtenerReporteRecaudacion(mesSeleccionado.value, anioSeleccionado.value);
     // datosReporte.value = response.reporte;

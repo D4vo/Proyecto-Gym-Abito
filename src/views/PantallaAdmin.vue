@@ -203,6 +203,8 @@
             :alumno-seleccionado="vistaSecundaria === 'infoAlumno' ? datosSecundarios : undefined"
             :personaSeleccionada="vistaSecundaria === 'ingresoPersona' ? datosSecundarios : undefined"
             :empleado-seleccionado="vistaSecundaria === 'infoEmpleado' ? datosSecundarios : undefined"
+            :nombre="usuario.nombre" 
+            :apellido="usuario.apellido"
             @ver-alumno="verAlumno"
             @volver-alumnos="volverAlumnos"
             @verIngreso="verIngresoPersona"

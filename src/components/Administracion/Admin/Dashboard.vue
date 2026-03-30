@@ -2,7 +2,10 @@
   <div class="contenedor">
     <div class="dashboard-admin-container">
       
-      <DashboardSection title="Indicadores Clave">
+      <DashboardSection 
+        v-if="!(props.nombre === 'Davor' && props.apellido === 'Cristoff')" 
+        title="Indicadores Clave"
+      >
         <KpiList :kpis="kpiData" />
       </DashboardSection>
 
@@ -47,7 +50,10 @@
         </div>
       </DashboardSection>
       <div style="margin-top: 1.5rem; margin-bottom: 2rem;">
-        <DashboardSection title="Historial de Ingresos">
+        <DashboardSection 
+        v-if="!(props.nombre === 'Davor' && props.apellido === 'Cristoff')"
+        title="Historial de Ingresos"
+        >
           <ReporteRecaudacion />
         </DashboardSection>
       </div>
@@ -66,6 +72,16 @@ import BarChart from '@/components/DashBoard/Charts/BarChart.vue';
 import TrainerCard from '@/components/DashBoard/KPIs/TrainerCard.vue';
 import ReporteRecaudacion from '@/components/DashBoard/KPIs/ReporteRecaudacion.vue';
 
+const props = defineProps({
+  nombre: {
+    type: String,
+    default: ''
+  },
+  apellido: {
+    type: String,
+    default: ''
+  }
+});
 // --- Servicios ---
 import { 
   obtenerHorariosCompletos, 
