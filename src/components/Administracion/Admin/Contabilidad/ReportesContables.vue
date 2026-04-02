@@ -53,6 +53,8 @@ import { ref, onMounted, computed } from 'vue';
 import Titulo from '../../Titulo.vue';
 import Reporte from './Reporte.vue'; // Asegúrate de que la ruta sea correcta
 
+import facturacionService from '@/api/services/facturacionService';
+
 // Estado
 const listaReportes = ref([]);
 const cargando = ref(true);
@@ -84,25 +86,36 @@ const reportesFiltrados = computed(() => {
 // 3. SIMULACIÓN DE LLAMADA A API
 const cargarReportes = async () => {
   cargando.value = true;
-  
-  // Simulamos delay de red
-  await new Promise(resolve => setTimeout(resolve, 800));
-
-  // Datos de prueba (Estructura real del backend)
-  listaReportes.value = [
-    { "idFacturacion": "1", "fechaInicio": "2026-01-18", "fechaFin": "2026-01-20", "titular": "admin", "montoTotal": "500000" },
-    { "idFacturacion": "2", "fechaInicio": "2026-01-21", "fechaFin": "2026-01-31", "titular": "Jose Coria", "montoTotal": "200000" },
-    { "idFacturacion": "3", "fechaInicio": "2026-02-01", "fechaFin": "2026-02-10", "titular": "admin", "montoTotal": "350000" },
-    { "idFacturacion": "4", "fechaInicio": "2026-02-11", "fechaFin": "2026-02-20", "titular": "Maria Perez", "montoTotal": "120000" }
-  ];
-
-  cargando.value = false;
+  try {
+    const response = await facturacionService.obtenerFacturaciones();
+    // Asignamos la data real. Axios suele devolver la data en .data
+    listaReportes.value = response.data; 
+  } catch (error) {
+    console.error("Error al cargar reportes:", error);
+    // Aquí podrías mostrar una notificación de error si tienes un sistema de alertas
+  } finally {
+    cargando.value = false;
+  }
 };
 
 // 4. MANEJO DE DESCARGA
-const manejarDescarga = (id) => {
-  console.log("Solicitando descarga del reporte:", id);
-  // Aquí llamarás a tu servicio de API para obtener el PDF real
+const manejarDescarga = async (id) => {
+  try {
+    const response = await facturacionService.obtenerReportePdf(id);
+    
+    // 1. Creamos el Blob especificando que es un PDF
+    const file = new Blob([response.data], { type: 'application/pdf' });
+    
+    // 2. Generamos una URL temporal para ese archivo en memoria
+    const fileURL = window.URL.createObjectURL(file);
+    
+    // 3. Abrimos esa URL en una nueva pestaña ('_blank')
+    window.open(fileURL, '_blank');
+
+  } catch (error) {
+    console.error("Error al visualizar el PDF:", error);
+    alert("Hubo un error al cargar el reporte.");
+  }
 };
 
 onMounted(cargarReportes);
