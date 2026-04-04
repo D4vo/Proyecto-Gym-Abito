@@ -110,7 +110,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { obtenerDesgloseGanancia } from '@/api/services/horarioService';
+import { obtenerDesgloseGanancia } from '@/api/services/dashboardService';
 
 const formatoMoneda = (valor) => {
   return new Intl.NumberFormat('es-AR', {
