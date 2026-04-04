@@ -63,7 +63,7 @@ export const obtenerRendimientoStaff = async () => {
 export const obtenerDesgloseGanancia = async (mes, anio) => {
     try {
         // Pasamos mes y anio para que Axios arme la URL: /estadisticas/recaudacion?mes=3&anio=2026
-        const response = await apiClient.get('/estadisticas/recaudacion', {
+        const response = await apiClient.get('/admin/recaudacion', {
             params: {
                 mes: mes,
                 anio: anio
