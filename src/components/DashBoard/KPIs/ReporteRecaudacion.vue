@@ -72,15 +72,19 @@
           </div>
         </div>
 
-        <div class="role-card employee-card">
+        <div 
+          v-for="empleado in datosReporte.desglose.empleados" 
+          :key="empleado.nombre" 
+          class="role-card employee-card"
+        >
           <div class="role-header">
             <div class="avatar-circle employee-avatar"><i class="fas fa-user-tie"></i></div>
             <div class="role-title">
-              <h4>{{ datosReporte.desglose.empleado.nombre }}</h4>
+              <h4>{{ empleado.nombre }}</h4>
               <span class="badge">Profesor / Empleado</span>
             </div>
             <div class="role-total-compact">
-              {{ formatoMoneda(datosReporte.desglose.empleado.totalRecaudado) }}
+              {{ formatoMoneda(empleado.totalRecaudado) }}
             </div>
           </div>
           
@@ -88,17 +92,21 @@
             <div class="metodo-box box-efectivo">
               <div class="metodo-header">
                 <span><i class="fas fa-money-bill-wave"></i> Efectivo</span>
-                <strong>{{ formatoMoneda(datosReporte.desglose.empleado.totalEfectivo) }}</strong>
+                <strong>{{ formatoMoneda(empleado.totalEfectivo) }}</strong>
               </div>
-              <div class="progress-bar-bg"><div class="progress-fill fill-green" :style="{ width: calcularPorcentaje(datosReporte.desglose.empleado.totalEfectivo, datosReporte.desglose.empleado.totalRecaudado) }"></div></div>
+              <div class="progress-bar-bg">
+                <div class="progress-fill fill-green" :style="{ width: calcularPorcentaje(empleado.totalEfectivo, empleado.totalRecaudado) }"></div>
+              </div>
             </div>
 
             <div class="metodo-box box-transferencia">
               <div class="metodo-header">
                 <span><i class="fas fa-qrcode"></i> Transferencia / QR</span>
-                <strong>{{ formatoMoneda(datosReporte.desglose.empleado.totalTransferencia) }}</strong>
+                <strong>{{ formatoMoneda(empleado.totalTransferencia) }}</strong>
               </div>
-              <div class="progress-bar-bg"><div class="progress-fill fill-blue" :style="{ width: calcularPorcentaje(datosReporte.desglose.empleado.totalTransferencia, datosReporte.desglose.empleado.totalRecaudado) }"></div></div>
+              <div class="progress-bar-bg">
+                <div class="progress-fill fill-blue" :style="{ width: calcularPorcentaje(empleado.totalTransferencia, empleado.totalRecaudado) }"></div>
+              </div>
             </div>
           </div>
         </div>
