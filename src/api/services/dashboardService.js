@@ -60,3 +60,21 @@ export const obtenerRendimientoStaff = async () => {
     }
 };
 
+export const obtenerDesgloseGanancia = async (mes, anio) => {
+    try {
+        // Pasamos mes y anio para que Axios arme la URL: /estadisticas/recaudacion?mes=3&anio=2026
+        const response = await apiClient.get('/estadisticas/recaudacion', {
+            params: {
+                mes: mes,
+                anio: anio
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error al obtener desglose de ganancias:", error.response?.data || error.message);
+        
+        // Retornamos null (o un objeto base) ya que la API devuelve un objeto, no un array
+        return null; 
+    }
+};
+

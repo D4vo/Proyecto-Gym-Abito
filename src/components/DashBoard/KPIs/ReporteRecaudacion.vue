@@ -110,6 +110,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { obtenerDesgloseGanancia } from '@/api/services/horarioService';
 
 const formatoMoneda = (valor) => {
   return new Intl.NumberFormat('es-AR', {
@@ -147,47 +148,25 @@ const cargarDatos = async () => {
   try {
     console.log(`Llamando a la API -> Mes: ${mesSeleccionado.value} | Año: ${anioSeleccionado.value}`);
     
-    // =========================================================
-    // AQUÍ IRÁ TU LLAMADA REAL A LA API EN EL FUTURO
-    // =========================================================
-    // const response = await obtenerReporteRecaudacion(mesSeleccionado.value, anioSeleccionado.value);
-    // datosReporte.value = response.reporte;
+    // 2. Llamada real a la API
+    const data = await obtenerDesgloseGanancia(mesSeleccionado.value, anioSeleccionado.value);
     
-    // --- INICIO DE LA SIMULACIÓN (Borrar esto luego) ---
-    // Simulamos que la red tarda 800 milisegundos en responder
-    await new Promise(resolve => setTimeout(resolve, 800));
-
-    // Un factor multiplicador falso solo para que veas cómo cambian 
-    // visualmente los datos al elegir otro mes en los selects
-    const factorAleatorio = (mesSeleccionado.value * 0.1) + 0.5; 
-
-    datosReporte.value = {
-      mes: mesSeleccionado.value,
-      anio: anioSeleccionado.value,
-      totalRecaudado: 6000000.00 * factorAleatorio,
-      desglose: {
-        administrador: {
-          totalRecaudado: 4000000.00 * factorAleatorio,
-          totalEfectivo: 2900000.00 * factorAleatorio,
-          totalTransferencia: 1100000.00 * factorAleatorio
-        },
-        empleado: {
-          nombre: "JOSE CORIA",
-          totalRecaudado: 2000000.00 * factorAleatorio,
-          totalEfectivo: 600000.00 * factorAleatorio,
-          totalTransferencia: 1400000.00 * factorAleatorio
-        }
-      }
-    };
-    // --- FIN DE LA SIMULACIÓN ---
+    // 3. Validamos que la respuesta contenga el reporte
+    // Recuerda que en nuestro servicio JS retornamos 'null' si falla
+    if (data && data.reporte) {
+        datosReporte.value = data.reporte;
+    } else {
+        errorMsg.value = "No se encontraron datos para la fecha seleccionada.";
+        datosReporte.value = null;
+    }
 
   } catch (error) {
-    // 2. Manejo de Errores (Si el servidor se cae o no hay datos)
+    // 4. Manejo de Errores inesperados en el componente
     console.error("Error al obtener el reporte de recaudación:", error);
     errorMsg.value = "Hubo un problema al cargar los datos. Intenta nuevamente.";
     datosReporte.value = null; 
   } finally {
-    // 3. Finalizamos la carga (pase lo que pase, quita el spinner)
+    // 5. Finalizamos la carga
     isLoading.value = false;
   }
 };
